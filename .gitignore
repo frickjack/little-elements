@@ -1,0 +1,17 @@
+#
+*~
+*swp
+*bak
+*jpg
+*db
+*suo
+*png
+*gif
+*ico
+*log
+3rdParty/
+web/resources/img/glyphicons/
+build/
+dist/
+nbproject/private
+node_modules/

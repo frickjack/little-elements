@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ClockView Canvas</title>
+
+ {% include "styleGuide/styleGuide.template.html" %}
+ {% include "arrivalPie/arrivalPie.template.html" %}
+ {% include "test/test.template.html" %}
+
+</head>
+<body class="lw-content">
+
+<section id="README">
+  {% markdown %}
+     {% include "arrivalPie/README.md" %}
+  {% endmarkdown %}
+</section>
+
+<section>
+
+<p> Here is the lw-arrival-pie custom element </p>
+<lw-arrival-pie arrival-list="30,30;">
+</lw-arrival-pie>
+
+<p>
+Next step - put this thing on the page as a custom element using an html template. <span class="lw-smiley">&#x1F603</span>
+</p>
+<ul>
+  <li><a href="https://developers.google.com/web/fundamentals/getting-started/primers/customelements">https://developers.google.com/web/fundamentals/getting-started/primers/customelements</a></li>
+</ul>
+</section>
+<script src="./spec/arrivalPieSpec.js"></script>
+</body>
+</html>
