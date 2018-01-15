@@ -36,13 +36,15 @@ gulp.task('clean', [], function() {
 
 gulp.task( 'compilejs', [], function() {
     gulp.src( "src/**/*.js" )
-        .pipe(rev())
-        .pipe(gulp.dest("build/"))
+        //.pipe(rev())
+        .pipe(gulp.dest("build/"));
+        /*
         .pipe(rev.manifest( "build/rev-manifest.json", {
             base: "./build/",
             merge: true
         }))
         .pipe( gulp.dest( "build/" ) );
+        */
 });
 
 //
@@ -51,12 +53,14 @@ gulp.task( 'compilejs', [], function() {
 // Also incorporating markdown support with nunjucks-markdown.
 //
 gulp.task('compilenunjucks', [ "compilejs", "compilets", "compilecss" ], function() {
-    const manifest = gulp.src( "./build/" + revManifestPath);
+    //const manifest = gulp.src( "./build/" + revManifestPath);
     gulp.src( ["src/**/*.html"] )
     .pipe( nunjucksRender( { manageEnv:nunjucksManageEnv, envOptions:{autoescape:false}, path: [ "src" ] } ) ) // path: [ "src/templates" ], 
-    .on('error', console.log)
+    .on('error', console.log);
+    /*
     .pipe(revReplace({manifest: manifest} ))
     .pipe(gulp.dest("build/"));
+    */
 });
 
 /*
@@ -76,7 +80,8 @@ gulp.task('compilehtml', [ 'compilenunjucks'], function() {
 
 gulp.task('compilecss', [], function() {
     gulp.src("src/**/*.css")
-        .pipe( gulp.dest( "build/" ) )
+        .pipe( gulp.dest( "build/" ) );
+        /*
         .pipe(rev())
         .pipe( gulp.dest( "build/" ) )
         //.pipe( debug({title:'compilecss'}))
@@ -85,6 +90,7 @@ gulp.task('compilecss', [], function() {
             merge: true
         }))
         .pipe( gulp.dest("build/"));
+        */
 });
 
 gulp.task('compileimg', [], function() {
@@ -114,7 +120,8 @@ gulp.task( 'compilets', [], function() {
         .pipe(ts( tsConfig ))
         .js
         //.pipe( sourcemaps.write( "./maps" ) )
-        .pipe(gulp.dest("build/"))
+        .pipe(gulp.dest("build/"));
+        /*
         .pipe( rev() )
         .pipe(gulp.dest("build/"))
         //.pipe( debug({title:'compilets'}))
@@ -123,6 +130,7 @@ gulp.task( 'compilets', [], function() {
             merge: true
         }  ))
         .pipe( gulp.dest( "build/" ) );
+        */
 });
 
 
