@@ -27,3 +27,4 @@ Utilities for testing little web components with jasmine.
 * Karma integration - [karma issues](https://github.com/karma-runner/karma/pull/2834) with es2015 modules
 * [lit-html](https://github.com/Polymer/lit-html) integration
 * BEM css in js integration (css template in js added to doc head at init time)
+* compile .ts to .mjs instead of .js to distinguis the files as es2015 modules
