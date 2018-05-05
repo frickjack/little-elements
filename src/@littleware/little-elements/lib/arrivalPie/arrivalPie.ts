@@ -1,4 +1,33 @@
-interface Arrival {
+import {html, svg, render, TemplateResult} from '../../../../lit-html/lit-html.js';
+
+/*
+src/@littleware/little-elements/modules/arrivalPie
+modules/
+site/index.html
+*/
+
+function templateFactory(pie:ArrivalPie):TemplateResult {
+  return svg`
+    <svg class="lw-arrpie"
+      viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"
+      >
+      
+      <!-- rect x="0" y="0" width="100" height="100" style="fill:black" / -->
+      <circle cx="50" cy="50" r="45" class="lw-arrpie__circle" />
+      <g class="lw-arrpie__pielist">
+      ${
+        pie.arrivalList.map(
+          arr => buildPath(arr)
+        ).map( p => p.outerHTML )
+      }
+      </g>
+      <g class="lw-arrpie__ticks">
+      </g>
+    </svg>
+  `;
+}
+
+export interface Arrival {
   startAngle: number;
   durationDegrees: number;
 }
@@ -96,26 +125,10 @@ class ArrivalPie extends HTMLElement {
     }
 
     private _init():void {
-        /*
-        // Setup a click listener on <app-drawer> itself.
-        this.addEventListener('click', e => {
-          // Don't toggle the drawer if it's disabled.
-          if (this.disabled) {
-            return;
-          }
-          this.toggleDrawer();
-        });
-        */
         if ( this._initialized ) {
           return;
         }
-        let template = document.querySelector( 'template[id="lw-arrival-pie-top"]' ) as HTMLTemplateElement;
-        if ( ! template ) {
-          throw new Error( "ArrivalPie template not loaded: lw-arrival-pie-top" );
-        }
-        let clone = document.importNode( template.content, true );
-        //this.innerHTML = "<div><h3>Hello from ArrivalPie!</h3></div>";
-        this.appendChild( clone );
+        // NOOP for now
         this._initialized = true;
     }
 
@@ -128,17 +141,12 @@ class ArrivalPie extends HTMLElement {
       this._renderPie( this.getAttribute( "arrival-list" ) );
     }
 
+    /**
+     * Render a pie given an string specifying a list of arrivals
+     * @param arrivalListSpec 
+     */
     private _renderPie( arrivalListSpec:string ):void {
-      let g = this.querySelector( "g.lw-arrpie__pielist" );
-      // remove all current paths
-      while( g.hasChildNodes() ) {
-        g.removeChild( g.lastChild );
-      }
-      this.arrivalList.forEach(
-        (arr) => {
-          g.appendChild( buildPath(arr) );
-        }
-      );
+      render( templateFactory(this), this );
     }
     
     get arrivalList():Array<Arrival> {

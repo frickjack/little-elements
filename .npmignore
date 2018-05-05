@@ -12,10 +12,7 @@
 *tar
 *tgz
 3rdParty/
-web/resources/img/glyphicons/
-build/
-dist/
-lib/
+src/
 nbproject/private
 node_modules/
 trash/

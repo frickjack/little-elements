@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        //noImplicitAny: true,
+        "target": "es6",
+        "sourceMap": true,
+        "declaration": true,
+        "sourceRoot": "src",
+        "baseUrl": "src",
+        "rootDirs": [
+            "src",
+            "node_modules"
+        ],
+        "traceResolution": true
+    }
+    // declaration: true
+}

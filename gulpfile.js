@@ -11,8 +11,9 @@ const marked = require('marked');
 const nunjucksRender = require('gulp-nunjucks-render');
 const sourcemaps = require('gulp-sourcemaps');
 const exec = require('child_process').exec;
-const mkdirp = require( 'mkdirp' );
- 
+const mkdirp = require('mkdirp');
+const merge = require('merge2');
+const rename = require('gulp-rename');
   
 
 // register markdown support with nunjucks
@@ -29,21 +30,21 @@ const nunjucksManageEnv = function(env) {
 
 
 gulp.task('clean', [], function() {
-  console.log("Clean all files in build folder");
+  console.log("Clean all files in lib folder");
 
-  return gulp.src("build/*", { read: false }).pipe(clean());
+  return gulp.src("lib/*", { read: false }).pipe(clean());
 });
 
 gulp.task( 'compilejs', [], function() {
     gulp.src( "src/**/*.js" )
         //.pipe(rev())
-        .pipe(gulp.dest("build/"));
+        .pipe(gulp.dest("lib/"));
         /*
-        .pipe(rev.manifest( "build/rev-manifest.json", {
-            base: "./build/",
+        .pipe(rev.manifest( "lib/rev-manifest.json", {
+            base: "./lib/",
             merge: true
         }))
-        .pipe( gulp.dest( "build/" ) );
+        .pipe( gulp.dest( "lib/" ) );
         */
 });
 
@@ -53,54 +54,46 @@ gulp.task( 'compilejs', [], function() {
 // Also incorporating markdown support with nunjucks-markdown.
 //
 gulp.task('compilenunjucks', [ "compilejs", "compilets", "compilecss" ], function() {
-    //const manifest = gulp.src( "./build/" + revManifestPath);
+    //const manifest = gulp.src( "./lib/" + revManifestPath);
     gulp.src( ["src/**/*.html"] )
     .pipe( nunjucksRender( { manageEnv:nunjucksManageEnv, envOptions:{autoescape:false}, path: [ "src" ] } ) ) // path: [ "src/templates" ], 
     .on('error', console.log);
     /*
     .pipe(revReplace({manifest: manifest} ))
-    .pipe(gulp.dest("build/"));
+    .pipe(gulp.dest("lib/"));
     */
 });
 
-/*
-gulp.task("revreplace", ["revision"], function(){
-  var manifest = gulp.src("./" + opt.distFolder + "/rev-manifest.json");
-
-  return gulp.src(opt.srcFolder + "/index.html")
-    .pipe(revReplace({manifest: manifest}))
-    .pipe(gulp.dest(opt.distFolder));
-});
-*/
 
 gulp.task('compilehtml', [ 'compilenunjucks'], function() {
-    gulp.src(["src/**/*.json" ]).pipe(gulp.dest("build/"));
+    gulp.src(["src/**/*.json" ]).pipe(gulp.dest("lib/"));
 });
 
 
 gulp.task('compilecss', [], function() {
     gulp.src("src/**/*.css")
-        .pipe( gulp.dest( "build/" ) );
+        .pipe( gulp.dest( "lib/" ) );
         /*
         .pipe(rev())
-        .pipe( gulp.dest( "build/" ) )
+        .pipe( gulp.dest( "lib/" ) )
         //.pipe( debug({title:'compilecss'}))
-        .pipe( rev.manifest( "build/rev-manifest.json", {
-            base: "build",
+        .pipe( rev.manifest( "lib/rev-manifest.json", {
+            base: "lib",
             merge: true
         }))
-        .pipe( gulp.dest("build/"));
+        .pipe( gulp.dest("lib/"));
         */
 });
 
 gulp.task('compileimg', [], function() {
-    gulp.src( "src/resources/img/**/*" ).pipe( gulp.dest( "build/resources/img" ) );
+    gulp.src( "src/resources/img/**/*" ).pipe( gulp.dest( "lib/resources/img" ) );
 });
 
 gulp.task('compilebower', [], function() {
-    gulp.src( ["node_modules/jasmine-core/**/*", "node_modules/font-awesome/**/*", "node_modules/webcomponentsjs/**/*"], 
-            { base:"node_modules" }  ).pipe( gulp.dest( "build/3rdParty" ) 
-            );
+    let modList = [ "jasmine-core", "lit-html", "font-awesome", "webcomponentsjs" ];
+    gulp.src( modList.map( name => `node_modules/${name}/**/*` ),
+            { base:"node_modules" }  
+        ).pipe( gulp.dest( "lib/3rdParty" ) );
 });
 
 // add revision-hash to js and css file names
@@ -109,41 +102,51 @@ gulp.task('compilebower', [], function() {
 var tsConfig = {
     //noImplicitAny: true,
     target: "es6",
-    sourceMap: true
+    module: "es2015",
+    //moduleResolution: "Node",
+    sourceMap: true,
+    declaration: true,
+    baseUrl: "src", // This must be specified if "paths" is.
+    //paths: {
+    //    "*.mjs": ["*", "*.ts"]
+    //},
+    rootDirs: [
+        "src",
+        "node_modules"
+    ]
     // declaration: true
 };
 
 gulp.task( 'compilets', [], function() {
-    return gulp.src( ['src/**/*.ts'], 
-            { base:"src" })
-        //.pipe( sourcemaps.init() )
-        .pipe(ts( tsConfig ))
-        .js
-        //.pipe( sourcemaps.write( "./maps" ) )
-        .pipe(gulp.dest("build/"));
-        /*
-        .pipe( rev() )
-        .pipe(gulp.dest("build/"))
-        //.pipe( debug({title:'compilets'}))
-        .pipe( rev.manifest( "build/rev-manifest.json", {
-            base: "build",
-            merge: true
-        }  ))
-        .pipe( gulp.dest( "build/" ) );
-        */
+    const tsResult = gulp.src( ['src/**/*.ts'], 
+            { base:"src/@littleware/little-elements/lib" })
+        .pipe( sourcemaps.init() )
+        .pipe(ts( tsConfig ));
+    return merge(
+        tsResult.pipe(sourcemaps.write('maps/')).pipe(gulp.dest("lib/")),
+        tsResult.js.pipe(gulp.dest("lib/")),
+        tsResult.dts.pipe(gulp.dest("lib/"))
+    );
 });
 
+/*
+pipe(rename(
+    function(path){
+        path.extname = '.mjs';
+    }
+)).
+*/
 
-gulp.task('compile', [ 'compilehtml', 'compileimg', 'compilebower' ], function() {
+gulp.task('compile', [ 'compilehtml', 'compileimg' ], function() {
   // place code for your default task here
   //console.log( "Hello, World!" );
-  //gulp.src( "src/**/*" ).pipe( gulp.dest( "build/" ) );
+  //gulp.src( "src/**/*" ).pipe( gulp.dest( "lib/" ) );
 });
 
 gulp.task('default', [ 'compile' ], function() {
   // place code for your default task here
   //console.log( "Hello, World!" );
-  //gulp.src( "src/**/*" ).pipe( gulp.dest( "build/" ) );
+  //gulp.src( "src/**/*" ).pipe( gulp.dest( "lib/" ) );
 });
 
 gulp.task('watchts', function () {
@@ -170,7 +173,7 @@ gulp.task( 'deploy', [ 'compileclean' ], function(cb) {
     const pwdPath = process.cwd();
     const imageName = "frickjack/s3cp:1.0.0";
     const commandStr = "yes | docker run --rm --name s3gulp -v littleware:/root/.littleware -v '" +
-        pwdPath + ":/mnt/workspace' " + imageName + " -copy /mnt/workspace/build/ s3://apps.frickjack.com/";
+        pwdPath + ":/mnt/workspace' " + imageName + " -copy /mnt/workspace/lib/ s3://apps.frickjack.com/";
 
     console.log( "Running: " + commandStr );
 

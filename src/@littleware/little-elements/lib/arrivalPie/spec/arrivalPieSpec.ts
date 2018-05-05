@@ -1,6 +1,3 @@
-/// <reference path="../arrivalPie.ts" />
-/// <reference path="../../test/util.ts" />
-
 import ArrivalPie, { arrivalListToString, buildPath, stringToArrivalList } from '../arrivalPie.js';
 import { getStage } from "../../test/util.js"; 
 
