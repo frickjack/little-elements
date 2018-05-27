@@ -1,4 +1,5 @@
-(function() {
+import './styleGuide.js'
+
 const div = document.querySelector( "div#modalDemo" );
 const button = document.querySelector( "button#modalDemoOpen" );
 const closeX = div.querySelector( "a.lw-modalDialog__closeX" );
@@ -13,4 +14,3 @@ closeX.addEventListener( "click", function(ev) {
     ev.preventDefault();
     div.classList.remove( "lw-modalDialog_open" );
 });
-})();

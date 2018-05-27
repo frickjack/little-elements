@@ -30,71 +30,20 @@ const nunjucksManageEnv = function(env) {
 
 
 gulp.task('clean', [], function() {
-  console.log("Clean all files in lib folder");
+  console.log("Clean all files in lib/ and bin/ folders");
 
-  return gulp.src("lib/*", { read: false }).pipe(clean());
-});
-
-gulp.task( 'compilejs', [], function() {
-    gulp.src( "src/**/*.js" )
-        //.pipe(rev())
-        .pipe(gulp.dest("lib/"));
-        /*
-        .pipe(rev.manifest( "lib/rev-manifest.json", {
-            base: "./lib/",
-            merge: true
-        }))
-        .pipe( gulp.dest( "lib/" ) );
-        */
-});
-
-//
-// Server side templating with nunjucks
-// see https://zellwk.com/blog/nunjucks-with-gulp/
-// Also incorporating markdown support with nunjucks-markdown.
-//
-gulp.task('compilenunjucks', [ "compilejs", "compilets", "compilecss" ], function() {
-    //const manifest = gulp.src( "./lib/" + revManifestPath);
-    gulp.src( ["src/**/*.html"] )
-    .pipe( nunjucksRender( { manageEnv:nunjucksManageEnv, envOptions:{autoescape:false}, path: [ "src" ] } ) ) // path: [ "src/templates" ], 
-    .on('error', console.log);
-    /*
-    .pipe(revReplace({manifest: manifest} ))
-    .pipe(gulp.dest("lib/"));
-    */
+  return gulp.src( ["lib/*", "bin/*"], { read: false }).pipe(clean());
 });
 
 
-gulp.task('compilehtml', [ 'compilenunjucks'], function() {
-    gulp.src(["src/**/*.json" ]).pipe(gulp.dest("lib/"));
+gulp.task('compilehtml', [], function() {
+    gulp.src(["src/@littleware/little-elements/lib/**/*.html", 
+                "src/@littleware/little-elements/lib/**/*.css"
+            ], 
+        { base:"src/@littleware/little-elements/lib" }
+    ).pipe(gulp.dest("lib/"));
 });
 
-
-gulp.task('compilecss', [], function() {
-    gulp.src("src/**/*.css")
-        .pipe( gulp.dest( "lib/" ) );
-        /*
-        .pipe(rev())
-        .pipe( gulp.dest( "lib/" ) )
-        //.pipe( debug({title:'compilecss'}))
-        .pipe( rev.manifest( "lib/rev-manifest.json", {
-            base: "lib",
-            merge: true
-        }))
-        .pipe( gulp.dest("lib/"));
-        */
-});
-
-gulp.task('compileimg', [], function() {
-    gulp.src( "src/resources/img/**/*" ).pipe( gulp.dest( "lib/resources/img" ) );
-});
-
-gulp.task('compilebower', [], function() {
-    let modList = [ "jasmine-core", "lit-html", "font-awesome", "webcomponentsjs" ];
-    gulp.src( modList.map( name => `node_modules/${name}/**/*` ),
-            { base:"node_modules" }  
-        ).pipe( gulp.dest( "lib/3rdParty" ) );
-});
 
 // add revision-hash to js and css file names
 
@@ -119,25 +68,18 @@ var tsConfig = {
 
 gulp.task( 'compilets', [], function() {
     const tsResult = gulp.src( ['src/**/*.ts'], 
-            { base:"src/@littleware/little-elements/lib" })
+            { base:"src/@littleware/little-elements" })
         .pipe( sourcemaps.init() )
         .pipe(ts( tsConfig ));
     return merge(
-        tsResult.pipe(sourcemaps.write('maps/')).pipe(gulp.dest("lib/")),
-        tsResult.js.pipe(gulp.dest("lib/")),
-        tsResult.dts.pipe(gulp.dest("lib/"))
+        tsResult.pipe(sourcemaps.write('maps/')).pipe(gulp.dest(".")),
+        tsResult.js.pipe(gulp.dest("./")),
+        tsResult.dts.pipe(gulp.dest("./"))
     );
 });
 
-/*
-pipe(rename(
-    function(path){
-        path.extname = '.mjs';
-    }
-)).
-*/
 
-gulp.task('compile', [ 'compilehtml', 'compileimg' ], function() {
+gulp.task('compile', [ 'compilehtml', 'compilets' ], function() {
   // place code for your default task here
   //console.log( "Hello, World!" );
   //gulp.src( "src/**/*" ).pipe( gulp.dest( "lib/" ) );
@@ -151,22 +93,19 @@ gulp.task('default', [ 'compile' ], function() {
 
 gulp.task('watchts', function () {
     // Endless stream mode 
-    return gulp.watch('src/**/*.ts', [ 'compilehtml' ] );
+    return gulp.watch('src/**/*.ts', [ 'compilets' ] );
 });
 
 gulp.task( 'watchhtml', function () {
-   return gulp.watch( 'src/**/*.html', [ 'compilehtml' ] );     
+   return gulp.watch( ['src/**/*.html', 'src/**/*.css'], [ 'compilehtml' ] );     
 });
 
-gulp.task( 'watchcss', function () {
-   return gulp.watch( 'src/**/*.css', [ 'compilehtml' ] );     
-});
 
-gulp.task( 'watch', [ 'watchts', 'watchhtml', 'watchcss' ], function() {
+gulp.task( 'watch', [ 'watchts', 'watchhtml' ], function() {
 });
 
 gulp.task( 'compileclean', function(cb) {
-    return gulpSequence( 'clean', 'compile', 'makeico' )(cb);
+    return gulpSequence( 'clean', 'compile' )(cb);
 });
 
 gulp.task( 'deploy', [ 'compileclean' ], function(cb) {

@@ -5,6 +5,30 @@ src/@littleware/little-elements/modules/arrivalPie
 modules/
 site/index.html
 */
+export const css:string = `
+lw-arrival-pie {
+  width: 100px;
+  height: 100px;
+  display: block;
+}
+
+svg.lw-arrpie {
+  width:"100%"; 
+  height:"100%";
+}
+
+circle.lw-arrpie__circle {
+  fill: magenta;
+  fill-opacity: 0.1;
+  stroke-width: 5;
+  stroke: green;
+}
+
+path.lw-arrpie__slice {
+  fill: cornflowerblue;
+}
+`
+
 
 function templateFactory(pie:ArrivalPie):TemplateResult {
   return svg`
@@ -160,5 +184,14 @@ class ArrivalPie extends HTMLElement {
 }
 
 window.customElements.define( "lw-arrival-pie", ArrivalPie );
+
+{
+  let beforeMe = document.head.querySelector( 'link#appcss' );
+  if ( beforeMe ) {
+
+  } else {
+
+  }
+}
 
 export default ArrivalPie;

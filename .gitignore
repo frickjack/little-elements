@@ -13,9 +13,11 @@
 *tgz
 3rdParty/
 web/resources/img/glyphicons/
+bin/
 build/
 dist/
 lib/
+maps/
 nbproject/private
 node_modules/
 trash/
