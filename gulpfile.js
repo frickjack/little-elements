@@ -36,8 +36,8 @@ gulp.task('clean', [], function() {
 });
 
 
-gulp.task('compilehtml', [], function() {
-    gulp.src(["src/@littleware/little-elements/lib/**/*.html", 
+gulp.task('compilehtml', [ 'compilenunjucks' ], function() {
+    gulp.src([ //"src/@littleware/little-elements/lib/**/*.html", 
                 "src/@littleware/little-elements/lib/**/*.css"
             ], 
         { base:"src/@littleware/little-elements/lib" }
@@ -76,6 +76,29 @@ gulp.task( 'compilets', [], function() {
         tsResult.js.pipe(gulp.dest("./")),
         tsResult.dts.pipe(gulp.dest("./"))
     );
+});
+
+
+//
+// Server side templating with nunjucks
+// see https://zellwk.com/blog/nunjucks-with-gulp/
+// Also incorporating markdown support with nunjucks-markdown.
+//
+gulp.task( 'compilenunjucks', [], function() {
+    gulp.src( 
+        [ "./src/@littleware/little-elements/lib/**/*.html" ],
+        { base:"src/@littleware/little-elements/lib" }
+     )
+    .pipe( 
+        nunjucksRender( 
+            { 
+                manageEnv:nunjucksManageEnv, 
+                envOptions:{autoescape:false}, 
+                path: [ "./src/@littleware/little-elements/lib/" ] 
+            } 
+        ) ) // path: [ "src/templates" ], 
+    .on('error', console.log)
+    .pipe( gulp.dest( "lib/" ) );
 });
 
 

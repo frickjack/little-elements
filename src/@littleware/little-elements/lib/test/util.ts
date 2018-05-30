@@ -30,4 +30,21 @@ export function getStage( id?:string, title?:string ):Element {
     return section;
 }
 
-
+/**
+ * Little helper to kick off the test runner
+ * of the underlying platform.  Assumes
+ * either Karma runtime (via karmaAdapter) or
+ * jasmine brower runtime (via littleJasmineBoot).
+ */
+export function startTest() {
+    if ( littleware.test.startJasmine ) {
+        // This is not necessary when running with Karma ...
+        console.log('Bootstrapping jasmine');
+        littleware.test.startJasmine();
+    } else if ( littleware.test.isKarma && littleware.test.isKarma() ) {
+        console.log('Bootstrapping karma');
+        littleware.test.startKarma();
+    } else {
+        console.log('No test bootstrap present on page');
+    }
+}
