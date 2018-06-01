@@ -15,7 +15,7 @@ function templateFactory(pie:ArrivalPie):TemplateResult {
       ${
         pie.arrivalList.map(
           arr => buildPath(arr)
-        ).map( p => p.outerHTML )
+        )
       }
       </g>
       <g class="lw-arrpie__ticks">
@@ -135,14 +135,13 @@ class ArrivalPie extends HTMLElement {
      */
     _render():void {
       this._init();
-      this._renderPie( this.getAttribute( "arrival-list" ) );
+      this._renderPie();
     }
 
     /**
      * Render a pie given an string specifying a list of arrivals
-     * @param arrivalListSpec 
      */
-    private _renderPie( arrivalListSpec:string ):void {
+    private _renderPie():void {
       render( templateFactory(this), this );
     }
     
@@ -170,3 +169,4 @@ window.customElements.define( "lw-arrival-pie", ArrivalPie );
 export default ArrivalPie;
 
 styleHelper.componentCss.push(css);
+styleHelper.render();
