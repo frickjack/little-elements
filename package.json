@@ -30,14 +30,13 @@
     "karma": "^2.0.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-jasmine": "^1.1.2",
-    "marked": "^0.3.6",
+    "marked": "^0.4.0",
     "merge2": "^1.2.1",
     "mkdirp": "^0.5.1",
     "nunjucks": "^3.0.1",
     "nunjucks-markdown": "^2.0.1",
     "ts-custom-elements": "^1.0.0",
-    "typescript": ">=2.8.1",
-    "webcomponentsjs": "^1.0.2"
+    "typescript": ">=2.9.1"
   },
   "bin": {
     "little-server": "./bin/little-server.js"

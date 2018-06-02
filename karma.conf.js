@@ -15,6 +15,7 @@ module.exports = function(config) {
     files: [
       'lib/test/karmaAdapter.js',
       { pattern: 'lib/arrivalPie/**/*.js', type: 'module', included: false },
+      { pattern: 'lib/styleGuide/**/*.js', type: 'module', included: false },
       { pattern: 'lib/test/**/*.js', type: 'module', included: false },
       { pattern: 'lib/testMain.js', type: 'module', included: true },
       { pattern: 'node_modules/lit-html/*.js', type: 'module', included: false }
@@ -22,7 +23,8 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
-      'lib/test/littleJasmineBoot.js'
+      'lib/test/littleJasmineBoot.js',
+      'lib/**/main.js'
     ],
 
     // preprocess matching files before serving them to the browser
