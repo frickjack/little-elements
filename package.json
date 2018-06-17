@@ -9,12 +9,13 @@
   },
   "files": [
     "README.md",
-    "modules/arrivalPie/*"
+    "lib/*",
+    "bin/*"
   ],
   "devDependencies": {
     "@types/jasmine": ">=2.8.6",
     "@types/node": "^6.0.58",
-    "express": "^4.14.0",
+    "express": ">=4.16.3",
     "gulp": "^3.9.1",
     "gulp-debug": "^3.1.0",
     "gulp-nunjucks-render": "^2.2.1",
@@ -27,7 +28,7 @@
     "gulp-typescript": ">=4.0.2",
     "gulp-watch": "^4.3.11",
     "jasmine-core": ">=3.1.0",
-    "karma": "^2.0.0",
+    "karma": ">=2.0.2",
     "karma-chrome-launcher": "^2.2.0",
     "karma-jasmine": "^1.1.2",
     "marked": "^0.4.0",
@@ -44,7 +45,7 @@
   "scripts": {
     "test": "karma start karma.conf.js",
     "build": "gulp",
-    "start": "node bin/little-server.js"
+    "start": "node bin/little-server.js /modules/@littleware/little-elements/lib/ ./lib/"
   },
   "repository": {
     "type": "git",

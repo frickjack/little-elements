@@ -28,3 +28,8 @@ Utilities for testing little web components with jasmine.
 * [lit-html](https://github.com/Polymer/lit-html) integration
 * BEM css in js integration (css template in js added to doc head at init time)
 * compile .ts to .mjs instead of .js to distinguis the files as es2015 modules
+
+## Local Testing
+
+Use [npm link](https://docs.npmjs.com/cli/link) to make a 
+local dev environment available for use by other packages.
