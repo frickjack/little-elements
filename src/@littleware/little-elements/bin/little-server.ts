@@ -14,7 +14,7 @@ Use: npx little-server urlPath1 folderPath1 urlPath2 folderPath2 ...
         let urlPath = args[i];
         let folderPath = args[i+1];
         console.log(`serving ${urlPath} from ${folderPath}`);
-        app.use(urlPath, folderPath);
+        app.use(urlPath, express.static(folderPath));
     }
 }
 
