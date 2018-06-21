@@ -10,7 +10,8 @@
   "files": [
     "README.md",
     "lib/*",
-    "bin/*"
+    "bin/*",
+    "gulpHelper.js"
   ],
   "devDependencies": {
     "@types/jasmine": ">=2.8.6",

@@ -3,7 +3,7 @@ const gulpHelper = require('./gulpHelper');
 const basePath = "src/@littleware/little-elements";
 
 
-gulpHelper.defineTasks( { basePath } );
+gulpHelper.defineTasks(gulp, { basePath });
 
 gulp.task('default', [ 'little-compile' ], function() {
     // place code for your default task here

@@ -1,4 +1,4 @@
-const gulp = require('gulp');
+//const gulp = require('gulp');
 const gulpSequence = require('gulp-sequence');
 const debug = require('gulp-debug');
 const clean = require('gulp-rimraf');
@@ -20,7 +20,7 @@ const rename = require('gulp-rename');
  * 
  * @param {basePath} config 
  */
-module.exports.defineTasks = function(config) {
+module.exports.defineTasks = function(gulp, config) {
     config = config || {};
     let { basePath } = config;
     if ( ! basePath ) {
@@ -100,7 +100,12 @@ module.exports.defineTasks = function(config) {
         .pipe(gulp.dest('.'));
     });
 
-    gulp.task('little-compile', [ 'little-compilehtml', 'little-compilets' ], function() {
+
+    gulp.task( 'little-compileimg', [], function() {
+        gulp.src( basePath + '/site/resources/img/**/*' ).pipe( gulp.dest( "site/resources/img" ) );
+    });
+
+    gulp.task('little-compile', [ 'little-compilehtml', 'little-compilets', 'little-compileimg' ], function() {
     // place code for your default task here
     //console.log( "Hello, World!" );
     //gulp.src( "src/**/*" ).pipe( gulp.dest( "lib/" ) );
