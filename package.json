@@ -50,8 +50,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/frickjack/little-web-components.git"
+    "url": "git+https://github.com/frickjack/little-elements.git"
   },
   "author": "",
+  "homepage": "https://github.com/frickjack/little-elements",
   "license": "ISC"
 }

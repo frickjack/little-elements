@@ -12,21 +12,27 @@ const mkdirp = require('mkdirp');
 const merge = require('merge2');
 const rename = require('gulp-rename');
 
+const defaultData = {
+    jsroot: '/modules'
+};
+
 /**
  * Define gulp tasks for building the
  * typescript and nunjucks resources under
  * config.basePath 
- *     (ex: { basePath: src/@littleware/little-elements })
+ *     (ex: { basePath: src/@littleware/little-elements, jsroot: /modules })
  * 
- * @param {basePath} config 
+ * @param {basePath, data} config where data object holds variables passed to nunjucks templates 
  */
 module.exports.defineTasks = function(gulp, config) {
     config = config || {};
-    let { basePath } = config;
+    config.data = config.data || {};
+    let { basePath, data } = config;
     if ( ! basePath ) {
         console.log( "ERROR: basePath must be configured" );
         return;
     }
+    data = { ...defaultData, ...data };
 
     // register markdown support with nunjucks
     const nunjucksManageEnv = function(env) {
@@ -91,8 +97,9 @@ module.exports.defineTasks = function(gulp, config) {
         .pipe( 
             nunjucksRender(
                 {
-                    manageEnv:nunjucksManageEnv, 
+                    data,
                     envOptions:{ autoescape: false }, 
+                    manageEnv:nunjucksManageEnv, 
                     path: [ basePath ]
                 }
             ) ) // path: [ "src/templates" ], 
