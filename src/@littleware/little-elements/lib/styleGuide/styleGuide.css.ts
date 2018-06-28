@@ -16,9 +16,9 @@ export const meta = html`
 export const links = html`
 <link href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" 
       integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w"
-      crossorigin="anonymous" /> ;
-<link href="https://fonts.googleapis.com/css?family=Noto+Sans|Oswald" crossorigin="anonymous" />
-<link href="/modules/font-awesome/css/font-awesome.min.css", integrity: "" })
+      crossorigin="anonymous" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css?family=Noto+Sans|Oswald" crossorigin="anonymous" rel="stylesheet" />
+<link href="/modules/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
 `;
 
 export const css = html`
