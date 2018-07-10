@@ -5,8 +5,9 @@ const basePath = "src/@littleware/little-elements";
 
 gulpHelper.defineTasks(gulp, { basePath });
 
-gulp.task('default', [ 'little-compile' ], function() {
+gulp.task('default', gulp.series('little-compile', function(done) {
     // place code for your default task here
     //console.log( "Hello, World!" );
     //gulp.src( "src/**/*" ).pipe( gulp.dest( "lib/" ) );
-    });
+    done();
+    }));

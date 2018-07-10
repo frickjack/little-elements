@@ -46,12 +46,35 @@ module.exports.defineTasks = function(gulp, config) {
     //var tsProject = ts.createProject("tsconfig.json");
     //var watch = require( 'gulp-watch' );
 
-    gulp.task('little-clean', [], function() {
+    gulp.task('little-clean', function() {
         console.log('Clean all files in lib/, bin/, and site/ folders');
         return gulp.src( ['bin', 'lib', 'maps', 'site'], { read: false }).pipe(clean());
     });
 
-    gulp.task('little-compilehtml', [ 'little-compilenunjucks' ], function() {});
+    //
+    // Server side templating with nunjucks
+    // see https://zellwk.com/blog/nunjucks-with-gulp/
+    // Also incorporating markdown support with nunjucks-markdown.
+    //
+    gulp.task( 'little-compilenunjucks', function() {
+        return gulp.src( 
+            [ basePath + '/**/*.html' ],
+            { base: basePath }
+        )
+        .pipe( 
+            nunjucksRender(
+                {
+                    data,
+                    envOptions:{ autoescape: false }, 
+                    manageEnv:nunjucksManageEnv, 
+                    path: [ basePath ]
+                }
+            ) ) // path: [ "src/templates" ], 
+        .on('error', console.log)
+        .pipe(gulp.dest('.'));
+    });
+
+    gulp.task('little-compilehtml', gulp.series('little-compilenunjucks', function(done) { return done(); }));
 
     // add revision-hash to js and css file names
     var tsConfig = {
@@ -72,7 +95,7 @@ module.exports.defineTasks = function(gulp, config) {
         // declaration: true
     };
 
-    gulp.task( 'little-compilets', [], function() {
+    gulp.task( 'little-compilets', function() {
         const tsResult = gulp.src( ['src/**/*.ts'], 
                 { base: basePath })
             .pipe( sourcemaps.init() )
@@ -84,54 +107,33 @@ module.exports.defineTasks = function(gulp, config) {
         );
     });
 
-    //
-    // Server side templating with nunjucks
-    // see https://zellwk.com/blog/nunjucks-with-gulp/
-    // Also incorporating markdown support with nunjucks-markdown.
-    //
-    gulp.task( 'little-compilenunjucks', [], function() {
-        gulp.src( 
-            [ basePath + '/**/*.html' ],
-            { base: basePath }
-        )
-        .pipe( 
-            nunjucksRender(
-                {
-                    data,
-                    envOptions:{ autoescape: false }, 
-                    manageEnv:nunjucksManageEnv, 
-                    path: [ basePath ]
-                }
-            ) ) // path: [ "src/templates" ], 
-        .on('error', console.log)
-        .pipe(gulp.dest('.'));
+
+    gulp.task( 'little-compileimg', function() {
+        return gulp.src( basePath + '/site/resources/img/**/*' ).pipe( gulp.dest( "site/resources/img" ) );
     });
 
-
-    gulp.task( 'little-compileimg', [], function() {
-        gulp.src( basePath + '/site/resources/img/**/*' ).pipe( gulp.dest( "site/resources/img" ) );
-    });
-
-    gulp.task('little-compile', [ 'little-compilehtml', 'little-compilets', 'little-compileimg' ], function() {
+    gulp.task('little-compile', gulp.series('little-compilehtml', 'little-compilets', 'little-compileimg', function(done) {
     // place code for your default task here
     //console.log( "Hello, World!" );
     //gulp.src( "src/**/*" ).pipe( gulp.dest( "lib/" ) );
-    });
+        return done();
+    }));
 
     gulp.task('little-watchts', function () {
         // Endless stream mode 
         return gulp.watch('src/**/*.ts', [ 'little-compilets' ] );
     });
 
-    gulp.task( 'little-watchhtml', function () {
+    gulp.task('little-watchhtml', function () {
         return gulp.watch( ['src/**/*.html', 'src/**/*.css'], [ 'little-compilehtml' ] );     
     });
 
 
-    gulp.task( 'little-watch', [ 'little-watchts', 'little-watchhtml' ], function() {
-    });
+    gulp.task('little-watch', gulp.series('little-watchts', 'little-watchhtml', function(done) {
+        return done();
+    }));
 
     gulp.task( 'little-compileclean', function(cb) {
-        return gulpSequence( 'little-clean', 'little-compile' )(cb);
+        return gulpSequence('little-clean', 'little-compile' )(cb);
     });
 }
