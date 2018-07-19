@@ -48,7 +48,10 @@ module.exports.defineTasks = function(gulp, config) {
 
     gulp.task('little-clean', function() {
         console.log('Clean all files in lib/, bin/, and site/ folders');
-        return gulp.src( ['bin', 'lib', 'maps', 'site'], { read: false }).pipe(clean());
+        return gulp.src(
+            ['bin', 'lib', 'maps', 'site'],
+            { read: false, allowEmpty: true }
+         ).pipe(clean());
     });
 
     //
@@ -121,11 +124,11 @@ module.exports.defineTasks = function(gulp, config) {
 
     gulp.task('little-watchts', function () {
         // Endless stream mode 
-        return gulp.watch('src/**/*.ts', [ 'little-compilets' ] );
+        return gulp.watch('src/**/*.ts', gulp.series('little-compilets') );
     });
 
     gulp.task('little-watchhtml', function () {
-        return gulp.watch( ['src/**/*.html', 'src/**/*.css'], [ 'little-compilehtml' ] );     
+        return gulp.watch( ['src/**/*.html', 'src/**/*.css'], gulp.series('little-compilehtml') ); 
     });
 
 
