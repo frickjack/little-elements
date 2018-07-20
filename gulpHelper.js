@@ -132,7 +132,7 @@ module.exports.defineTasks = function(gulp, config) {
     });
 
 
-    gulp.task('little-watch', gulp.series('little-watchts', 'little-watchhtml', function(done) {
+    gulp.task('little-watch', gulp.parallel('little-watchts', 'little-watchhtml', function(done) {
         return done();
     }));
 
