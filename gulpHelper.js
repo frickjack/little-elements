@@ -49,7 +49,7 @@ module.exports.defineTasks = function(gulp, config) {
     gulp.task('little-clean', function() {
         console.log('Clean all files in lib/, bin/, and site/ folders');
         return gulp.src(
-            ['bin', 'lib', 'maps', 'site'],
+            ['bin', 'dist', 'lib', 'maps', 'site', 'dist'],
             { read: false, allowEmpty: true }
          ).pipe(clean());
     });
@@ -136,7 +136,5 @@ module.exports.defineTasks = function(gulp, config) {
         return done();
     }));
 
-    gulp.task( 'little-compileclean', function(cb) {
-        return gulpSequence('little-clean', 'little-compile' )(cb);
-    });
+    gulp.task( 'little-compileclean', gulp.series('little-clean', 'little-compile'));
 }
