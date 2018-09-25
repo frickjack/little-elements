@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'none'; 
+        img-src 'self' data: https://www.google-analytics.com; 
+        script-src 'self' 'unsafe-inline' https://www.google-analytics.com; 
+        style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; 
+        object-src 'none'; 
+        font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com"
+        >
+    
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+{% block head %}
+    <title>little shell</title>
+{% endblock %}
+</head>
+<body>
+  <div class="lw-shell">
+      <style>
+          :root {
+            background-color: #eeeeee;
+          }
+          .lw-shell {
+              margin: 50px;
+              color: #222222;
+          }
+          .lw-content-root {
+              display: none;
+          }
+      </style>
+      <h1 id="lw-loading">Loading ...</h1>
+  </div>
+
+  <script id="lw-shell">
+    (function(){
+        let intervalId = null;
+        let count = 0;
+
+        window.littleShell = {
+            clear: function() {
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+                let shell = document.body.querySelector('div.lw-shell');
+                if (shell) {
+                    document.body.removeChild(shell);
+                }
+            }
+        };
+        
+        intervalId = setInterval(function() {
+            const str = 'Loading....................';
+            count = (count + 1) % 10;
+            let heading = document.body.querySelector('#lw-loading');
+            if (heading) {
+                heading.textContent = str.substring(0, 10+count);
+            } else {
+                littleShell.clear();
+            }
+        }, 500);
+        
+    })();
+  </script>
+
+  <div class="lw-content-root">
+    {% block content %}
+    Content here, frickjack! 
+    {% endblock %}
+  </div>
+    
+</body>
+</html>

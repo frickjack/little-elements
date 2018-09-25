@@ -1,16 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends "lib/styleGuide/shell/basicShell.html.njk" %}
+
+{% block head %}
 <title>littleware.test</title>
 
 <link rel="stylesheet" type="text/css" href="../../../../jasmine-core/lib/jasmine-core/jasmine.css" />
 <script src="../../../../jasmine-core/lib/jasmine-core/jasmine.js"></script>
 <script src="../../../../jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
 <script src="./littleJasmineBoot.js"></script>
+{% endblock %}
 
-</head>
-<body class="lw-content">
 
+{% block content %}
 <section id="README">
   {% markdown %}
      {% include "lib/test/README.md" %}
@@ -18,5 +18,4 @@
 </section>
 
 <script src="./spec/main.js" type="module"></script>
-</body>
-</html>
+{% endblock %}

@@ -1,16 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends "lib/styleGuide/shell/basicShell.html.njk" %}
+
+{% block head %}
 <title>ClockView Canvas</title>
 
 <link rel="stylesheet" type="text/css" href="../../../../jasmine-core/lib/jasmine-core/jasmine.css" />
 <script src="../../../../jasmine-core/lib/jasmine-core/jasmine.js"></script>
 <script src="../../../../jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
 <script src="../test/littleJasmineBoot.js"></script>
+{% endblock %}
 
-</head>
-<body class="lw-content">
-
+{% block content %}
 <section id="README">
   {% markdown %}
      {% include "lib/arrivalPie/README.md" %}
@@ -31,5 +30,4 @@ Next step - put this thing on the page as a custom element using an html templat
 </ul>
 </section>
 <script src="./spec/main.js" type="module"></script>
-</body>
-</html>
+{% endblock %}

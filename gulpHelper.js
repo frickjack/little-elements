@@ -22,7 +22,8 @@ const defaultData = {
  * config.basePath 
  *     (ex: { basePath: src/@littleware/little-elements, jsroot: /modules })
  * 
- * @param {basePath, data} config where data object holds variables passed to nunjucks templates 
+ * @param {basePath, data} config where basePath is the gulp.src basePath, 
+ *       and data object holds variables passed to nunjucks templates 
  */
 module.exports.defineTasks = function(gulp, config) {
     config = config || {};
@@ -70,7 +71,7 @@ module.exports.defineTasks = function(gulp, config) {
                     data,
                     envOptions:{ autoescape: false }, 
                     manageEnv:nunjucksManageEnv, 
-                    path: [ basePath ]
+                    path: [ basePath, "node_modules/@littleware" ]
                 }
             ) ) // path: [ "src/templates" ], 
         .on('error', console.log)
@@ -79,7 +80,6 @@ module.exports.defineTasks = function(gulp, config) {
 
     gulp.task('little-compilehtml', gulp.series('little-compilenunjucks', function(done) { return done(); }));
 
-    // add revision-hash to js and css file names
     var tsConfig = {
         //noImplicitAny: true,
         target: "es6",
@@ -110,12 +110,19 @@ module.exports.defineTasks = function(gulp, config) {
         );
     });
 
-
+    /** Copy site/resources/img/ images over */
     gulp.task( 'little-compileimg', function() {
         return gulp.src( basePath + '/site/resources/img/**/*' ).pipe( gulp.dest( "site/resources/img" ) );
     });
 
-    gulp.task('little-compile', gulp.series('little-compilehtml', 'little-compilets', 'little-compileimg', function(done) {
+    /** Copy nunjucks templates over */
+    gulp.task( 'little-copynjk', function() {
+        return gulp.src( basePath + '/lib/**/*.njk' ).pipe( gulp.dest( "lib/" ) );
+    });
+
+    gulp.task
+
+    gulp.task('little-compile', gulp.series('little-compilehtml', 'little-compilets', 'little-compileimg', 'little-copynjk', function(done) {
     // place code for your default task here
     //console.log( "Hello, World!" );
     //gulp.src( "src/**/*" ).pipe( gulp.dest( "lib/" ) );

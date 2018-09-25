@@ -30,6 +30,7 @@ export function getStage( id?:string, title?:string ):Element {
     return section;
 }
 
+
 /**
  * Little helper to kick off the test runner
  * of the underlying platform.  Assumes
@@ -37,6 +38,10 @@ export function getStage( id?:string, title?:string ):Element {
  * jasmine brower runtime (via littleJasmineBoot).
  */
 export function startTest() {
+    // see styleGuide/shell/basicShell.html.njk
+    if ( window['littleShell'] ) {
+        window['littleShell'].clear();
+    }
     if ( littleware.test.startJasmine ) {
         // This is not necessary when running with Karma ...
         console.log('Bootstrapping jasmine');

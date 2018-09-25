@@ -10,7 +10,8 @@ export const meta = html`
     object-src 'none'; 
     font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com"
     >
-<meta name="viewport" content="width=device-width" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
 `;
 
 export const links = html`
@@ -32,7 +33,11 @@ export const css = html`
 body {
     font-family: 'Oswald script=all rev=4', Verdana, sans-serif;
     color: #222222;
-    background-color: #eeeeee;
+	background-color: #eeeeee;
+	width: 100%;
+	min-width: 320px;
+	height: 100%;
+	min-height: 320px;
 }
 
 h1,h2,h3,h4 {
@@ -63,18 +68,12 @@ h1,h2,h3,h4 {
     height: 57px;
 }
 
-.lw-content {
-    padding: 10px;
-}
-
 .lw-colorswatch {
     width: 100px;
     height: 300px;
     padding: 10px;
     background-color:white;
 }
-
-
 
 .lw-colorswatch__box_fill_lwblue {
     fill: #0BDAF7
@@ -153,6 +152,18 @@ h1,h2,h3,h4 {
 
 .lw-smiley {
     color:green; font-weight:bold; font-size:large;
+}
+
+.lw-content-root {
+	width: 100%;
+	min-width: 320px;
+	height: 100%;
+	min-height: 320px;
+	padding: 10px;
+}
+
+.lw-section {
+	width: 100%;
 }
 
 </style>

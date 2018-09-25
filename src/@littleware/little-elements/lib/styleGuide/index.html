@@ -1,62 +1,63 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>littleware style guide</title>
+{% extends "lib/styleGuide/shell/basicShell.html.njk" %}
+
+{% block head %}
+<title>littleware style guide</title>
  
-        <link rel="stylesheet" type="text/css" href="../../../../jasmine-core/lib/jasmine-core/jasmine.css" />
-        <script src="../../../../jasmine-core/lib/jasmine-core/jasmine.js"></script>
-        <script src="../../../../jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
-        <script src="../test/littleJasmineBoot.js"></script>
+<link rel="stylesheet" type="text/css" href="../../../../jasmine-core/lib/jasmine-core/jasmine.css" />
+<script src="../../../../jasmine-core/lib/jasmine-core/jasmine.js"></script>
+<script src="../../../../jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+<script src="../test/littleJasmineBoot.js"></script>
 
-    </head>
-    <body>
-        <header>
-            <h2>littleware style guide</h2>
-        </header>
-        <section id="getStarted">
-            <ul>
-                <li>meta viewport=device-width</li>
-                <li>purecss</li>
-                <li>Noto+Sans and Oswald Sans-serif</li>
-                <li>Font awesome</li>
-            </ul>
-            <p>
-            <a href="https://www.smashingmagazine.com/2014/07/bem-methodology-for-small-projects/">BEM</a> (Block Element Modifier)
-            </p>
-        </section>
-        <section id="color">
-            <svg xmlns:svg="http://www.w3.org/2000/svg"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 100 500"
-                preserveAspectRatio="none"
-                class="lw-colorswatch">
-                <rect class="lw-colorswatch__box_fill_lwblue" width="100" height="100" x="0" y="0"/>
-                <rect class="lw-colorswatch__box_fill_lwgreen" width="100" height="100" x="0" y="100"/>
-                <rect class="lw-colorswatch__box_fill_lwwhite" width="100" height="100" x="0" y="200"/>
-                <rect class="lw-colorswatch__box_fill_lwblack" width="100" height="100" x="0" y="300"/>
-                <rect class="lw-colorswatch__box_fill_lwgray" width="100" height="100" x="0" y="400"/>
-            </svg>
-        </section>
-        <section id="smiley">
-            <p>Smiley emoticon: <span class="lw-smiley">&#x1F603</span></p>
-        </section>
-        <section id="modalDialog">
-            <p>
-                Simple CSS3 modal dialog - see <a href="https://www.webdesignerdepot.com/2012/10/creating-a-modal-window-with-html5-and-css3/">this bLog</a>.
-            </p>
-            <button id="modalDemoOpen" type="button" class="pure-button">Open Modal</button>
+{% endblock %}
 
-            <div id="modalDemo" class="lw-modalDialog">
-                <div class="lw-modalDialog__content">
+{% block content %}
+    
+    <header>
+        <h2>littleware style guide</h2>
+    </header>
+    <section id="getStarted">
+        <ul>
+            <li>meta viewport=device-width</li>
+            <li>purecss</li>
+            <li>Noto+Sans and Oswald Sans-serif</li>
+            <li>Font awesome</li>
+        </ul>
+        <p>
+        <a href="https://www.smashingmagazine.com/2014/07/bem-methodology-for-small-projects/">BEM</a> (Block Element Modifier)
+        </p>
+    </section>
+    <section id="color">
+        <svg xmlns:svg="http://www.w3.org/2000/svg"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 100 500"
+            preserveAspectRatio="none"
+            class="lw-colorswatch">
+            <rect class="lw-colorswatch__box_fill_lwblue" width="100" height="100" x="0" y="0"/>
+            <rect class="lw-colorswatch__box_fill_lwgreen" width="100" height="100" x="0" y="100"/>
+            <rect class="lw-colorswatch__box_fill_lwwhite" width="100" height="100" x="0" y="200"/>
+            <rect class="lw-colorswatch__box_fill_lwblack" width="100" height="100" x="0" y="300"/>
+            <rect class="lw-colorswatch__box_fill_lwgray" width="100" height="100" x="0" y="400"/>
+        </svg>
+    </section>
+    <section id="smiley">
+        <p>Smiley emoticon: <span class="lw-smiley">&#x1F603</span></p>
+    </section>
+    <section id="modalDialog">
+        <p>
+            Simple CSS3 modal dialog - see <a href="https://www.webdesignerdepot.com/2012/10/creating-a-modal-window-with-html5-and-css3/">this bLog</a>.
+        </p>
+        <button id="modalDemoOpen" type="button" class="pure-button">Open Modal</button>
+
+        <div id="modalDemo" class="lw-modalDialog">
+            <div class="lw-modalDialog__content">
                     <a href="#close" title="Close" class="lw-modalDialog__closeX">X</a>
-                    <h2>Modal Box</h2>
-                    <p>This is a sample modal box that can be created using CSS3.</p>
-                    <p>You could do a lot of things here like have a pop-up ad that shows when your website loads, or create a login/register form for users.</p>
-                </div>
+                <h2>Modal Box</h2>
+                <p>This is a sample modal box that can be created using CSS3.</p>
+                <p>You could do a lot of things here like have a pop-up ad that shows when your website loads, or create a login/register form for users.</p>
             </div>
+        </div>
+    </section>
 
-            <script src="demo.js" type="module"></script>
-            <script src="spec/main.js" type="module"></script>  
-        </section>
-    </body>
-</html>
+    <script src="demo.js" type="module"></script>
+    <script src="spec/main.js" type="module"></script>
+{% endblock %}
