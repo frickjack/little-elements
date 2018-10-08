@@ -135,7 +135,7 @@ module.exports.defineTasks = function(gulp, config) {
     });
 
     gulp.task('little-watchhtml', function () {
-        return gulp.watch( ['src/**/*.html', 'src/**/*.css'], gulp.series('little-compilehtml') ); 
+        return gulp.watch( ['src/**/*.html', 'src/**/*.css', 'src/**/*.njk'], gulp.series('little-compilehtml') ); 
     });
 
 

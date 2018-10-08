@@ -39,17 +39,20 @@ export function getStage( id?:string, title?:string ):Element {
  */
 export function startTest() {
     // see styleGuide/shell/basicShell.html.njk
-    if ( window['littleShell'] ) {
-        window['littleShell'].clear();
-    }
-    if ( littleware.test.startJasmine ) {
-        // This is not necessary when running with Karma ...
-        console.log('Bootstrapping jasmine');
-        littleware.test.startJasmine();
-    } else if ( littleware.test.isKarma && littleware.test.isKarma() ) {
-        console.log('Bootstrapping karma');
-        littleware.test.startKarma();
-    } else {
-        console.log('No test bootstrap present on page');
-    }
+    const shellPromise = window['littleShell'] ? window['littleShell'].clear() as Promise<String> : Promise.resolve('ok');
+    
+    shellPromise.then(
+        function() {
+            if ( littleware.test.startJasmine ) {
+                // This is not necessary when running with Karma ...
+                console.log('Bootstrapping jasmine');
+                littleware.test.startJasmine();
+            } else if ( littleware.test.isKarma && littleware.test.isKarma() ) {
+                console.log('Bootstrapping karma');
+                littleware.test.startKarma();
+            } else {
+                console.log('No test bootstrap present on page');
+            }
+        }
+    );
 }
