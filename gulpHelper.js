@@ -80,9 +80,10 @@ module.exports.defineTasks = function(gulp, config) {
 
     gulp.task('little-compilehtml', gulp.series('little-compilenunjucks', function(done) { return done(); }));
 
-    var tsConfig = {
+    const tsConfig = {
         //noImplicitAny: true,
         target: "es6",
+        //module: commonsjs,
         module: "es2015",
         //moduleResolution: "Node",
         sourceMap: true,
@@ -98,8 +99,22 @@ module.exports.defineTasks = function(gulp, config) {
         // declaration: true
     };
 
+    // compile the bin/ folder as nodejs modules
+    gulp.task( 'little-compilets-bin', function() {
+        const tsBinConfig = { ...tsConfig, module: "commonjs", moduleResolution: "Node" };
+        //console.log(`Running with ${JSON.stringify(tsBinConfig)}`)
+        const tsResult = gulp.src( [`${basePath}/bin/**/*.ts`], 
+                { base: basePath })
+            .pipe(ts( tsBinConfig ));
+        return merge(
+            tsResult.js.pipe(gulp.dest("./")),
+            tsResult.dts.pipe(gulp.dest("./"))
+        );
+    });
+
+    // compile all folders except bin/ as es2015 modules
     gulp.task( 'little-compilets', function() {
-        const tsResult = gulp.src( ['src/**/*.ts'], 
+        const tsResult = gulp.src( ['src/**/*.ts', `!${basePath}/bin/**/*.ts`], 
                 { base: basePath })
             .pipe( sourcemaps.init() )
             .pipe(ts( tsConfig ));
@@ -122,7 +137,7 @@ module.exports.defineTasks = function(gulp, config) {
 
     gulp.task
 
-    gulp.task('little-compile', gulp.series('little-compilehtml', 'little-compilets', 'little-compileimg', 'little-copynjk', function(done) {
+    gulp.task('little-compile', gulp.series('little-compilehtml', 'little-compilets', 'little-compilets-bin', 'little-compileimg', 'little-copynjk', function(done) {
     // place code for your default task here
     //console.log( "Hello, World!" );
     //gulp.src( "src/**/*" ).pipe( gulp.dest( "lib/" ) );
@@ -131,7 +146,7 @@ module.exports.defineTasks = function(gulp, config) {
 
     gulp.task('little-watchts', function () {
         // Endless stream mode 
-        return gulp.watch('src/**/*.ts', gulp.series('little-compilets') );
+        return gulp.watch('src/**/*.ts', gulp.series('little-compilets', 'little-compilets-bin') );
     });
 
     gulp.task('little-watchhtml', function () {
