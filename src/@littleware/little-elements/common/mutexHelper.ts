@@ -5,12 +5,17 @@
  */
 export class LazyThing<T> {
     private _thing:Promise<T> = null;
+    private _loader:() => Promise<T> = null;
 
-    getThing(loader:() => Promise<T>):Promise<T> {
+    constructor(loader:() => Promise<T>) {
+        this._loader = loader;
+    }
+
+    getThing():Promise<T> {
         if (this._thing) {
             return this._thing;
         }
-        this._thing = loader();
+        this._thing = this._loader();
         return this._thing;
     }
 }
@@ -34,11 +39,11 @@ export function sleep(ms:number):Promise<void> {
  * @return squished lambda
  */
 export function squish(lambda:() => Promise<any>):() => Promise<any> {
+    let inFlight:Promise<any> = null;
     return () => {
-        let inFlight:Promise<any> = null;
         if (!inFlight) {
             inFlight = lambda();
-            inFlight.finally(() => { this.inFlight = null; } );
+            inFlight.finally(() => { inFlight = null; } );
         }
         return inFlight;
     };
