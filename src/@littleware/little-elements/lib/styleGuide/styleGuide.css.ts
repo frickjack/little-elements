@@ -1,4 +1,4 @@
-import {html, TemplateResult} from '../../../../lit-html/lit-html.js';
+import {html, TemplateResult} from '../../../../../lit-html/lit-html.js';
 
 export const meta = html`
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">

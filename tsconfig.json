@@ -5,9 +5,8 @@
         "sourceMap": true,
         "declaration": true,
         "sourceRoot": "src",
-        "baseUrl": "src",
         "rootDirs": [
-            "src",
+            ".",
             "node_modules"
         ],
         "traceResolution": true

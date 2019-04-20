@@ -1,6 +1,6 @@
 {
   "name": "@littleware/little-elements",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "dependencies": {
@@ -9,8 +9,9 @@
   },
   "files": [
     "README.md",
-    "lib/*",
-    "bin/*",
+    "web/*",
+    "commons/*",
+    "site/*",
     "gulpHelper.js"
   ],
   "devDependencies": {
@@ -42,12 +43,12 @@
     "typescript": ">=2.9.1"
   },
   "bin": {
-    "little-server": "./bin/little-server.js"
+    "little-server": "./commonjs/bin/little-server.js"
   },
   "scripts": {
     "test": "karma start karma.conf.js",
     "build": "gulp",
-    "start": "node bin/little-server.js /modules/@littleware/little-elements/lib/ ./lib/"
+    "start": "node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/"
   },
   "repository": {
     "type": "git",

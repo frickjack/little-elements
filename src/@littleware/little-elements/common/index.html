@@ -1,21 +1,22 @@
 {% extends "lib/styleGuide/shell/basicShell.html.njk" %}
 
 {% block head %}
-<title>littleware.test</title>
+<title>common libraries</title>
 
 <link rel="stylesheet" type="text/css" href="/modules/jasmine-core/lib/jasmine-core/jasmine.css" />
 <script src="/modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
 <script src="/modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
-<script src="./littleJasmineBoot.js"></script>
+<script src="../lib/test/littleJasmineBoot.js"></script>
 {% endblock %}
-
 
 {% block content %}
 <section id="README">
   {% markdown %}
-     {% include "lib/test/README.md" %}
+     {% include "common/README.md" %}
   {% endmarkdown %}
 </section>
 
+<section>
+</section>
 <script src="./spec/main.js" type="module"></script>
 {% endblock %}

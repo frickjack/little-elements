@@ -1,4 +1,4 @@
-import {html, render, TemplateResult} from '../../../../lit-html/lit-html.js';
+import {html, render, TemplateResult} from '../../../../../lit-html/lit-html.js';
 import {meta, links, css} from './styleGuide.css.js';
 
 // TODO - service worker - import workbox
