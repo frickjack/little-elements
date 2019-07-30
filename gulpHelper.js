@@ -100,7 +100,7 @@ module.exports.defineTasks = function(gulp, config) {
     };
 
     // compile the commonjs/ folder as nodejs modules
-    gulp.task( 'little-compilets-commonjs', function() {
+    gulp.task('little-compilets-commonjs', function() {
         const tsBinConfig = { ...tsConfig, module: "commonjs", moduleResolution: "Node" };
         //console.log(`Running with ${JSON.stringify(tsBinConfig)}`)
         const tsResult = gulp.src( [`${basePath}/bin/**/*.ts`, `${basePath}/common/**/*.ts`], 
@@ -130,6 +130,14 @@ module.exports.defineTasks = function(gulp, config) {
         return gulp.src( basePath + '/site/resources/img/**/*' ).pipe( gulp.dest( "site/resources/img" ) );
     });
 
+    /** Copy json files over over */
+    gulp.task('little-json', function() {
+        return merge(
+            gulp.src(basePath + '/bin/**/*.json').pipe(gulp.dest('commonjs/bin')),
+            gulp.src(basePath + '/lib/**/*.json').pipe(gulp.dest('web/lib'))
+        );
+    });
+
     /** Copy nunjucks templates over */
     gulp.task( 'little-copynjk', function() {
         return gulp.src( basePath + '/lib/**/*.njk' ).pipe( gulp.dest( "web/lib/" ) );
@@ -137,7 +145,7 @@ module.exports.defineTasks = function(gulp, config) {
 
     gulp.task
 
-    gulp.task('little-compile', gulp.series('little-compilehtml', 'little-compilets-web', 'little-compilets-commonjs', 'little-compileimg', 'little-copynjk', function(done) {
+    gulp.task('little-compile', gulp.series('little-compilehtml', 'little-compilets-web', 'little-compilets-commonjs', 'little-compileimg', 'little-copynjk', 'little-json', function(done) {
         return done();
     }));
 
