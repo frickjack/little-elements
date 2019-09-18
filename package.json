@@ -21,7 +21,7 @@
     "express": ">=4.16.3",
     "gulp": "^4.0.0",
     "gulp-debug": "^3.1.0",
-    "gulp-nunjucks-render": "^2.2.2",
+    "gulp-nunjucks-render": "^2.2.3",
     "gulp-rename": "^1.2.2",
     "gulp-rev": "^8.0.0",
     "gulp-rev-replace": "^0.4.3",
@@ -34,13 +34,13 @@
     "karma": ">=2.0.2",
     "karma-chrome-launcher": "^2.2.0",
     "karma-jasmine": "^1.1.2",
-    "marked": "^0.4.0",
+    "marked": "^0.7.0",
     "merge2": "^1.2.1",
     "mkdirp": "^0.5.1",
     "nunjucks": "^3.0.1",
     "nunjucks-markdown": "^2.0.1",
     "ts-custom-elements": "^1.0.0",
-    "typescript": ">=2.9.1"
+    "typescript": ">=3.6.2"
   },
   "bin": {
     "little-server": "./commonjs/bin/little-server.js"

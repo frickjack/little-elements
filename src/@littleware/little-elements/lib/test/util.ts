@@ -1,3 +1,5 @@
+declare var littleware:any;
+
 /**
  * Get a stage (HTML <section>) where a test can manipulate DOM.  If id is supplied,
  * then return the previously created section with the given id attribute if any -

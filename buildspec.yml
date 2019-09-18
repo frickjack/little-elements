@@ -1,0 +1,16 @@
+# see https://docs.aws.amazon.com/codepipeline/latest/userguide/tutorials-codebuild-devicefarm.html
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+  build:
+    commands:
+      - npm ci
+      - npm run build
+      - npm run test
+artifacts:
+  files:
+     - './android/app/build/outputs/**/*.apk'
+  discard-paths: yes

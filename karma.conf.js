@@ -2,7 +2,7 @@
 // Generated on Sat Jan 07 2017 22:42:18 GMT-0600 (CST)
 
 module.exports = function(config) {
-  config.set({
+  const settings = {
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
@@ -65,5 +65,11 @@ module.exports = function(config) {
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: Infinity
-  })
+  };
+  
+  if (process.env['CODEBUILD_BUILD_ARN']) {
+    settings.singleRun = true;
+    settings.browsers = ['ChromeHeadless'];
+  }
+  config.set(settings);
 }
