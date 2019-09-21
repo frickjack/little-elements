@@ -58,9 +58,6 @@ declare namespace jasmine {
  * of tests that have asynchronously loaded onto the page.
  * The default 'boot' expects that every test spec has loaded synchronously
  * before it executes.
- * 
- * The 'karmaAdapter' in this same folder serves the same function for tests
- * 
  */
 namespace littleware { export namespace test {
   const win = window as any;

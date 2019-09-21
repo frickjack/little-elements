@@ -13,7 +13,6 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'web/lib/test/karmaAdapter.js',
       { pattern: 'web/lib/arrivalPie/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/styleGuide/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/test/**/*.js', type: 'module', included: false },
