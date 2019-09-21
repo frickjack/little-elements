@@ -1,19 +1,20 @@
 # see https://docs.aws.amazon.com/codepipeline/latest/userguide/tutorials-codebuild-devicefarm.html
 version: 0.2
 
-parameter-store:
-  NPM_TOKEN: "/aws/reference/secretsmanager/applications/cicd/cell0/dev/npmjs-token"
+env:
+  parameter-store:
+    NPM_TOKEN: "/aws/reference/secretsmanager/applications/cicd/cell0/dev/npmjs-token"
 phases:
   install:
     runtime-versions:
       nodejs: 10
     commands:
-      - echo Entered the install phase...
-      - apt-get update -y
-      - apt-get install -y jq
+      - echo "Entered the install phase - jq already installed ..."
+      #- apt-get update -y
+      #- apt-get install -y jq
   build:
     commands:
-      - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > "$HOME/.npmrc"
+      - echo "//registry.npmjs.org/:_authToken=$(jq -e -r .token <<<"$NPM_TOKEN")" > "$HOME/.npmrc"
       - cat "$HOME/.npmrc"
       - npm ci
       - npm run build
