@@ -30,6 +30,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^5.0.1",
     "gulp-watch": "^5.0.1",
+    "jasmine": "^3.5.0",
     "jasmine-core": "^3.4.0",
     "karma": "^4.3.0",
     "karma-chrome-launcher": "^3.1.0",
@@ -46,9 +47,10 @@
     "little-server": "./commonjs/bin/little-server.js"
   },
   "scripts": {
-    "test": "karma start karma.conf.js",
+    "test": "jasmine && karma start karma.conf.js",
     "build": "gulp",
-    "start": "node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/"
+    "start": "node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/",
+    "watch": "gulp little-watch"
   },
   "repository": {
     "type": "git",
