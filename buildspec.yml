@@ -21,7 +21,7 @@ phases:
       - npm run test
       - zip -r bundle .
       # publish on tag events - see https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-env-vars.html
-      - "[ \"$(echo \"$CODEBUILD_WEBHOOK_TRIGGER\" | awk -F / '{ print $1 }')\" = \"tag\" ] && npm publish . --tag cicd"
+      - "if [ \"$(echo \"$CODEBUILD_WEBHOOK_TRIGGER\" | awk -F / '{ print $1 }')\" = \"tag\" ]; then npm publish . --tag cicd; fi"
 
 artifacts:
   files:
