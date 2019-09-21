@@ -14,7 +14,7 @@ phases:
       #- apt-get install -y jq
   build:
     commands:
-      - echo "//registry.npmjs.org/:_authToken=$(jq -e -r .token <<<"$NPM_TOKEN")" > "$HOME/.npmrc"
+      - echo "//registry.npmjs.org/:_authToken=$(echo "$NPM_TOKEN" | jq -e -r .token)" > "$HOME/.npmrc"
       - cat "$HOME/.npmrc"
       - npm ci
       - npm run build
