@@ -19,7 +19,8 @@ phases:
       - npm run build
       - npm audit --audit-level=high
       - npm run test
+      - zip -r bundle .
 artifacts:
   files:
-     - './android/app/build/outputs/**/*.apk'
+     - './bundle.zip'
   discard-paths: yes

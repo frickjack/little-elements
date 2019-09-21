@@ -11,6 +11,7 @@
 *log
 *tar
 *tgz
+*zip
 3rdParty/
 src/
 nbproject/private
