@@ -1,6 +1,10 @@
 namespace littleware {
     export namespace test {
-        var startCache:Function = null;
+        const startCache = {
+            lambda: null as Function,
+            arguments: [],
+            thisArg: null
+        };
 
         /**
          * Monkey patch karma to stop it from starting until after 
@@ -14,9 +18,11 @@ namespace littleware {
          */
         function patchKarma(win:any) {
             if (win.__karma__) {
-                startCache = win.__karma__.start as Function;
+                startCache.lambda = win.__karma__.start as Function;
                 win.__karma__.start = function() {
-                    console.log("Ignoring initial __karma__.start");
+                    console.log('Ignoring initial __karma__.start, saving arguments');
+                    startCache.arguments = [].concat(arguments);
+                    startCache.thisArg = this;
                 }
                 return true;
             } else {
@@ -29,24 +35,35 @@ namespace littleware {
          * Start karma.  The main test module should invoke this.
          */
         export function startKarma() {
-            if (startCache) {
+            if (startCache.lambda) {
                 console.log("littleware starting karma");
                 const win = window as any;
                 let alreadyStarted = false;
+                // restore the original (pre-patch below) start function
                 win.__karma__.start = function() {
                     if (alreadyStarted) {
                         console.log('ERROR: littleware karma already started!');
                         return;
                     }
                     alreadyStarted = true;
-                    startCache.apply(this, arguments);
+                    startCache.lambda.apply(this, arguments);
                 };
-                win.__karma__.start();
+
+                if (startCache.thisArg) {
+                    // karma has already tried to start, but we made it wait for us
+                    win.__karma__.start.apply(startCache.thisArg, startCache.arguments);
+                    startCache.thisArg = null;
+                }
+                // else - NOOP - wait for karma to start things up normally
             } else {
                 console.log("karma is not on the page");
             }      
         }
 
+        // monkey patch the karma start method, 
+        // so karma doesn't start till testMain explicitly
+        // invokes startKarma() - forcing karma
+        // to wait for asynchronous modules to load
         const _isKarma = patchKarma(window as any);
 
         /** 
