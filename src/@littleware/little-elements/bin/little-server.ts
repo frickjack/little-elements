@@ -1,7 +1,9 @@
 var express = require('express');
 var app = express();
 
+console.log(`serving /modules/ from ./node_modules/`);
 app.use('/modules/', express.static('./node_modules/'));
+
 {
     const args = process.argv.splice(2);
     if (args.length > 0 && args[0].match(/^-*h[elp]/i)) {

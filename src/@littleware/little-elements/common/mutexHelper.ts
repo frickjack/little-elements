@@ -1,5 +1,3 @@
-// TODO - move this into a "common" (shared by both server side and web side code) part of little-elements
-
 /**
  * Little lazy loader with memory and mutex
  */

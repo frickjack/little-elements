@@ -32,7 +32,15 @@ namespace littleware {
             if (startCache) {
                 console.log("littleware starting karma");
                 const win = window as any;
-                win.__karma__.start = startCache;
+                let alreadyStarted = false;
+                win.__karma__.start = function() {
+                    if (alreadyStarted) {
+                        console.log('ERROR: littleware karma already started!');
+                        return;
+                    }
+                    alreadyStarted = true;
+                    startCache.apply(this, arguments);
+                };
                 win.__karma__.start();
             } else {
                 console.log("karma is not on the page");
