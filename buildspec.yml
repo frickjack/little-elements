@@ -16,7 +16,7 @@ phases:
     commands:
       - echo "HOME is $HOME, CODEBUILD_SRC_DIR is $CODEBUILD_SRC_DIR, CODEBUILD_SRC_DIR_HELPERS is $CODEBUILD_SRC_DIR_HELPERS, pwd is $(pwd)"
       - echo "//registry.npmjs.org/:_authToken=$(echo "$NPM_TOKEN" | jq -e -r .token)" > "$HOME/.npmrc"
-      - mkdir -p "$HOME/.aws"; echo -e "[default]\nregion = us-east-2\noutput = json\ncredential_source = Ec2InstanceMetadata\n" | tee "$HOME/.aws/config"
+      - mkdir -p "$HOME/.aws"; /bin/echo -e "[default]\nregion = us-east-2\noutput = json\ncredential_source = Ec2InstanceMetadata\n" | tee "$HOME/.aws/config"
       - npm ci
   build:
     commands:
