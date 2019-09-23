@@ -12,18 +12,20 @@ phases:
       - echo "Entered the install phase - jq already installed ..."
       #- apt-get update -y
       #- apt-get install -y jq
+  pre_build:
+    commands:
+      - echo "HOME is $HOME, CODEBUILD_SRC_DIR is $CODEBUILD_SRC_DIR, CODEBUILD_SRC_DIR_HELPERS is $CODEBUILD_SRC_DIR_HELPERS, pwd is $(pwd)"
+      - echo "//registry.npmjs.org/:_authToken=$(echo "$NPM_TOKEN" | jq -e -r .token)" > "$HOME/.npmrc"
+      - mkdir -p "$HOME/.aws"; echo -e "[default]\nregion = us-east-2\noutput = json\ncredential_source = Ec2InstanceMetadata\n" | tee "$HOME/.aws/config"
+      - npm ci
   build:
     commands:
-      - echo "//registry.npmjs.org/:_authToken=$(echo "$NPM_TOKEN" | jq -e -r .token)" > "$HOME/.npmrc"
-      - npm ci
       - npm run build
       - npm audit --audit-level=high
       - npm run test
-      - zip -r bundle .
+  post_build:
+    commands:
+      - git checkout -b "cicd-$CODEBUILD_WEBHOOK_TRIGGER"
+      - bash "$CODEBUILD_SRC_DIR_HELPERS/AWS/bin/arun.sh" lambda publish "$CODEBUILD_SRC_DIR"
       # publish on tag events - see https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-env-vars.html
       - "if [ \"$(echo \"$CODEBUILD_WEBHOOK_TRIGGER\" | awk -F / '{ print $1 }')\" = \"tag\" ]; then npm publish . --tag cicd; fi"
-
-artifacts:
-  files:
-     - './bundle.zip'
-  discard-paths: yes
