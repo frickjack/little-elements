@@ -26,6 +26,7 @@ phases:
       - npm run test
   post_build:
     commands:
+      - echo "CODEBUILD_WEBHOOK_TRIGGER == $CODEBUILD_WEBHOOK_TRIGGER"
       - git checkout -b "cicd-$CODEBUILD_WEBHOOK_TRIGGER"
       - BUILD_TYPE="$(echo \"$CODEBUILD_WEBHOOK_TRIGGER\" | awk -F / '{ print $1 }')"
       # lambda layers for branches and tags, not pull requests
