@@ -2,42 +2,42 @@
  * Little lazy loader with memory and mutex
  */
 export class LazyThing<T> {
-    private _thing:Promise<T> = null;
-    private _loader:() => Promise<T> = null;
+    private thing: Promise<T> = null;
+    private loader: () => Promise<T> = null;
 
-    constructor(loader:() => Promise<T>) {
-        this._loader = loader;
+    constructor(loader: () => Promise<T>) {
+        this.loader = loader;
     }
 
-    getThing():Promise<T> {
-        if (this._thing) {
-            return this._thing;
+    public getThing(): Promise<T> {
+        if (this.thing) {
+            return this.thing;
         }
-        this._thing = this._loader();
-        return this._thing;
+        this.thing = this.loader();
+        return this.thing;
     }
 }
 
-export function sleep(ms:number):Promise<void> {
+export function sleep(ms: number): Promise<void> {
     return new Promise(
         (resolve) => {
             setTimeout(() => resolve(), ms);
-        }
+        },
     );
 
 }
 
 /**
- * Wrap the async function lambda so that 
+ * Wrap the async function lambda so that
  * when a call to lambda is in flight subsequent
  * calls to lambda will short-circuit to return the
  * Promise from the already running call.
- * 
- * @param lambda 
+ *
+ * @param lambda
  * @return squished lambda
  */
-export function squish(lambda:() => Promise<any>):() => Promise<any> {
-    let inFlight:Promise<any> = null;
+export function squish(lambda: () => Promise<any>): () => Promise<any> {
+    let inFlight: Promise<any> = null;
     return () => {
         if (!inFlight) {
             inFlight = lambda();

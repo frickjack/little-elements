@@ -1,5 +1,6 @@
+/* tslint:disable */
 /*
-Most of this code is just a copy of 
+Most of this code is just a copy of
     node_modules/jasmine-core/lib/jasmine-core/boot.js
 with this copyright:
 
@@ -24,17 +25,15 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-/**
+/*
  Starting with version 2.0, this file "boots" Jasmine, performing all of the necessary initialization before executing the loaded environment and all of a project's specs. This file should be loaded after `jasmine.js` and `jasmine_html.js`, but before any project source files or spec files are loaded. Thus this file can also be used to customize Jasmine for a project.
-
  If a project is using Jasmine via the standalone distribution, this file can be customized directly. If a project is using Jasmine via the [Ruby gem][jasmine-gem], this file can be copied into the support directory via `jasmine copy_boot_js`. Other environments (e.g., Python) will have different mechanisms.
-
  The location of `boot.js` can be specified and/or overridden in `jasmine.yml`.
 
  [jasmine-gem]: http://github.com/pivotal/jasmine-gem
  */
 
-declare var jasmineRequire:any;
+declare var jasmineRequire: any;
 
 /**
  * Add missing types - TODO: fix @type/jasmine
@@ -42,15 +41,14 @@ declare var jasmineRequire:any;
 declare namespace jasmine {
   class Timer { constructor(); }
 
-  class QueryString { 
-    constructor(opts:any);
-    getParam(key:String):any;
-    navigateWithNewParam(a:string, b:boolean):any;
-    fullStringWithNewParam(k:string, v:string):string;
+  class QueryString {
+    constructor(opts: any);
+    public getParam(key: String): any;
+    public navigateWithNewParam(a: string, b: boolean): any;
+    public fullStringWithNewParam(k: string, v: string): string;
   }
 
 }
-
 
 /**
  * This customization of the default jasmin boot.js exposes an 'startJasmine' function
@@ -76,20 +74,20 @@ namespace littleware { export namespace test {
   /**
    * Create the Jasmine environment. This is used to run all specs in a project.
    */
-  var env = jasmine.getEnv();
+  let env = jasmine.getEnv();
 
   /**
    * ## The Global Interface
    *
    * Build up the functions that will be exposed as the Jasmine public interface. A project can customize, rename or alias any of these functions as desired, provided the implementation remains unchanged.
    */
-  var jasmineInterface = jasmineRequire.interface(jasmine, env);
+  let jasmineInterface = jasmineRequire.interface(jasmine, env);
 
   /**
    * Helper function for readability above.
    */
   function extend(destination, source) {
-    for (var property in source) destination[property] = source[property];
+    for (let property in source) { destination[property] = source[property]; }
     return destination;
   }
 
@@ -104,28 +102,28 @@ namespace littleware { export namespace test {
    * More browser specific code - wrap the query string in an object and to allow for getting/setting parameters from the runner user interface.
    */
 
-  var queryString = new jasmine.QueryString({
-    getWindowLocation: function() { return window.location; }
+  let queryString = new jasmine.QueryString({
+    getWindowLocation() { return window.location; },
   });
 
-  var filterSpecs = !!queryString.getParam("spec");
+  let filterSpecs = !!queryString.getParam("spec");
 
-  var config = {
+  let config = {
     failFast: queryString.getParam("failFast"),
     oneFailurePerSpec: queryString.getParam("oneFailurePerSpec"),
     hideDisabled: queryString.getParam("hideDisabled"),
     random: null,
     seed: null,
-    specFilter: null
+    specFilter: null,
   };
 
-  var random = queryString.getParam("random");
+  let random = queryString.getParam("random");
 
   if (random !== undefined && random !== "") {
     config.random = random;
   }
 
-  var seed = queryString.getParam("seed");
+  let seed = queryString.getParam("seed");
   if (seed) {
     config.seed = seed;
   }
@@ -134,28 +132,31 @@ namespace littleware { export namespace test {
    * ## Reporters
    * The `HtmlReporter` builds all of the HTML UI for the runner page. This reporter paints the dots, stars, and x's for specs, as well as all spec names and all failures (if any).
    */
-  var htmlReporter = new (jasmine.HtmlReporter as any)({
-    env: env,
-    navigateWithNewParam: function(key, value) { return queryString.navigateWithNewParam(key, value); },
-    addToExistingQueryString: function(key, value) { return queryString.fullStringWithNewParam(key, value); },
-    getContainer: function() { return document.body; },
-    createElement: function() { return document.createElement.apply(document, arguments); },
-    createTextNode: function() { return document.createTextNode.apply(document, arguments); },
+  const htmlReporter = new (jasmine.HtmlReporter as any)({
+    env,
+    navigateWithNewParam(key, value) { return queryString.navigateWithNewParam(key, value); },
+    addToExistingQueryString(key, value) { return queryString.fullStringWithNewParam(key, value); },
+    getContainer() { return document.body; },
+    createElement() { return document.createElement.apply(document, arguments); },
+    createTextNode() { return document.createTextNode.apply(document, arguments); },
     timer: new jasmine.Timer(),
-    filterSpecs: filterSpecs
+    filterSpecs,
   });
 
   /**
-   * The `jsApiReporter` also receives spec results, and is used by any environment that needs to extract the results  from JavaScript.
+   * The `jsApiReporter` also receives spec results, 
+   * and is used by any environment that needs to 
+   * extract the resultsfrom JavaScript.
    */
   env.addReporter(jasmineInterface.jsApiReporter);
   env.addReporter(htmlReporter as jasmine.CustomReporter);
 
   /**
-   * Filter which specs will be run by matching the start of the full name against the `spec` query param.
+   * Filter which specs will be run by matching the start 
+   * of the full name against the `spec` query param.
    */
-  var specFilter = new (jasmine.HtmlSpecFilter as any)({
-    filterString: function() { return queryString.getParam("spec"); }
+  const specFilter = new (jasmine.HtmlSpecFilter as any)({
+    filterString() { return queryString.getParam("spec"); },
   });
 
   config.specFilter = function(spec) {
@@ -165,7 +166,8 @@ namespace littleware { export namespace test {
   (env as any).configure(config);
 
   /**
-   * Setting up timing functions to be able to be overridden. Certain browsers (Safari, IE 8, phantomjs) require this hack.
+   * Setting up timing functions to be able to be overridden.
+   * Certain browsers (Safari, IE 8, phantomjs) require this hack.
    */
   window.setTimeout = window.setTimeout;
   window.setInterval = window.setInterval;
@@ -175,8 +177,6 @@ namespace littleware { export namespace test {
   export function startJasmine() {
     htmlReporter.initialize();
     env.execute();
-  };
+  }
 
 }}
-
-

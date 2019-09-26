@@ -37,7 +37,7 @@
   </div>
 
   <script id="lw-shell">
-    (function(){
+    (() =>{
         const startTime = Date.now();
         let intervalId = null;
         let count = 0;
@@ -55,7 +55,7 @@
              * 
              * @return promise that resolves when the shell clears
              */
-            clear: function() {
+            clear: () => {
                 if (intervalId) {
                     const now = Date.now();
                     clearInterval(intervalId);
@@ -64,7 +64,7 @@
                     clearPromise = new Promise(
                         function(resolve) {
                             setTimeout(
-                                function() {
+                                () => {
                                     let shell = document.body.querySelector('div.lw-shell');
                                     if (shell) {
                                         document.body.removeChild(shell);
@@ -79,7 +79,7 @@
             }
         };
         
-        intervalId = setInterval(function() {
+        intervalId = setInterval(() => {
             const str = 'Loading ....................';
             count = (count + 1) % 15;
             let heading = document.body.querySelector('#lw-loading');

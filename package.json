@@ -41,6 +41,7 @@
     "nunjucks": "^3.0.1",
     "nunjucks-markdown": "^2.0.1",
     "ts-custom-elements": "^1.0.0",
+    "tslint": "^5.20.0",
     "typescript": "^3.6.3"
   },
   "bin": {
@@ -50,7 +51,8 @@
     "test": "jasmine && karma start karma.conf.js",
     "build": "gulp",
     "start": "node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/",
-    "watch": "gulp little-watch"
+    "watch": "gulp little-watch",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'"
   },
   "repository": {
     "type": "git",

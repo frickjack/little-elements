@@ -68,3 +68,9 @@ npm audit
 
 The `npm test` command runs a [jasmine](https://jasmine.github.io/index.html) test suites for web modules (using [karmajs](http://karma-runner.github.io/4.0/index.html)) and commonjs modules (with jasmine's nodejs runner).
 
+### linting
+
+The `lint` script integrates with `tslint`.  There is active development under way in the `typescript` and `eslint` community to integrate via the [typescript-eslint project](https://github.com/typescript-eslint/typescript-eslint), so we'll migrate to that when it's ready.
+
+* https://medium.com/palantir/tslint-in-2019-1a144c2317a9
+* https://eslint.org/blog/2019/01/future-typescript-eslint
