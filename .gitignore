@@ -11,6 +11,7 @@
 *log
 *tar
 *tgz
+*zip
 /commonjs/
 /dist/
 /lib/
