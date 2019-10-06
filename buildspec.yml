@@ -2,6 +2,8 @@
 version: 0.2
 
 env:
+  variables:
+    LITTLE_INTERACTIVE: "false"
   parameter-store:
     NPM_TOKEN: "/aws/reference/secretsmanager/applications/cicd/cell0/dev/npmjs-token"
 phases:
