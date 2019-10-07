@@ -68,7 +68,7 @@ module.exports = function(config) {
     concurrency: Infinity
   };
   
-  if (process.env['CODEBUILD_BUILD_ARN']) {
+  if (process.env['LITTLE_INTERACTIVE'] === 'false') {
     settings.singleRun = true;
     settings.browsers = ['ChromeHeadless'];
   }

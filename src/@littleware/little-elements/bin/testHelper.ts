@@ -38,6 +38,14 @@ export function interactive( instructions: string ): Promise<Result> {
 
 const lambdaNotInteractive = () => {
     expect(!! "skipping interactive test").toBe(true);
+};
+
+/**
+ * Little helper to detect if the test is running in interactive mode
+ * (process.env[LITTLE_INTERACTIVE] === "false")
+ */
+export function isInteractive(): boolean {
+    return process.env.LITTLE_INTERACTIVE !== "false";
 }
 
 /**
@@ -46,12 +54,13 @@ const lambdaNotInteractive = () => {
  * is not false, otherwise returns a lambda with a do-nothing
  * body, so interactive tests can be disabled in non-interactive
  * environments
- * 
+ *
  * return [lambda, timeoutMs?]
  */
-export function ifInteractive(lambda:Function, timeoutMs:number):[Function, number] {
-    if (process.env["LITTLE_INTERACTIVE"] == "false") {
-        return [lambdaNotInteractive, undefined];
+// tslint:disable-next-line
+export function ifInteractive(lambda: Function, timeoutMs: number): [Function, number] {
+    if (isInteractive()) {
+        return [lambda, timeoutMs];
     }
-    return [lambda, timeoutMs];
+    return [lambdaNotInteractive, undefined];
 }
