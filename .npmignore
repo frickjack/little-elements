@@ -17,3 +17,5 @@ src/
 nbproject/private
 node_modules/
 trash/
+Notes/
+pull_request_template.md
