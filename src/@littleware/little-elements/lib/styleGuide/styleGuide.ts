@@ -1,5 +1,5 @@
-import {html, render, TemplateResult} from '../../../../lit-html/lit-html.js';
-import {meta, links, css} from './styleGuide.css.js';
+import {html, render, TemplateResult} from "../../../../../lit-html/lit-html.js";
+import {css, links, meta} from "./styleGuide.css.js";
 
 // TODO - service worker - import workbox
 let container = null;
@@ -17,30 +17,27 @@ let container = null;
  * - baseCss defines the base rules from the style guide
  * - componentCss defines extensions for styling each component
  * - appCss cascades application specific overrides and layout rules
- * 
+ *
  * Note: StyleGuide.css.js includes an optional block of `<meta>` tags
  * that may be added to `helper.baseCss` if the html shell does
  * not already define the viewport and content-type.
  */
 export class StyleHelper {
-    baseCss:Array<TemplateResult> = [];
-    componentCss:Array<TemplateResult> = [];
-    appCss:Array<TemplateResult> = [];
+    public baseCss: TemplateResult[] = [];
+    public componentCss: TemplateResult[] = [];
+    public appCss: TemplateResult[] = [];
 
-    constructor() {
-    }
-
-    render() {
+    public render() {
         if ( container === null ) {
-            container = document.createElement('DIV');
-            container.setAttribute('id', 'lw-style-guide');
+            container = document.createElement("DIV");
+            container.setAttribute("id", "lw-style-guide");
             document.head.appendChild(container);
         }
         render(template(this), container);
     }
 }
 
-const template = (info:StyleHelper) => html`
+const template = (info: StyleHelper) => html`
 
 ${
     info.baseCss
@@ -53,11 +50,10 @@ ${
 }
 `;
 
-
 export const singleton = new StyleHelper();
 // do not include 'meta' - shell usually handles that
 [links, css].forEach(
-    block => { singleton.baseCss.push(block); }
+    (block) => { singleton.baseCss.push(block); },
 );
 
 singleton.render();

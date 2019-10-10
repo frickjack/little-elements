@@ -1,4 +1,4 @@
-import {html} from '../../../../../lit-html/lit-html.js';
+import {html} from "../../../../../../lit-html/lit-html.js";
 
 const template = html`
 <header>
@@ -21,7 +21,7 @@ const template = html`
             <li class="pure-menu-item"><a class="pure-menu-link" href="/511/index.html"><img class="lw-icon__57x57" src="./resources/img/511.svg" alt="511 icon" />
                     <br/>511 app</a>
             </li>
-            
+
         </ul>
     </div>
 </section>
@@ -35,8 +35,8 @@ const template = html`
             <li class="pure-menu-item"><a href="https://www.github.com/frickjack" class="pure-menu-link" title="Github"><i class="fa fa-github fa-2x"></i></a></li>
             <li class="pure-menu-item"><a href="https://www.linkedin.com/in/reuben-pasquini-a16b6721" class="pure-menu-link" title="Linked In"><i class="fa fa-linkedin fa-2x"></i></a></li>
             <li class="pure-menu-item"><a href="http://stackoverflow.com/users/story/1704760?view=Timeline" class="pure-menu-link" title="Stack Overflow"><i class="fa fa-stack-overflow fa-2x"></i></a></li>
-            <li class="pure-menu-item"><a href="https://hub.docker.com/u/frickjack/" class="pure-menu-link" title="Docker Hub">dockerhub</a></li>                        
-            <li class="pure-menu-item"><a href="https://www.npmjs.com/~frickjack" class="pure-menu-link" title="npmjs.com">npmjs</a></li>                        
+            <li class="pure-menu-item"><a href="https://hub.docker.com/u/frickjack/" class="pure-menu-link" title="Docker Hub">dockerhub</a></li>
+            <li class="pure-menu-item"><a href="https://www.npmjs.com/~frickjack" class="pure-menu-link" title="npmjs.com">npmjs</a></li>
         </ul>
     </div>
 </section>

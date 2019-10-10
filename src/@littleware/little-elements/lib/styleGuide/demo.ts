@@ -1,4 +1,4 @@
-import './styleGuide.js'
+import "./styleGuide.js";
 
 const div = document.querySelector( "div#modalDemo" );
 const button = document.querySelector( "button#modalDemoOpen" );
@@ -10,7 +10,7 @@ function openDialog(ev) {
 
 button.addEventListener( "click", openDialog );
 
-closeX.addEventListener( "click", function(ev) {
+closeX.addEventListener( "click", (ev) => {
     ev.preventDefault();
     div.classList.remove( "lw-modalDialog_open" );
 });

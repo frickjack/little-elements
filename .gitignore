@@ -11,10 +11,12 @@
 *log
 *tar
 *tgz
-/bin/
+*zip
+/commonjs/
 /dist/
 /lib/
 /maps/
 /node_modules/
 /site/
+/web/
 trash/

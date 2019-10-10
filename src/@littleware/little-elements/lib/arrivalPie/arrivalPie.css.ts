@@ -1,4 +1,4 @@
-import {html} from '../../../../lit-html/lit-html.js';
+import {html} from "../../../../../lit-html/lit-html.js";
 
 /*
 src/@littleware/little-elements/modules/arrivalPie
@@ -14,7 +14,7 @@ lw-arrival-pie {
 }
 
 svg.lw-arrpie {
-  width:"100%"; 
+  width:"100%";
   height:"100%";
 }
 
@@ -29,4 +29,4 @@ path.lw-arrpie__slice {
   fill: cornflowerblue;
 }
 </style>
-`
+`;

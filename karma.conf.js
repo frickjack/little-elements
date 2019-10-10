@@ -2,7 +2,7 @@
 // Generated on Sat Jan 07 2017 22:42:18 GMT-0600 (CST)
 
 module.exports = function(config) {
-  config.set({
+  const settings = {
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
@@ -13,18 +13,19 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'lib/test/karmaAdapter.js',
-      { pattern: 'lib/arrivalPie/**/*.js', type: 'module', included: false },
-      { pattern: 'lib/styleGuide/**/*.js', type: 'module', included: false },
-      { pattern: 'lib/test/**/*.js', type: 'module', included: false },
-      { pattern: 'lib/testMain.js', type: 'module', included: true },
-      { pattern: 'node_modules/lit-html/*.js', type: 'module', included: false }
+      { pattern: 'web/lib/arrivalPie/**/*.js', type: 'module', included: false },
+      { pattern: 'web/lib/styleGuide/**/*.js', type: 'module', included: false },
+      { pattern: 'web/lib/test/**/*.js', type: 'module', included: false },
+      { pattern: 'web/common/**/*.js', type: 'module', included: false },
+      { pattern: 'web/lib/testMain.js', type: 'module', included: true },
+      { pattern: 'node_modules/lit-html/*.js', type: 'module', included: false },
+      { pattern: 'node_modules/font-awesome/css/*.css', included: false }
     ],
 
     // list of files to exclude
     exclude: [
-      'lib/test/littleJasmineBoot.js',
-      'lib/**/main.js'
+      'web/lib/test/littleJasmineBoot.js',
+      'web/lib/**/main.js'
     ],
 
     // preprocess matching files before serving them to the browser
@@ -32,7 +33,8 @@ module.exports = function(config) {
     preprocessors: {
     },
     proxies: {
-      '/lit-html': '/base/node_modules/lit-html'
+      '/lit-html': '/base/node_modules/lit-html',
+      '/modules/font-awesome': '/base/node_modules/font-awesome'
     },
 
     // test results reporter to use
@@ -64,5 +66,11 @@ module.exports = function(config) {
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: Infinity
-  })
+  };
+  
+  if (process.env['LITTLE_INTERACTIVE'] === 'false') {
+    settings.singleRun = true;
+    settings.browsers = ['ChromeHeadless'];
+  }
+  config.set(settings);
 }
