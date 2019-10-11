@@ -1,6 +1,9 @@
 # TL;DR
 
-* We want test plans and acceptance tests to help guide feature development.
+There are many good libraries for developing automated software tests, but we also want to allow non developers to specify test plans and acceptance tests early
+in the development life cycle.
+
+* we want test plans and acceptance tests to help guide feature development
 * We want to track test plans as artifacts in git
 * We want to use [Gherkin](https://cucumber.io/docs/gherkin/reference/) or some similar "living documentation" technology
 that allows us to link test automation with human readable test plans
@@ -11,9 +14,7 @@ that allows us to link test automation with human readable test plans
 
 ### QA Process
 
-## Living Test Plan
-
-A test plan is a living document that documents how a system should fulfill different use cases and how the system behaves under various scenarios.  The system or feature design process should produce an initial test plan which guides the work of developers and testers, and helps ensure that the development process yields a system that matches its requirements.  The test plan changes as the requirements for a system change.
+A test plan is a living document that describes how a system should fulfill different use cases and how the system behaves under various scenarios.  The system or feature design process should produce an initial test plan which guides the work of developers and testers, and helps ensure that the development process yields a system that matches its requirements.  The test plan changes as the requirements for a system change.
 
 Unit tests and integration tests are both important parts of the quality assurance process.
 During system development the developer team produce unit tests that run as part of the system's [continuous integration](https://en.wikipedia.org/wiki/Continuous_integration) process.
@@ -48,4 +49,4 @@ What's going on here?
 * `interactive` prints the given instructions to the console for a human tester, and prompts the tester for whether the test passed or failed
 * there's also an `isInteractive` helper that just returns `true` if the `LITTLE_INTERACTIVE` environment variable is not `false`, and allows an automated test case to include optional manual elements
 
-That's it!
+That's it!  A simple test driven development process where a project manager specifies acceptance tests in the feature definition, then a developer or tester can easily translate those tests directly to code that fits into existing tooling for tracking changes, running tests, and generating reports.
