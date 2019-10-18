@@ -19,6 +19,7 @@ module.exports = function(config) {
       { pattern: 'web/common/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/testMain.js', type: 'module', included: true },
       { pattern: 'node_modules/lit-html/*.js', type: 'module', included: false },
+      { pattern: 'node_modules/lit-html/lib/*.js', type: 'module', included: false },
       { pattern: 'node_modules/font-awesome/css/*.css', included: false }
     ],
 
@@ -32,6 +33,7 @@ module.exports = function(config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
     },
+    // relative paths are a little weird
     proxies: {
       '/lit-html': '/base/node_modules/lit-html',
       '/modules/font-awesome': '/base/node_modules/font-awesome'
