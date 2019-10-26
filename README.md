@@ -75,3 +75,74 @@ The `lint` script integrates with `tslint`.  There is active development under w
 
 * https://medium.com/palantir/tslint-in-2019-1a144c2317a9
 * https://eslint.org/blog/2019/01/future-typescript-eslint
+
+### gulp build system
+
+The `gulpHelper` includes a variety of rules to help build and deploy server and client side typescript apps.
+
+
+```
+$ npx gulp --tasks
+[06:52:43] Tasks for ~/Code/little-elements/gulpfile.js
+[06:52:43] ├── little-clean
+[06:52:43] ├── little-compilenunjucks
+[06:52:43] ├─┬ little-compilehtml
+[06:52:43] │ └─┬ <series>
+[06:52:43] │   ├── little-compilenunjucks
+[06:52:43] │   └── <anonymous>
+[06:52:43] ├── little-compilets-commonjs
+[06:52:43] ├── little-compilets-web
+[06:52:43] ├── little-compileimg
+[06:52:43] ├── little-json
+[06:52:43] ├── little-copynjk
+[06:52:43] ├─┬ little-compile
+[06:52:43] │ └─┬ <series>
+[06:52:43] │   ├─┬ little-compilehtml
+[06:52:43] │   │ └─┬ <series>
+[06:52:43] │   │   ├── little-compilenunjucks
+[06:52:43] │   │   └── <anonymous>
+[06:52:43] │   ├── little-compilets-web
+[06:52:43] │   ├── little-compilets-commonjs
+[06:52:43] │   ├── little-compileimg
+[06:52:43] │   ├── little-copynjk
+[06:52:43] │   ├── little-json
+[06:52:43] │   └── <anonymous>
+[06:52:43] ├── little-watchts
+[06:52:43] ├── little-watchhtml
+[06:52:43] ├─┬ little-watch
+[06:52:43] │ └─┬ <parallel>
+[06:52:43] │   ├── little-watchts
+[06:52:43] │   ├── little-watchhtml
+[06:52:43] │   └── <anonymous>
+[06:52:43] ├─┬ little-compileclean
+[06:52:43] │ └─┬ <series>
+[06:52:43] │   ├── little-clean
+[06:52:43] │   └─┬ little-compile
+[06:52:43] │     └─┬ <series>
+[06:52:43] │       ├─┬ little-compilehtml
+[06:52:43] │       │ └─┬ <series>
+[06:52:43] │       │   ├── little-compilenunjucks
+[06:52:43] │       │   └── <anonymous>
+[06:52:43] │       ├── little-compilets-web
+[06:52:43] │       ├── little-compilets-commonjs
+[06:52:43] │       ├── little-compileimg
+[06:52:43] │       ├── little-copynjk
+[06:52:43] │       ├── little-json
+[06:52:43] │       └── <anonymous>
+[06:52:43] └─┬ default
+[06:52:43]   └─┬ <series>
+[06:52:43]     ├─┬ little-compile
+[06:52:43]     │ └─┬ <series>
+[06:52:43]     │   ├─┬ little-compilehtml
+[06:52:43]     │   │ └─┬ <series>
+[06:52:43]     │   │   ├── little-compilenunjucks
+[06:52:43]     │   │   └── <anonymous>
+[06:52:43]     │   ├── little-compilets-web
+[06:52:43]     │   ├── little-compilets-commonjs
+[06:52:43]     │   ├── little-compileimg
+[06:52:43]     │   ├── little-copynjk
+[06:52:43]     │   ├── little-json
+[06:52:43]     │   └── <anonymous>
+[06:52:43]     └── <anonymous>
+```
+
