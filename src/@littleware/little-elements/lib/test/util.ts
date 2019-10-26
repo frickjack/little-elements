@@ -44,7 +44,7 @@ export function startTest() {
 
     shellPromise.then(
         () => {
-            if ( littleware.test.startJasmine ) {
+            if ( globalThis.littleware && littleware.test && littleware.test.startJasmine ) {
                 // This is not necessary when running with Karma ...
                 // tslint:disable-next-line
                 console.log("Bootstrapping jasmine");
