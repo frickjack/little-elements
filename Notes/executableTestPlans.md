@@ -49,4 +49,4 @@ What's going on here?
 * `interactive` prints the given instructions to the console for a human tester, and prompts the tester for whether the test passed or failed
 * there's also an `isInteractive` helper that just returns `true` if the `LITTLE_INTERACTIVE` environment variable is not `false`, and allows an automated test case to include optional manual elements
 
-That's it!  A simple test driven development process where a project manager specifies acceptance tests in the feature definition, then a developer or tester can easily translate those tests directly to code that fits into existing tooling for tracking changes, running tests, and generating reports.
+That's it!  A simple test driven development process has a project manager specify acceptance tests in the feature definition, then a developer or tester translates those tests directly to code that fits into existing tooling for tracking changes, running tests, and generating reports.
