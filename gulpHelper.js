@@ -126,15 +126,15 @@ module.exports.defineTasks = function(gulp, config) {
     });
 
     /** Copy site/resources/img/ images over */
-    gulp.task( 'little-compileimg', () => {
-        return gulp.src( basePath + '/site/resources/img/**/*' ).pipe( gulp.dest( "site/resources/img" ) );
+    gulp.task('little-compileimg', () => {
+        return gulp.src(basePath + '/site/resources/img/**/*').pipe(gulp.dest("web/site/resources/img"));
     });
 
     /** Copy json files over over */
     gulp.task('little-json', () => {
         return merge(
             gulp.src(basePath + '/bin/**/*.json').pipe(gulp.dest('commonjs/bin')),
-            gulp.src(basePath + '/lib/**/*.json').pipe(gulp.dest('web/lib'))
+            gulp.src(basePath + '/**/*.json').pipe(gulp.dest('web'))
         );
     });
 
