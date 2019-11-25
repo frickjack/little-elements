@@ -1,6 +1,7 @@
 {
   "name": "@littleware/little-elements",
   "version": "1.0.13",
+  "type": "commonjs",
   "description": "",
   "main": "index.js",
   "dependencies": {
@@ -17,6 +18,7 @@
   "devDependencies": {
     "@types/jasmine": "latest",
     "@types/node": "latest",
+    "@types/express": "latest",
     "@webcomponents/webcomponentsjs": "latest",
     "express": "latest",
     "gulp": "latest",
@@ -38,6 +40,7 @@
     "marked": "latest",
     "merge2": "latest",
     "mkdirp": "latest",
+    "node-fetch": "latest",
     "nunjucks": "latest",
     "nunjucks-markdown": "latest",
     "ts-custom-elements": "latest",
@@ -50,7 +53,7 @@
   "scripts": {
     "test": "jasmine && karma start karma.conf.js",
     "build": "gulp",
-    "start": "node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/",
+    "start": "node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/ /admin module:./commonjs/bin/helloHandler.js",
     "watch": "gulp little-watch",
     "lint": "tslint -c tslint.json 'src/**/*.ts'"
   },
