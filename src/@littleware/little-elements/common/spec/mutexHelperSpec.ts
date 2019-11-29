@@ -22,17 +22,21 @@ describe( "the littleware.mutexHelper", () => {
             done();
         });
     });
-    it("can lazy load a thing", (done) => {
-        const lazy = new LazyThing(() => Promise.resolve("frickjack"));
-        const thing1 = lazy.getThing();
-        const thing2 = lazy.getThing();
+
+    it("can lazy load a thing with reload", async (done) => {
+        const lazy = new LazyThing(() => Promise.resolve("frickjack " + Date.now()), 1);
+        const thing1 = lazy.thing;
+        const thing2 = lazy.thing;
         expect(thing1).toBe(thing2);
-        Promise.all([thing1, thing2]).then(
-            (v: [string, string]) => {
-                expect(v.length).toBe(2);
-                expect(v[0]).toBe(v[1]);
-                done();
-            },
-        );
+        const v = await Promise.all([thing1, thing2]);
+        expect(v.length).toBe(2);
+        expect(v[0]).toBe(v[1]);
+        await sleep(1500);
+        // trigger reload
+        const thing3 = await lazy.thing;
+        // new value loaded
+        const thing4 = await lazy.thing;
+        expect(thing4).not.toBe(v[0]);
+        done();
     });
 });
