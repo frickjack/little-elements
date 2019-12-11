@@ -6,7 +6,8 @@ export class LazyThing<T> {
     private _thing: Promise<T> = null;
     private reload: Promise<T> = null;
     private ttlSecs = -1;
-    private lastLoadTime = 0;
+    // tslint:disable-next-line
+    private _lastLoadTime = 0;
     private loader: () => Promise<T> = null;
 
     /**
@@ -18,34 +19,61 @@ export class LazyThing<T> {
         this.ttlSecs = ttlSecs;
     }
 
-    public get thing(): Promise<T> {
+    /**
+     * Refresh if ttl expired or force true
+     * @param force
+     * @return cached this.thing if force is false, else the promise
+     *                that loads the new data when reload is done
+     */
+    public refreshIfNecessary(force: boolean = false): Promise<T> {
         if (this._thing) {
             // trigger reload in background if necessary
-            if (this.ttlSecs > 0 && this.lastLoadTime > 0
-                && null === this.reload
-                && Date.now() - this.lastLoadTime > this.ttlSecs * 1000
-                ) {
+            if (
+                null === this.reload       // not reloading already
+                && this._lastLoadTime > 0  // initial load complete
+                && (force                  // reload force requested
+                    || (this.ttlSecs > 0   // or there's a TTL and it expired
+                    && Date.now() - this._lastLoadTime > this.ttlSecs * 1000)
+                    )
+             ) {
                 this.reload = this.loader();
                 this.reload.then(
                     () => {
-                        this.lastLoadTime = Date.now();
+                        this._lastLoadTime = Date.now();
                         this._thing = this.reload;
                         this.reload = null;
                     },
                 ).catch(
                     (err) => {
-                        this.lastLoadTime = Date.now();
+                        this._lastLoadTime = Date.now();
                         this.reload = null;
                     },
                 );
             }
-            return this._thing;
+            if (force) {
+                return this.reload;
+            } else {
+                return this._thing;
+            }
         }
         this._thing = this.loader();
         this._thing.finally(() => {
-            this.lastLoadTime = Date.now();
+            this._lastLoadTime = Date.now();
         });
         return this._thing;
+    }
+
+    get thing(): Promise<T> {
+        return this.refreshIfNecessary(false);
+    }
+
+    /**
+     * Date.now of last load attempt completion -
+     * whether it succeeded or not.  Zero until after
+     * the first call to .thing
+     */
+    get lastLoadTime() {
+        return this._lastLoadTime;
     }
 }
 

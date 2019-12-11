@@ -24,11 +24,12 @@ describe( "the littleware.mutexHelper", () => {
     });
 
     it("can lazy load a thing with reload", async (done) => {
+        const startMs = Date.now();
         const lazy = new LazyThing(() => Promise.resolve("frickjack " + Date.now()), 1);
-        const thing1 = lazy.thing;
-        const thing2 = lazy.thing;
-        expect(thing1).toBe(thing2);
-        const v = await Promise.all([thing1, thing2]);
+        const thingPromise1 = lazy.thing;
+        const thingPromise2 = lazy.thing;
+        expect(thingPromise1).toBe(thingPromise2);
+        const v = await Promise.all([thingPromise1, thingPromise2]);
         expect(v.length).toBe(2);
         expect(v[0]).toBe(v[1]);
         await sleep(1500);
@@ -37,6 +38,11 @@ describe( "the littleware.mutexHelper", () => {
         // new value loaded
         const thing4 = await lazy.thing;
         expect(thing4).not.toBe(v[0]);
+        const thing5 = await lazy.refreshIfNecessary(false);
+        expect(thing5).toBe(thing4);
+        const thing6 = await lazy.refreshIfNecessary(true);
+        expect(thing6).not.toBe(thing5);
+        expect(lazy.lastLoadTime).toBeGreaterThan(startMs);
         done();
     });
 });
