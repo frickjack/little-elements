@@ -56,6 +56,7 @@ export class LazyThing<T> {
                 return this._thing;
             }
         }
+        // initial load ...
         this._thing = this.loader();
         this._thing.finally(() => {
             this._lastLoadTime = Date.now();
