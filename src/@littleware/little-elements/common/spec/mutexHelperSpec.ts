@@ -95,7 +95,7 @@ describe( "the littleware.mutexHelper", () => {
     it("can backoff and retry to failure", (done) => {
         const maxRetries = 3;
         const backoffMs = 100;
-        const startMs = Date.now();
+        let startMs = Date.now();
         let lastRunMs = 0;
         let count = 0;
 
@@ -110,11 +110,22 @@ describe( "the littleware.mutexHelper", () => {
             return Promise.reject("always fail");
         };
 
-        backoff(lambda, maxRetries, backoffMs)().then(
+        const proxy = backoff(lambda, maxRetries, backoffMs);
+        proxy().then(
             () => {
                 done.fail("lambda should always fail");
             },
         ).catch(
+            () => {
+                expect(count).toBe(maxRetries + 2);
+                expect(Date.now() - startMs).toBeGreaterThan(backoffMs);
+                count = 0;
+                lastRunMs = 0;
+                startMs = Date.now();
+                return proxy();
+            },
+        ).catch(
+            // ensure proxy runs are indempotent
             () => {
                 expect(count).toBe(maxRetries + 2);
                 expect(Date.now() - startMs).toBeGreaterThan(backoffMs);
@@ -144,7 +155,16 @@ describe( "the littleware.mutexHelper", () => {
             return Promise.resolve(`${message} on ${count}`);
         };
 
-        backoff(lambda, maxRetries, backoffMs)("success").then(
+        const proxy = backoff(lambda, maxRetries, backoffMs);
+        proxy("success").then(
+            (str) => {
+                expect(str).toBe("success on 2");
+                count = 0;
+                lastRunMs = 0;
+                return proxy("success");
+            },
+        ).then(
+            // ensure proxy invocations are indempotent
             (str) => {
                 expect(str).toBe("success on 2");
                 done();

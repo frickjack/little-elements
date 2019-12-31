@@ -128,6 +128,11 @@ export function squish(lambda: () => Promise<any>): () => Promise<any> {
     };
 }
 
+export interface NumberIterator {
+    next(): {done: boolean, value: number};
+    [Symbol.iterator](): NumberIterator;
+}
+
 /**
  * Return an iterator with the number of ms to
  * backoff before each retry
@@ -136,7 +141,7 @@ export function squish(lambda: () => Promise<any>): () => Promise<any> {
  * @param backoffMs default 200, silently clamped to minimum 100ms, max 10000ms
  * @return iterable iterator with backoff values starting from zero
  */
-export function backoffIterator(maxRetriesIn, backoffMsIn) {
+export function backoffIterator(maxRetriesIn, backoffMsIn): NumberIterator {
     const maxRetries = (() => {
         let valid = maxRetriesIn;
         if (valid < 1) {
@@ -185,6 +190,27 @@ export function backoffIterator(maxRetriesIn, backoffMsIn) {
 }
 
 /**
+ * backoff helper
+ *
+ * @param lambda function to backoff and retry as necessary
+ * @param it iterator tracks retries
+ * @param args arguments to pass through to lambda
+ */
+function backoffProxy<T>(lambda: (...args) => Promise<T>, it: NumberIterator, ...args: any[]): Promise<T> {
+    const next = it.next();
+    const action = sleep(next.value).then(() => lambda.apply(this, args));
+    if (next.done) {
+        return action;
+    } else {
+        return action.catch(
+            (err) => {
+                return backoffProxy(lambda, it, args);
+            },
+        );
+    }
+}
+
+/**
  * Return a lambda that retries up to
  * maxRetries times with jitter exponential backoff
  * of backoffMs, 2*backoffMs, ... 2^n*backoffMs
@@ -195,22 +221,11 @@ export function backoffIterator(maxRetriesIn, backoffMsIn) {
  * @param backoffMs default 200, silently clamped to minimum 100ms, max 10000ms
  */
 export function backoff<T>(lambda: (...args) => Promise<T>, maxRetries= 10, backoffMs= 200): (...args) => Promise<T> {
-    const it = backoffIterator(maxRetries, backoffMs);
     // tslint:disable-next-line
-    const helper: (... args) => Promise<T> = function(...args) {
-        const next = it.next();
-        const action = sleep(next.value).then(() => lambda.apply(this, args));
-        if (next.done) {
-            return action;
-        } else {
-            return action.catch(
-                (err) => {
-                    return helper.apply(this, args);
-                },
-            );
-        }
+    return function(...args) {
+        const it = backoffIterator(maxRetries, backoffMs);
+        return backoffProxy(lambda, it, args);
     };
-    return helper;
 }
 
 /**
