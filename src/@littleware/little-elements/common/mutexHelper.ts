@@ -194,17 +194,18 @@ export function backoffIterator(maxRetriesIn, backoffMsIn) {
  * @param maxRetries default 3, silently clamped to minimum 1, max 10
  * @param backoffMs default 200, silently clamped to minimum 100ms, max 10000ms
  */
-export function backoff<T>(lambda: () => Promise<T>, maxRetries= 10, backoffMs= 200): () => Promise<T> {
+export function backoff<T>(lambda: (...args) => Promise<T>, maxRetries= 10, backoffMs= 200): (...args) => Promise<T> {
     const it = backoffIterator(maxRetries, backoffMs);
     // tslint:disable-next-line
-    const helper: () => Promise<T> = function() {
+    const helper: (... args) => Promise<T> = function(...args) {
         const next = it.next();
+        const action = sleep(next.value).then(() => lambda.apply(this, args));
         if (next.done) {
-            return sleep(next.value).then(() => lambda());
+            return action;
         } else {
-            return sleep(next.value).then(() => lambda()).catch(
+            return action.catch(
                 (err) => {
-                    return helper();
+                    return helper.apply(this, args);
                 },
             );
         }

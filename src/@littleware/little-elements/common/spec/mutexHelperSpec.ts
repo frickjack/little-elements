@@ -130,7 +130,7 @@ describe( "the littleware.mutexHelper", () => {
         let lastRunMs = 0;
         let count = 0;
 
-        const lambda = () => {
+        const lambda = (message) => {
             const nowMs = Date.now();
             if (lastRunMs) {
                 expect(nowMs - lastRunMs).toBeGreaterThan(count * backoffMs / 2);
@@ -141,10 +141,10 @@ describe( "the littleware.mutexHelper", () => {
             if (count < 2) {
                 return Promise.reject(`fail on ${count}`);
             }
-            return Promise.resolve(`success on ${count}`);
+            return Promise.resolve(`${message} on ${count}`);
         };
 
-        backoff(lambda, maxRetries, backoffMs)().then(
+        backoff(lambda, maxRetries, backoffMs)("success").then(
             (str) => {
                 expect(str).toBe("success on 2");
                 done();
