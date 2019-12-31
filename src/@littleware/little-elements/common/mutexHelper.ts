@@ -109,7 +109,7 @@ export function sleep(ms: number): Promise<void> {
 }
 
 /**
- * Wrap the async function lambda so that
+ * squish (debounce) the async function lambda so that
  * when a call to lambda is in flight subsequent
  * calls to lambda will short-circuit to return the
  * Promise from the already running call.
@@ -137,8 +137,8 @@ export interface NumberIterator {
  * Return an iterator with the number of ms to
  * backoff before each retry
  *
- * @param maxRetries default 3, silently clamped to minimum 1, max 10
- * @param backoffMs default 200, silently clamped to minimum 100ms, max 10000ms
+ * @param maxRetries silently clamped to minimum 1, max 10
+ * @param backoffMs silently clamped to minimum 100ms, max 10000ms
  * @return iterable iterator with backoff values starting from zero
  */
 export function backoffIterator(maxRetriesIn, backoffMsIn): NumberIterator {
@@ -214,13 +214,15 @@ function backoffProxy<T>(lambda: (...args) => Promise<T>, it: NumberIterator, ..
  * Return a lambda that retries up to
  * maxRetries times with jitter exponential backoff
  * of backoffMs, 2*backoffMs, ... 2^n*backoffMs
- * capped at a 120000 ms backoff with a jitter of backoffMs/10
+ * capped at a 10000 ms backoff with a jitter of backoffMs/10.
+ *
+ * Ex: const retryFetch = backoff(function(url, options) { return fetch(url,options); });
  *
  * @param lambda
  * @param maxRetries default 3, silently clamped to minimum 1, max 10
- * @param backoffMs default 200, silently clamped to minimum 100ms, max 10000ms
+ * @param backoffMs default 500, silently clamped to minimum 100ms, max 10000ms
  */
-export function backoff<T>(lambda: (...args) => Promise<T>, maxRetries= 10, backoffMs= 200): (...args) => Promise<T> {
+export function backoff<T>(lambda: (...args) => Promise<T>, maxRetries= 10, backoffMs= 500): (...args) => Promise<T> {
     // tslint:disable-next-line
     return function(...args) {
         const it = backoffIterator(maxRetries, backoffMs);
@@ -228,12 +230,82 @@ export function backoff<T>(lambda: (...args) => Promise<T>, maxRetries= 10, back
     };
 }
 
+interface MutexQEntry {
+    resume();
+    wait(): Promise<any>;
+}
+
 /**
- * An asynchronous client could overload a backend service with requests.
- * A throttle limits the number of concurrently running requests by
- * queueing them up, and circuit breaks (fast fails) requests once some
- * queue length threshold is exceeded.
+ * Helper rate limiting, circuite breaking, and mutual exclusion.
+ * Note that throttle and serialize can be used in conjuction with
+ * backoff and squish to retry and debounce requests.
  */
-export function throttle<T>(lambda: () => Promise<T>, maxConcurrency= 4, maxQueueLen= 20): () => Promise<T> {
-    throw new Error("not yet implemented");
+// tslint:disable-next-line
+export class Mutex {
+    public maxConcurrency: number;
+    public maxRate: number;
+    public maxQueueLen: number;
+    public numRunning: number = 0;
+
+    /**
+     * @param maxConcurrency max number of concurrently running requests (subsequent requests are queued) - default is 4
+     * @param maxRate max number of requests per second before throttling kicks in - must be greater than maxConcurrency
+     * @param maxQueueLen max length of the throttle queue before a fast fail circuit breaker kicks in
+     */
+    constructor(maxConcurrency= 4, maxRate = 20, maxQueueLen= 20) {
+        throw new Error("not yet implemented");
+    }
+
+    public wait(): Promise<void> {
+        const qEntry = {
+            signal: null,
+        };
+        const p = new Promise<void>((resolve) => {
+            qEntry.signal = resolve;
+        });
+
+        return p;
+    }
+
+    public bean<T>(lambda: () => Promise<T>, serialize= false): Promise<T> {
+        if (this.numRunning < this.maxConcurrency) {
+            ++this.numRunning;
+            const result = lambda();
+            result.finally(() => {
+                --this.numRunning;
+            });
+            return result;
+        }
+
+        return null;
+    }
+
+    /**
+     * throttle creates a proxy that limits the number of concurrently running requests
+     * to Mutex.maxConcurrency and Mutex.maxRate by
+     * queueing them up, and circuit breaks (fast fails) requests once some
+     * queue length threshold is exceeded, so
+     * an asynchronous client could overload a backend service with requests.
+     *
+     * @param lambda that should be throttled
+     * @return throttled wrapper around lambda
+     */
+    public throttle<T>(lambda: (...args) => Promise<T>): (...args) => Promise<T> {
+        throw new Error("not yet implemented");
+    }
+
+    /**
+     * serialize limits the number of concurrently running requests to 1 by
+     * queueing them up, and circuit breaks (fast fails) requests once some
+     * queue length threshold is exceeded.  Once a serialized request is queued -
+     * the runtime waits for all running requests to finish, then executes
+     * the serialized request, and resumes queue processing after the request completes.
+     *
+     * @param lambda that should be throttled
+     * @return throttled wrapper around lambda
+     */
+    public serialize<T>(lambda: (...args) => Promise<T>): (...args) => Promise<T> {
+        throw new Error("not yet implemented");
+    }
+
 }
