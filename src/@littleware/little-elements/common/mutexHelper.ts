@@ -83,12 +83,12 @@ export class LazyThing<T> {
      * does not force a refresh on the parent, and
      * vice versa, but the child inherits the ttl from
      * its parent.
-     * 
-     * @param lambda 
+     *
+     * @param lambda
      */
 
-    public then<R>(lambda:(x:T) => R):LazyThing<R>;
-    public then<R>(lambda:(x:T) => Promise<R>):LazyThing<R> {
+    public then<R>(lambda: (x: T) => R): LazyThing<R>;
+    public then<R>(lambda: (x: T) => Promise<R>): LazyThing<R> {
         const result = new LazyThing(() => {
             return this.refreshIfNecessary(false).next.then((thing) => lambda(thing));
         }, this.ttlSecs);
@@ -131,7 +131,7 @@ export function squish(lambda: () => Promise<any>): () => Promise<any> {
 /**
  * Return an iterator with the number of ms to
  * backoff before each retry
- * 
+ *
  * @param maxRetries default 3, silently clamped to minimum 1, max 10
  * @param backoffMs default 200, silently clamped to minimum 100ms, max 10000ms
  * @return iterable iterator with backoff values starting from zero
@@ -158,7 +158,7 @@ export function backoffIterator(maxRetriesIn, backoffMsIn) {
         return valid;
     })();
     const step = (() => {
-        let jitter = Math.floor(Math.random() * backoffMs/10);
+        let jitter = Math.floor(Math.random() * backoffMs / 10);
         if (Math.random() < 0.5) {
             jitter = 0 - jitter;
         }
@@ -169,18 +169,18 @@ export function backoffIterator(maxRetriesIn, backoffMsIn) {
     let lastResult = 0;
 
     return {
-        next: function() {
+        next() {
             const result = {
-                value: lastResult + lastResult,
                 done: count > maxRetries,
+                value: lastResult + lastResult,
             };
             if (!result.done) {
-                lastResult = result.value || step/2;
+                lastResult = result.value || step / 2;
                 count += 1;
             }
             return result;
         },
-        [Symbol.iterator]: function() { return this; }
+        [Symbol.iterator]() { return this; },
     };
 }
 
@@ -189,14 +189,15 @@ export function backoffIterator(maxRetriesIn, backoffMsIn) {
  * maxRetries times with jitter exponential backoff
  * of backoffMs, 2*backoffMs, ... 2^n*backoffMs
  * capped at a 120000 ms backoff with a jitter of backoffMs/10
- * 
- * @param lambda 
+ *
+ * @param lambda
  * @param maxRetries default 3, silently clamped to minimum 1, max 10
  * @param backoffMs default 200, silently clamped to minimum 100ms, max 10000ms
  */
-export function backoff<T>(lambda: () => Promise<T>, maxRetries=10, backoffMs=200): () => Promise<T> {
+export function backoff<T>(lambda: () => Promise<T>, maxRetries= 10, backoffMs= 200): () => Promise<T> {
     const it = backoffIterator(maxRetries, backoffMs);
-    const helper:() => Promise<T> = function() {
+    // tslint:disable-next-line
+    const helper: () => Promise<T> = function() {
         const next = it.next();
         if (next.done) {
             return sleep(next.value).then(() => lambda());
@@ -204,13 +205,12 @@ export function backoff<T>(lambda: () => Promise<T>, maxRetries=10, backoffMs=20
             return sleep(next.value).then(() => lambda()).catch(
                 (err) => {
                     return helper();
-                }
+                },
             );
         }
     };
     return helper;
 }
-
 
 /**
  * An asynchronous client could overload a backend service with requests.
@@ -218,6 +218,6 @@ export function backoff<T>(lambda: () => Promise<T>, maxRetries=10, backoffMs=20
  * queueing them up, and circuit breaks (fast fails) requests once some
  * queue length threshold is exceeded.
  */
-export function throttle<T>(lambda: () => Promise<T>, maxConcurrency=4, maxQueueLen=20): () => Promise<T> {
-    throw new Error('not yet implemented');
+export function throttle<T>(lambda: () => Promise<T>, maxConcurrency= 4, maxQueueLen= 20): () => Promise<T> {
+    throw new Error("not yet implemented");
 }

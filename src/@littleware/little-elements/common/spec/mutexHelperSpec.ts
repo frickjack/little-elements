@@ -52,9 +52,9 @@ describe( "the littleware.mutexHelper", () => {
 
     it("can transform a thing", async (done) => {
         let counter = 0;
-        const lazy = new LazyThing(() => sleep(100).then(() => { counter += 1; return counter; }), 1
-        ).then(num => `The number is ${num}`);
-        
+        const lazy = new LazyThing(() => sleep(100).then(() => { counter += 1; return counter; }), 1,
+        ).then((num) => `The number is ${num}`);
+
         // first value should be 1
         const str1 = await lazy.thing;
         expect(str1).toBe(`The number is 1`);
@@ -73,10 +73,10 @@ describe( "the littleware.mutexHelper", () => {
         const it = backoffIterator(numRetries, backoffMs);
         let count = 0;
         let lastValue = 0;
-        for (let value of it) {
+        for (const value of it) {
             if (count === 1) { // first retry
                 expect(value).toBeGreaterThan(backoffMs / 2);
-                expect(value).toBeLessThan(backoffMs * 3/2)
+                expect(value).toBeLessThan(backoffMs * 3 / 2);
             } else {
                 expect(value).toBe(lastValue + lastValue);
             }
@@ -85,7 +85,7 @@ describe( "the littleware.mutexHelper", () => {
             count += 1;
         }
         expect(count).toBe(numRetries + 1);
-        for (let i=0; i < 2; i++) {
+        for (let i = 0; i < 2; i++) {
             const last = it.next();
             expect(last.done).toBe(true);
             expect(last.value).toBe(lastValue + lastValue);
@@ -98,28 +98,28 @@ describe( "the littleware.mutexHelper", () => {
         const startMs = Date.now();
         let lastRunMs = 0;
         let count = 0;
-        
+
         const lambda = () => {
             const nowMs = Date.now();
             if (lastRunMs) {
                 expect(nowMs - lastRunMs).toBeGreaterThan(count * backoffMs / 2);
             }
-            expect(count).toBeLessThan(maxRetries+2);
+            expect(count).toBeLessThan(maxRetries + 2);
             count += 1;
             lastRunMs = nowMs;
-            return Promise.reject('always fail');
-        }
+            return Promise.reject("always fail");
+        };
 
         backoff(lambda, maxRetries, backoffMs)().then(
             () => {
-                done.fail('lambda should always fail');
-            }
+                done.fail("lambda should always fail");
+            },
         ).catch(
             () => {
                 expect(count).toBe(maxRetries + 2);
                 expect(Date.now() - startMs).toBeGreaterThan(backoffMs);
                 done();
-            }
+            },
         );
     });
 
@@ -129,30 +129,30 @@ describe( "the littleware.mutexHelper", () => {
         const startMs = Date.now();
         let lastRunMs = 0;
         let count = 0;
-        
+
         const lambda = () => {
             const nowMs = Date.now();
             if (lastRunMs) {
                 expect(nowMs - lastRunMs).toBeGreaterThan(count * backoffMs / 2);
             }
-            expect(count).toBeLessThan(maxRetries+2);
+            expect(count).toBeLessThan(maxRetries + 2);
             count += 1;
             lastRunMs = nowMs;
             if (count < 2) {
                 return Promise.reject(`fail on ${count}`);
             }
             return Promise.resolve(`success on ${count}`);
-        }
+        };
 
         backoff(lambda, maxRetries, backoffMs)().then(
             (str) => {
                 expect(str).toBe("success on 2");
                 done();
-            }
+            },
         ).catch(
             () => {
-                done.fail('backoff should succeed on 2nd retry');
-            }
+                done.fail("backoff should succeed on 2nd retry");
+            },
         );
     });
 });
