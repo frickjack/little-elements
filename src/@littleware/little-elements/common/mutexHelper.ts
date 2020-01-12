@@ -1,21 +1,21 @@
 /**
  * Little lazy loader with memory and mutex
  */
-export class LazyThing<T> {
+export class LazyThing<T> implements PromiseLike<T> {
     // tslint:disable-next-line
     private _thing: Promise<T> = null;
     private reload: Promise<T> = null;
     private ttlSecs = -1;
     // tslint:disable-next-line
     private _lastLoadTime = 0;
-    private loader: () => Promise<T> = null;
+    private loader: () => T|Promise<T> = null;
 
     /**
      * @param loader lambda that loads the thing on demand
      * @param ttlSecs number of seconds to cache the thing before triggering a reload,
      *          default to never reload
      */
-    constructor(loader: () => Promise<T>, ttlSecs = -1) {
+    constructor(loader: () => T|Promise<T>, ttlSecs = -1) {
         this.loader = loader;
         this.ttlSecs = ttlSecs;
     }
@@ -37,7 +37,7 @@ export class LazyThing<T> {
                     && Date.now() - this._lastLoadTime > this.ttlSecs * 1000)
                     )
              ) {
-                this.reload = this.loader();
+                this.reload = Promise.resolve(this.loader());
                 this.reload.then(
                     () => {
                         this._lastLoadTime = Date.now();
@@ -56,7 +56,7 @@ export class LazyThing<T> {
         }
 
         // initial load ...
-        this._thing = this.loader();
+        this._thing = Promise.resolve(this.loader());
         this._thing.finally(() => {
             this._lastLoadTime = Date.now();
         });
@@ -86,9 +86,7 @@ export class LazyThing<T> {
      *
      * @param lambda
      */
-
-    public then<R>(lambda: (x: T) => R): LazyThing<R>;
-    public then<R>(lambda: (x: T) => Promise<R>): LazyThing<R> {
+    public then<R>(lambda: (x: T) => R|PromiseLike<R>): LazyThing<R> {
         const result = new LazyThing(() => {
             return this.refreshIfNecessary(false).next.then((thing) => lambda(thing));
         }, this.ttlSecs);

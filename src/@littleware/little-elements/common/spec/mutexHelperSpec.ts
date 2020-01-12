@@ -55,7 +55,7 @@ describe( "the littleware.mutexHelper", () => {
         const lazy = new LazyThing(() => sleep(100).then(() => { counter += 1; return counter; }), 1,
         ).then((num) => `The number is ${num}`);
 
-        // first value should be 1
+        // first value should be 1 - note that LazyThing is "then-able" ...
         const str1 = await lazy.thing;
         expect(str1).toBe(`The number is 1`);
         // second value will still be 1, but it triggered an update
