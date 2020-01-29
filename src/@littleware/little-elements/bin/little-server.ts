@@ -1,13 +1,33 @@
 import express = require("express");
+import { createLogger } from "bunyan";
 
+const log = createLogger({ name: "little-server" });
 const app = express();
 
 // tslint:disable-next-line
-console.log(`serving /modules/ from ./node_modules/`);
+log.info(`serving /modules/ from ./node_modules/`);
 app.use("/modules/", express.static("./node_modules/"));
 
 const moduleList = [];
+const serverLogger = (req, res, next) => {
+    const startMs = Date.now();
+    res.on("finish", () => {
+        log.info(
+            {
+                req: {
+                    path: req.path
+                },
+                res: {
+                    statusCode: res.statusCode
+                },
+                timeMs: (Date.now() - startMs)
+            }
+        );
+    });
+    next();
+};
 
+app.use(serverLogger);
 {
     const args = process.argv.splice(2);
     if (args.length > 0 && args[0].match(/^-*h[elp]/i)) {
@@ -24,13 +44,13 @@ Use: npx little-server urlPath1 folderPath1 urlPath2 folderPath2 ...
         if (folderPath.startsWith("module:")) {
             const modulePath = folderPath.substring("module:".length).replace(/^\.\//, process.cwd() + "/");
             // tslint:disable-next-line
-            console.log(`serving ${urlPath} with module ${modulePath}`);
+            log.info(`serving ${urlPath} with module ${modulePath}`);
             // tslint:disable-next-line
             const module = require(modulePath);
             moduleList.push(module.expressRouter().then((router) => ({ urlPath, router })));
         } else {
             // tslint:disable-next-line
-            console.log(`serving ${urlPath} from ${folderPath}`);
+            log.info(`serving ${urlPath} from ${folderPath}`);
             app.use(urlPath, express.static(folderPath));
         }
     }
@@ -41,7 +61,7 @@ Promise.all(moduleList).then(
         routerList.forEach(
             (info) => {
                 // tslint:disable-next-line
-                console.log(`mounting ${info.urlPath}`);
+                log.info(`mounting ${info.urlPath}`);
                 app.use(info.urlPath, info.router);
             },
         );
@@ -50,12 +70,12 @@ Promise.all(moduleList).then(
     () => {
         app.listen(3000, () => {
             // tslint:disable-next-line
-            console.log("Server listening at http://localhost:3000/");
+            log.info("Server listening at http://localhost:3000/");
         });
     },
 ).catch(
     (err) => {
         // tslint:disable-next-line
-        console.log(err);
+        log.error(err, "error - server failed to launch");
     },
 );
