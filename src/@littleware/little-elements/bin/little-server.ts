@@ -1,5 +1,5 @@
-import express = require("express");
 import { createLogger } from "bunyan";
+import express = require("express");
 
 const log = createLogger({ name: "little-server" });
 const app = express();
@@ -15,13 +15,13 @@ const serverLogger = (req, res, next) => {
         log.info(
             {
                 req: {
-                    path: req.path
+                    path: req.path,
                 },
                 res: {
-                    statusCode: res.statusCode
+                    statusCode: res.statusCode,
                 },
-                timeMs: (Date.now() - startMs)
-            }
+                timeMs: (Date.now() - startMs),
+            },
         );
     });
     next();
