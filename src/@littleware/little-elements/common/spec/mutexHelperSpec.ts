@@ -1,4 +1,4 @@
-import { backoff, backoffIterator, LazyThing, sleep, squish } from "../mutexHelper.js";
+import { backoff, backoffIterator, sleep, squish } from "../mutexHelper.js";
 
 describe( "the littleware.mutexHelper", () => {
     it("can sleep for a few seconds", (done) => {
@@ -21,50 +21,6 @@ describe( "the littleware.mutexHelper", () => {
             expect(s3).not.toBe(s2);
             done();
         });
-    });
-
-    it("can lazy load a thing with reload", async (done) => {
-        const startMs = Date.now();
-        let counter = 0;
-        const lazy = new LazyThing(() => sleep(100).then(() => { counter += 1; return `frickjack  + ${counter++}-${Date.now()}`; }), 1);
-        const thingPromise1 = lazy.thing;
-        const thingPromise2 = lazy.thing;
-        expect(thingPromise1).toBe(thingPromise2);
-        const v = await Promise.all([thingPromise1, thingPromise2]);
-        expect(v.length).toBe(2);
-        expect(v[0]).toBe(v[1]);
-        await sleep(1500);
-        // trigger reload
-        const thing3 = await lazy.thing;
-        // wait for new value to load
-        await sleep(200);
-        const thing4 = await lazy.thing;
-        // console.log(`test thing 4: ${thing4 === v[0]}`);
-        expect(thing4).not.toBe(v[0]);
-        const thing5 = await lazy.refreshIfNecessary(false).next;
-        expect(thing5).toBe(thing4);
-        const thing6 = await lazy.refreshIfNecessary(true).next;
-        // console.log(`test thing 5: ${thing5 === thing6}`);
-        expect(thing6).not.toBe(thing5);
-        expect(lazy.lastLoadTime).toBeGreaterThan(startMs);
-        done();
-    });
-
-    it("can transform a thing", async (done) => {
-        let counter = 0;
-        const lazy = new LazyThing(() => sleep(100).then(() => { counter += 1; return counter; }), 1,
-        ).then((num) => `The number is ${num}`);
-
-        // first value should be 1 - note that LazyThing is "then-able" ...
-        const str1 = await lazy.thing;
-        expect(str1).toBe(`The number is 1`);
-        // second value will still be 1, but it triggered an update
-        const str2 = await sleep(1500).then(() => lazy.thing);
-        expect(str2).toBe(str1);
-        // third value should pickup the update
-        const str3 = await sleep(200).then(() => lazy.thing);
-        expect(str3).toBe(`The number is 2`);
-        done();
     });
 
     it("can setup a backoff iterator", () => {
