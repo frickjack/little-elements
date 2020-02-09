@@ -17,9 +17,10 @@
     "gulpHelper.js"
   ],
   "devDependencies": {
+    "@types/bunyan": "latest",
+    "@types/express": "latest",
     "@types/jasmine": "latest",
     "@types/node": "latest",
-    "@types/express": "latest",
     "@webcomponents/webcomponentsjs": "latest",
     "express": "latest",
     "gulp": "latest",
