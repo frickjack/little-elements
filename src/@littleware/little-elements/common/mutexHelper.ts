@@ -133,6 +133,20 @@ export function backoff<T>(lambda: (...args) => Promise<T>, maxRetries= 10, back
     };
 }
 
+/**
+ * Proxy that invokes lambda once, and caches the result
+ */
+export function once<T>(lambda: () => T): () => T {
+    let hasRun = false;
+    let cache = null;
+    return () => {
+        if (hasRun) { return cache; }
+        hasRun = true;
+        cache = lambda();
+        return cache;
+    };
+}
+
 interface MutexQEntry {
     resume();
     wait(): Promise<any>;
@@ -170,6 +184,11 @@ export class Mutex {
         return p;
     }
 
+    /**
+     * Aquire the mutex, then invoke lambda, then release the mutex
+     * @param lambda
+     * @param serialize
+     */
     public bean<T>(lambda: () => Promise<T>, serialize= false): Promise<T> {
         if (this.numRunning < this.maxConcurrency) {
             ++this.numRunning;

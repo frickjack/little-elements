@@ -1,5 +1,8 @@
 import { createLogger } from "bunyan";
 import express = require("express");
+import fs = require("fs");
+import http = require("http");
+import https = require("https");
 
 const log = createLogger({ name: "little-server" });
 const app = express();
@@ -68,10 +71,22 @@ Promise.all(moduleList).then(
     },
 ).then(
     () => {
-        app.listen(3000, () => {
-            // tslint:disable-next-line
+        const httpServer = http.createServer(app);
+        httpServer.listen(3000, () => {
             log.info("Server listening at http://localhost:3000/");
         });
+        if (process.env.LITTLE_LOCALHOST) {
+            const sslFolder = process.env.LITTLE_LOCALHOST;
+            const privateKey  = fs.readFileSync(`${sslFolder}/localhost.key`, "utf8");
+            const certificate = fs.readFileSync(`${sslFolder}/localhost.cert`, "utf8");
+            const credentials = {key: privateKey, cert: certificate};
+            const httpsServer = https.createServer(credentials, app);
+            httpsServer.listen(3043, () => {
+                log.info("Server listening at https://localhost:3043/");
+            });
+        } else {
+            log.info("LITTLE_LOCALHOST environment variable not set - skipping https endpoint");
+        }
     },
 ).catch(
     (err) => {

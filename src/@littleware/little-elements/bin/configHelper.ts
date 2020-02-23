@@ -1,8 +1,10 @@
 import SecretsManager = require("aws-sdk/clients/secretsmanager.js");
+import { createLogger } from "bunyan";
 import fs = require("fs");
 import os = require("os");
 import {LazyProvider} from "../common/provider.js";
 
+const log = createLogger({ name: "little-server" });
 const homedir = os.homedir();
 
 /**
@@ -37,37 +39,67 @@ export function loadFromSecret(secretId: string, ttlSecs: number): LazyProvider<
 }
 
 export interface LoadRule {
-    type: string;
     ttlSecs: number;
-    path: string;
+    type: string;
+    value: string;
 }
 
 const defaultRule: LoadRule = {
-    path: (homedir + "/.local/etc/littleware/authn/config.json"),
     ttlSecs: 300,
     type: "file",
+    value: (homedir + "/.local/etc/littleware/authn/config.json"),
 };
 
 /**
- * Load configuration from the source specified by the given rule.
+ * Load configuration from the sources specified by the given rule,
+ * and combine the results into a single object via
+ * Object.assign(this, listOfConfigs)
  *
- * @param ruleIn specifies type of source (currently supports secret
- * or file), ttlSecs, and path - merges with default rule
+ * @param rulesIn pulled from process.env["LITTLE_CONFIG"] if not set,
+ *   mapping from key to LoadRule that
+ *   specifies type of source (currently supports secret, env, string,
+ *   or file), ttlSecs, and path - merges with default rule (homedir + "/.local/share/littleware/authn/config.json")
+ * @return Provider that provides mapping from key to loaded data
  */
-export function loadFromRule(ruleIn?: LoadRule | { path: string } | string): LazyProvider<any> {
-    let ruleObj = null;
-    if (typeof ruleIn === "string") {
-        ruleObj = JSON.parse(ruleIn as string);
+export function loadFromRule(
+    rulesIn?: { [key: string]: LoadRule | { value: string }} | string,
+): LazyProvider<{[key: string]: any}> {
+    let ruleMap: {[key: string]: LoadRule } = {};
+    rulesIn = rulesIn || process.env.LITTLE_CONFIG || { default: defaultRule };
+
+    if (typeof rulesIn === "string") {
+        ruleMap = JSON.parse(rulesIn as string);
     } else {
-        ruleObj = ruleIn;
+        ruleMap = rulesIn as {[key: string]: LoadRule};
     }
-    const rule = { ... defaultRule, ... ruleObj || {} };
-    if (rule.type === "file") {
-        return loadFromFile(rule.path, rule.ttlSecs);
-    } else if (rule.type === "secret") {
-        return loadFromSecret(rule.path, rule.ttlSecs);
-    }
-    throw new Error("Unknown type: " + rule.type);
+    const promiseList = Object.entries(ruleMap).map(
+        (r) => ({ key: r[0], rule: { ...defaultRule, ...r[1] } as LoadRule }),
+    ).map(
+        async ({key, rule}) => {
+            let data;
+            if (rule.type === "file") {
+                data = await loadJsonFromFile(rule.value);
+            } else if (rule.type === "secret") {
+                data = await loadJsonFromSecret(rule.value);
+            } else if (rule.type === "string") {
+                data = JSON.parse(rule.value);
+            } else if (rule.type === "env") {
+                data = JSON.parse(process.env[rule.value] || "{}");
+            } else {
+                data = { error: `unknown rule type: ${rule.type}` };
+            }
+            return {key, data};
+        },
+    );
+    const dataPromise = Promise.all(promiseList).then(
+        (kvList) => kvList.reduce(
+            (acc, {key, data}) => {
+                acc[key] = data;
+                return acc;
+            }, {},
+        ),
+    );
+    return new LazyProvider(() => dataPromise);
 }
 
 /**

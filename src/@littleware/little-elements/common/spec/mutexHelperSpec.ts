@@ -1,4 +1,4 @@
-import { backoff, backoffIterator, sleep, squish } from "../mutexHelper.js";
+import { backoff, backoffIterator, once, sleep, squish } from "../mutexHelper.js";
 
 describe( "the littleware.mutexHelper", () => {
     it("can sleep for a few seconds", (done) => {
@@ -130,5 +130,17 @@ describe( "the littleware.mutexHelper", () => {
                 done.fail("backoff should succeed on 2nd retry");
             },
         );
+    });
+
+    it("can setup a one-call cache-proxy", () => {
+        const count = (() => {
+            let counter = 0;
+            return () => counter++;
+        })();
+        const cacheCount = once(count);
+        expect(cacheCount()).toBe(0);
+        expect(cacheCount()).toBe(0);
+        expect(count()).toBe(1);
+        expect(cacheCount()).toBe(0);
     });
 });

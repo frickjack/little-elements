@@ -22,6 +22,7 @@
     "@types/jasmine": "latest",
     "@types/node": "latest",
     "@webcomponents/webcomponentsjs": "latest",
+    "aws-sdk": "^2.614.0",
     "express": "latest",
     "gulp": "latest",
     "gulp-debug": "latest",
