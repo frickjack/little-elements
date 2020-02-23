@@ -1,9 +1,11 @@
 {
   "name": "@littleware/little-elements",
-  "version": "1.0.13",
+  "version": "1.0.14",
+  "type": "commonjs",
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "bunyan": "^1.8.12",
     "font-awesome": "^4.7.0",
     "lit-html": "^1.1.2"
   },
@@ -15,9 +17,12 @@
     "gulpHelper.js"
   ],
   "devDependencies": {
+    "@types/bunyan": "latest",
+    "@types/express": "latest",
     "@types/jasmine": "latest",
     "@types/node": "latest",
     "@webcomponents/webcomponentsjs": "latest",
+    "aws-sdk": "^2.614.0",
     "express": "latest",
     "gulp": "latest",
     "gulp-debug": "latest",
@@ -38,6 +43,7 @@
     "marked": "latest",
     "merge2": "latest",
     "mkdirp": "latest",
+    "node-fetch": "latest",
     "nunjucks": "latest",
     "nunjucks-markdown": "latest",
     "ts-custom-elements": "latest",
@@ -50,7 +56,7 @@
   "scripts": {
     "test": "jasmine && karma start karma.conf.js",
     "build": "gulp",
-    "start": "node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/",
+    "start": "node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/ /admin module:./commonjs/bin/helloHandler.js",
     "watch": "gulp little-watch",
     "lint": "tslint -c tslint.json 'src/**/*.ts'"
   },

@@ -76,7 +76,9 @@ The `lint` script integrates with `tslint`.  There is active development under w
 * https://medium.com/palantir/tslint-in-2019-1a144c2317a9
 * https://eslint.org/blog/2019/01/future-typescript-eslint
 
-### gulp build system
 
-The [gulpHelper](./Notes/gulpHelper.md) includes a variety of rules to help build and deploy server and client side typescript apps.
+## More documentation
 
+* the [gulp helper](./Notes/explanation/gulpHelper.md) includes a variety of rules to help build and deploy server and client side typescript apps.
+* the [little server](./Notes/explanation/littleServerAndLambda.md) provides a simple [expressjs](https://expressjs.com) server for locally serving web apps to clients and running server side express routers
+* [executable test plans](./Notes/explanation/executableTestPlans.md) provide a framework for specifying, running, reporting from, and automating test plans that begin as instructions to for manual testing

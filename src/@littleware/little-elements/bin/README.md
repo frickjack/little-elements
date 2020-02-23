@@ -37,3 +37,8 @@ The `little-server` implements a simple web server for static content.  It autom
 node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/
 ```
 
+The server can also dynamically nodejs modules (via `require(path)`) that export expressjs middleware as a `handler` function:
+
+```
+node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/ hello/ module:./bin/helloHandler.js
+```
