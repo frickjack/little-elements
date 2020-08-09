@@ -1,0 +1,31 @@
+{% extends "lib/styleGuide/shell/basicShell.html.njk" %}
+
+{% block head %}
+<title>PureMenu UX Canvas</title>
+
+<link rel="stylesheet" type="text/css" href="/modules/jasmine-core/lib/jasmine-core/jasmine.css" />
+<script src="/modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+<script src="/modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+<script src="../test/littleJasmineBoot.js"></script>
+{% endblock %}
+
+{% block content %}
+<section id="README">
+  {% markdown %}
+     {% include "lib/pureMenu/README.md" %}
+  {% endmarkdown %}
+</section>
+
+<section>
+
+<p> Here is the lw-pure-menu custom element </p>
+<lw-pure-menu 
+  items="item1, item2, item3, item3/item3-1, item3/item3-2",
+  states="login, logout"
+  >
+</lw-pure-menu>
+
+
+</section>
+<script src="./spec/main.js" type="module"></script>
+{% endblock %}
