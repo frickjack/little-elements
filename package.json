@@ -5,9 +5,9 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "bunyan": "^1.8.12",
+    "bunyan": "^1.8.14",
     "font-awesome": "^4.7.0",
-    "lit-html": "^1.1.2"
+    "lit-html": "^1.2.1"
   },
   "files": [
     "README.md",
