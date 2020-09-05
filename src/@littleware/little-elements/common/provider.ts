@@ -10,6 +10,12 @@ export interface Provider<T> {
  * Little lazy singleton provider with memory and mutex
  * that self-updates on get() after a ttl
  * expires.
+ * 
+ * - if ttl < 0, then the LazyProvider acts as a LazySingleton
+ * - if ttl === 0, then the LazyProvider calls through to the loader
+ *             on every call - there is no cache
+ * - if ttl > 0, then the provider does lazy refresh
+ *             once the ttl expires
  */
 export class LazyProvider<T> implements PromiseLike<T>, Provider<T> {
     // tslint:disable-next-line
@@ -23,7 +29,7 @@ export class LazyProvider<T> implements PromiseLike<T>, Provider<T> {
     /**
      * @param loader lambda that loads the thing on demand
      * @param ttlSecs number of seconds to cache the thing before triggering a reload,
-     *          default to never reload
+     *          default to never reload (-1)
      */
     constructor(loader: () => T|Promise<T>, ttlSecs = -1) {
         this.loader = loader;
@@ -37,7 +43,7 @@ export class LazyProvider<T> implements PromiseLike<T>, Provider<T> {
      *    that loads the new data when reload is done
      */
     public refreshIfNecessary(force: boolean = false): { current: Promise<T>, next: Promise<T> } {
-        if (this._thing) {
+        if (this._thing && this.ttlSecs !== 0) {
             // trigger reload in background if necessary
             if (
                 null === this.reload       // not reloading already
@@ -102,4 +108,16 @@ export class LazyProvider<T> implements PromiseLike<T>, Provider<T> {
         }, this.ttlSecs);
         return result;
     }
+}
+
+export function singletonProvider<T>(loader: () => T|Promise<T>) {
+    return new LazyProvider(loader);
+}
+
+export function passThroughProvider<T>(loader: () => T|Promise<T>) {
+    return new LazyProvider(loader, 0);
+}
+
+export function asFactory<T>(provider:LazyProvider<T>):() => Promise<T> {
+    return () => provider.get();
 }

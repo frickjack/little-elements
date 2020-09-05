@@ -51,6 +51,8 @@ ${
 `;
 
 export const singleton = new StyleHelper();
+export default singleton;
+
 // do not include 'meta' - shell usually handles that
 [links, css].forEach(
     (block) => { singleton.baseCss.push(block); },

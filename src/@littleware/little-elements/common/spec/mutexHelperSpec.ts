@@ -1,6 +1,7 @@
-import { backoff, backoffIterator, once, sleep, squish } from "../mutexHelper.js";
+import { backoff, backoffIterator, Mutex, once, sleep, squish } from "../mutexHelper.js";
+import { count } from "console";
 
-describe( "the littleware.mutexHelper", () => {
+describe("the littleware.mutexHelper", () => {
     it("can sleep for a few seconds", (done) => {
         const startMs = Date.now();
         sleep(3000).then(
@@ -11,6 +12,7 @@ describe( "the littleware.mutexHelper", () => {
             },
         );
     });
+
     it("can squish a lambda to avoid overlapping calls", (done) => {
         const lambda = squish(() => sleep(1000));
         const s1 = lambda();
@@ -142,5 +144,33 @@ describe( "the littleware.mutexHelper", () => {
         expect(cacheCount()).toBe(0);
         expect(count()).toBe(1);
         expect(cacheCount()).toBe(0);
+    });
+
+    it("can rate limit access to a critical section", function(done) {
+        const mx = new Mutex();
+        let counter = 0;
+        let batch = [];
+        for (let i=0; i < mx.maxQueueLen + mx.maxConcurrency; ++i) {
+            const num = i;
+            let task = mx.enter(() => sleep(100).then(
+                () => {
+                    counter += 1;
+                    return counter;
+                }
+            )).then(
+                (numPlus1) => {
+                    expect(numPlus1).toBe(num + 1);
+                }
+            );
+            batch.push(task);
+        }
+        mx.enter(() => Promise.resolve('ok')).then(
+            () => { done.fail('should have been throttled'); },
+            (err) => { expect(err).toBe('mutex throttle'); }
+        ).then(
+            () => Promise.all(batch)
+        ).then(
+            () => done()
+        );
     });
 });

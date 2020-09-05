@@ -1,5 +1,5 @@
 import { sleep } from "../mutexHelper.js";
-import { LazyProvider } from "../provider.js";
+import { LazyProvider, passThroughProvider } from "../provider.js";
 
 describe( "the littleware.LazyProvider", () => {
     it("can lazy load a thing with reload", async (done) => {
@@ -46,4 +46,14 @@ describe( "the littleware.LazyProvider", () => {
         done();
     });
 
+    it("does not cache when ttl is zero", async (done) => {
+        let counter = 0;
+        let provider = passThroughProvider(() => counter++);
+        for (let it=0; it < 10; ++it) {
+            let shouldbe = it;
+            let result = await provider.get();
+            expect(result).toBe(shouldbe);
+        }
+        done();
+    });
 });

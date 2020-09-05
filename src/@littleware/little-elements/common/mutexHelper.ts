@@ -1,3 +1,4 @@
+import { resolve } from "dns";
 
 export function sleep(ms: number): Promise<void> {
     return new Promise(
@@ -20,8 +21,8 @@ export function sleep(ms: number): Promise<void> {
  * @param lambda
  * @return squished lambda
  */
-export function squish(lambda: () => Promise<any>): () => Promise<any> {
-    let inFlight: Promise<any> = null;
+export function squish<T>(lambda: () => Promise<T>): () => Promise<T> {
+    let inFlight: Promise<T> = null;
     return () => {
         if (!inFlight) {
             inFlight = lambda();
@@ -147,10 +148,69 @@ export function once<T>(lambda: () => T): () => T {
     };
 }
 
-interface MutexQEntry {
-    resume();
-    wait(): Promise<any>;
+/**
+ * Barrier that resolves or rejects a promise
+ * when signaled or canceled
+ */
+export class Barrier<T> {
+    private resolver:(value:T) => void = null;
+    private rejecter:(err:any) => void = null;
+    private promise: Promise<T> = null;
+    private barrierState = "unresolved";
+
+    constructor() {
+        this.promise = new Promise(
+            (resolve, reject) => {
+                this.resolver = resolve;
+                this.rejecter = reject;
+            }
+        );
+    }
+
+    /**
+     * Resolve the wait() promise with value
+     * 
+     * @param value
+     * @return true if value propagated to waiters,
+     *      false if barrier was already signaled
+     *      or canceled 
+     */
+    signal(value:T|Promise<T>):boolean {
+        if (this.state === "unresolved") {
+            Promise.resolve(value).then((v) => { this.resolver(v); });
+            this.barrierState = "resolved";
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Propagate an error to waiters
+     * 
+     * @param err 
+     * @return true if value propagated to waiters,
+     *      false if barrier was already signaled
+     *      or canceled 
+     */
+    cancel(err:any):boolean {
+        if (this.state === "unresolved") {
+            this.rejecter(err);
+            this.barrierState = "rejected";
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return unresolved, resolved, or rejected
+     */
+    get state():string { return this.barrierState; }
+
+    wait():Promise<T> {
+        return this.promise;
+    }
 }
+
 
 /**
  * Helper rate limiting, circuite breaking, and mutual exclusion.
@@ -159,52 +219,87 @@ interface MutexQEntry {
  */
 // tslint:disable-next-line
 export class Mutex {
-    public maxConcurrency: number;
-    public maxRate: number;
-    public maxQueueLen: number;
-    public numRunning: number = 0;
+    private maxConcurrencyVal: number;
+    private maxReqsPerSec: number;
+    private rateWindowEnd = new Date(Date.now() + 5000).getTime();
+    private rateWindowCount = 0;
+    private maxQueueLenVal: number;
+    private numRunning: number = 0;
+    private waitQueue:Array<Barrier<void>> = [];
+
+
+    get maxQueueLen() { return this.maxQueueLenVal; }
+    get maxConcurrency() { return this.maxConcurrencyVal; }
 
     /**
      * @param maxConcurrency max number of concurrently running requests (subsequent requests are queued) - default is 4
-     * @param maxRate max number of requests per second before throttling kicks in - must be greater than maxConcurrency
+     * @param maxReqsPerSec max number of requests per second before throttling kicks in - must be greater than maxConcurrency
      * @param maxQueueLen max length of the throttle queue before a fast fail circuit breaker kicks in
      */
-    constructor(maxConcurrency= 4, maxRate = 20, maxQueueLen= 20) {
-        throw new Error("not yet implemented");
+    constructor(maxConcurrency= 4, maxReqsPerSec = 20, maxQueueLen= 20) {
+        this.maxConcurrencyVal = maxConcurrency;
+        this.maxReqsPerSec = maxReqsPerSec;
+        this.maxQueueLenVal = maxQueueLen;
     }
 
-    public wait(): Promise<void> {
-        const qEntry = {
-            signal: null,
-        };
-        const p = new Promise<void>((resolve) => {
-            qEntry.signal = resolve;
-        });
+    private popTheQ() {
+        const now = Date.now();
+        if (now > this.rateWindowEnd) {
+            // 5 second rate limit window
+            this.rateWindowEnd = now + 5000;
+            this.rateWindowCount = 0;
+        }
+        // release rate-limitted requests
+        for (
+            let count=0; 
+            count + this.numRunning < this.maxConcurrency
+                && count + this.rateWindowCount < this.maxReqsPerSec * 5
+                && this.waitQueue.length > 0;
+            count += 1
+        ) {
+            const barrier:Barrier<void> = this.waitQueue.shift();
+            if (barrier) {
+                this.numRunning += 1;
+                this.rateWindowCount += 1;
+                barrier.signal();
+            }
+        }
+        if (this.numRunning === 0 && this.waitQueue.length > 0) {
+            // rate limiting has kicked in - wake up the queue
+            // when a new rate window opens
+            sleep(this.rateWindowEnd - now + 50).then(
+                () => this.popTheQ()
+            );
+        }
+    }
 
-        return p;
+    private exit() {
+        if (this.numRunning > 0) {
+            --this.numRunning;
+        }
+        this.popTheQ();
     }
 
     /**
      * Aquire the mutex, then invoke lambda, then release the mutex
      * @param lambda
-     * @param serialize
      */
-    public bean<T>(lambda: () => Promise<T>, serialize= false): Promise<T> {
-        if (this.numRunning < this.maxConcurrency) {
-            ++this.numRunning;
-            const result = lambda();
-            result.finally(() => {
-                --this.numRunning;
-            });
-            return result;
+    public enter<T>(lambda: () => Promise<T>): Promise<T> {
+        // push the request onto the wait queue
+        const barrier = new Barrier<void>();
+        if (this.waitQueue.length + 1 > this.maxQueueLen) {
+            return Promise.reject('mutex throttle');
         }
-
-        return null;
+        this.waitQueue.push(barrier);
+        this.popTheQ();
+        const result = barrier.wait().then(() => lambda());
+        result.finally(() => this.exit());
+        return result;
     }
 
     /**
      * throttle creates a proxy that limits the number of concurrently running requests
-     * to Mutex.maxConcurrency and Mutex.maxRate by
+     * to Mutex.maxConcurrency and Mutex.maxReqsPerSec by
      * queueing them up, and circuit breaks (fast fails) requests once some
      * queue length threshold is exceeded, so
      * an asynchronous client could overload a backend service with requests.
@@ -213,21 +308,9 @@ export class Mutex {
      * @return throttled wrapper around lambda
      */
     public throttle<T>(lambda: (...args) => Promise<T>): (...args) => Promise<T> {
-        throw new Error("not yet implemented");
-    }
-
-    /**
-     * serialize limits the number of concurrently running requests to 1 by
-     * queueing them up, and circuit breaks (fast fails) requests once some
-     * queue length threshold is exceeded.  Once a serialized request is queued -
-     * the runtime waits for all running requests to finish, then executes
-     * the serialized request, and resumes queue processing after the request completes.
-     *
-     * @param lambda that should be throttled
-     * @return throttled wrapper around lambda
-     */
-    public serialize<T>(lambda: (...args) => Promise<T>): (...args) => Promise<T> {
-        throw new Error("not yet implemented");
+        return (...args) => this.enter(
+                () => lambda(args)
+            );
     }
 
 }

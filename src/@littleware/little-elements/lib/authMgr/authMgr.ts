@@ -29,9 +29,9 @@ function templateFactory(model: LittleAuthMgr): TemplateResult {
 </div>    
     `;
 }
-  
 
-export class LittleAuthMgr  extends HTMLElement {
+
+export class LittleAuthMgr extends HTMLElement {
     
     /**
      *  Monitor the 'name' attribute for changes, see:
@@ -45,6 +45,9 @@ export class LittleAuthMgr  extends HTMLElement {
             ]; 
     }
 
+    constructor() {
+        super();
+    }
 
     /** Property backed by "login-endpoint" attribute */
     get loginEndpoint(): string {

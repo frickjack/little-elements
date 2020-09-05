@@ -4,14 +4,12 @@ import {html} from "../../../../../lit-html/lit-html.js";
 src/@littleware/little-elements/modules/authMgr/
 */
 export const css = html`
-<style id="lw-authMgr-css">
-lw-auth-mgr {
-  width: 100px;
-  height: 100px;
+<style id="lw-pureMenu-css">
+lw-pure-menu {
   display: block;
 }
 
-.lw-auth-mgr__item_hidden {
+.lw-pure-menu__item_hidden {
   display: none;
 }
 

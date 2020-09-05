@@ -7,6 +7,7 @@
   "dependencies": {
     "bunyan": "^1.8.14",
     "font-awesome": "^4.7.0",
+    "i18next": "^19.7.0",
     "lit-html": "^1.2.1"
   },
   "files": [
