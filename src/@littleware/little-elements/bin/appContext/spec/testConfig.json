@@ -1,0 +1,7 @@
+{
+    "note": "this config intentionally does not contain sensitive information",
+    "idpConfigUrl": "https://accounts.google.com/.well-known/openid-configuration",
+    "clientId": "",
+    "clientSecret": "",
+    "redirectUri": "http://localhost:3000/auth/login.html"
+}
