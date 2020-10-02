@@ -1,6 +1,3 @@
-import nodeFetch = require('node-fetch');
-import fs = require('fs');
-
 import AppContext, { Dictionary } from '../../common/appContext/appContext.js';
 import { Provider, singletonProvider } from '../../common/provider.js';
 import { aliasName, SimpleLoader } from '../../common/appContext/simpleLoader.js';
@@ -9,40 +6,17 @@ import { aliasName, SimpleLoader } from '../../common/appContext/simpleLoader.js
 /**
  * Simple loader for loading local files or fetching
  * from the network.
- * TODO: enhance to laod command line flags and environment
- *       variables.
  * 
  * @param path treated as simple path if does not start with
  *           file:/// or https?://
  * @return text string - caller must convert to json
  *        if necessary via JSON.parse() or whatever
  */
-export function loadConfig(path:string): Promise<Dictionary<Dictionary<any>>> {
-    if (path.match(/^https?:\/\/(.+)$/)) {
-        return nodeFetch(path).then(res => res.json());
-    }
-    return new Promise(
-        (resolve, reject) => {
-            fs.readFile(
-                path,
-                'utf8',
-                (err, data) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        try {
-                            resolve(JSON.parse(data));
-                        } catch (jsonErr) {
-                            reject(jsonErr);
-                        }
-                    }
-                }
-            );
-        }
-    );
+export function loadConfig(path:string): Promise<Dictionary<Dictionary<any>> {
+    return fetch(path).then(res => res.json());
 }
 
-export const providerName = 'driver/littleware/little-elements/bin/appContext/simpleLoader';
+export const providerName = 'driver/littleware/little-elements/lib/appContext/simpleLoader';
 
 
 AppContext.get().then(

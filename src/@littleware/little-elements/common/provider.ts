@@ -1,9 +1,9 @@
 /**
- * Simple thenable factory typeclass
+ * Simple composable factory typeclass
  */
 export interface Provider<T> {
     get(): Promise<T>;
-    then<R>(lambda: (x: T) => R|PromiseLike<R>): Provider<R>;
+    transform<R>(lambda: (x: T) => R|PromiseLike<R>): Provider<R>;
 }
 
 /**
@@ -17,7 +17,7 @@ export interface Provider<T> {
  * - if ttl > 0, then the provider does lazy refresh
  *             once the ttl expires
  */
-export class LazyProvider<T> implements PromiseLike<T>, Provider<T> {
+export class LazyProvider<T> implements Provider<T> {
     // tslint:disable-next-line
     private _thing: Promise<T> = null;
     private reload: Promise<T> = null;
@@ -43,14 +43,17 @@ export class LazyProvider<T> implements PromiseLike<T>, Provider<T> {
      *    that loads the new data when reload is done
      */
     public refreshIfNecessary(force: boolean = false): { current: Promise<T>, next: Promise<T> } {
+        // ttl === 0 means always invoke the loader
+        // ttl < 0 means invoke the loader once, and cache the result forever as a singleton
         if (this._thing && this.ttlSecs !== 0) {
             // trigger reload in background if necessary
             if (
+                this.ttlSecs > 0 &&        // there's a ttl
                 null === this.reload       // not reloading already
                 && this._lastLoadTime > 0  // initial load complete
                 && (force                  // reload force requested
-                    || (this.ttlSecs > 0   // or there's a TTL and it expired
-                    && Date.now() - this._lastLoadTime > this.ttlSecs * 1000)
+                    || (   // or there's a TTL and it expired
+                    Date.now() - this._lastLoadTime > this.ttlSecs * 1000)
                     )
              ) {
                 this.reload = Promise.resolve(this.loader());
@@ -102,7 +105,7 @@ export class LazyProvider<T> implements PromiseLike<T>, Provider<T> {
      *
      * @param lambda
      */
-    public then<R>(lambda: (x: T) => R|PromiseLike<R>): LazyProvider<R> {
+    public transform<R>(lambda: (x: T) => R|PromiseLike<R>): LazyProvider<R> {
         const result = new LazyProvider(() => {
             return this.refreshIfNecessary(false).next.then((thing) => lambda(thing));
         }, this.ttlSecs);
@@ -110,11 +113,11 @@ export class LazyProvider<T> implements PromiseLike<T>, Provider<T> {
     }
 }
 
-export function singletonProvider<T>(loader: () => T|Promise<T>) {
+export function singletonProvider<T>(loader: () => T|Promise<T>):Provider<T> {
     return new LazyProvider(loader);
 }
 
-export function passThroughProvider<T>(loader: () => T|Promise<T>) {
+export function passThroughProvider<T>(loader: () => T|Promise<T>):Provider<T> {
     return new LazyProvider(loader, 0);
 }
 

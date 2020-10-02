@@ -1,5 +1,5 @@
-import { Barrier } from '../../common/mutexHelper.js';
-import { Provider } from '../../common/provider.js';
+import { once, pmap, Barrier } from '../../common/mutexHelper.js';
+import { passThroughProvider, Provider } from '../../common/provider.js';
 
 
 export interface Dictionary<T> {
@@ -56,6 +56,11 @@ export function toPromise<T>(dict:Dictionary<Promise<T>>):Promise<Dictionary<T>>
 
 export type ConfigDb = Dictionary<Dictionary<any>>;
 
+/**
+ * An entry in the AppContext configuration db - has
+ * default dictionary and loaded overrides,
+ * can do simple shallow merge with { ...defaults, ...overrides }
+ */
 export interface ConfigEntry {
     defaults: Dictionary<any>;
     overrides: Dictionary<any>;
@@ -63,7 +68,7 @@ export interface ConfigEntry {
 
 export interface AppContextConfig {
     configHref: string[];
-    fetch: (href:string) => Promise<Object>;
+    loadConfig: (href:string) => Promise<Dictionary<Dictionary<any>>>;
 }
 
 export type ToolBox = Dictionary<Provider<any>>;
@@ -83,6 +88,7 @@ export interface ProviderInfo {
     toolKeys:Dictionary<string>;
     lambda:ToolFactory<any>;
 }
+
 
 /**
  * Core application context database decoupled
@@ -116,39 +122,101 @@ export class AppContext {
         return Promise.resolve();
     }
     
-    private providerDb:Dictionary<Promise<Provider<any>>> = {};
+    // Dictionary of lazy-initialized providers.
+    // The Provider factory is not invoked until
+    // the first request for the provider.
+    private providerDb:Dictionary<() => Provider<any>> = {};
+    private allToolKeys:Set<string> = new Set();
+
+    private fillToolBox(toolKeys:Dictionary<string>):ToolBox {
+        const toolBox = join(
+            split(toolKeys).map(
+                (kv) => {
+                    const rawKey = kv.v;
+                    const alias = kv.k;
+                    const providerFactory = this.providerDb[rawKey];
+                    if (!providerFactory) {
+                        throw new Error(`failed to fill toolbox - missing dependency ${rawKey}`);
+                    }
+                    return { k: alias, v: providerFactory() }
+                }
+            )
+        );
+        return toolBox;
+    }
+
+    private putProviderOrAlias(key:string, toolKeys:Dictionary<string>, lambda:ToolFactory<any>) {
+        if (this.providerDb.hasOwnProperty(key)) {
+            throw new Error(`provider already registered for ${key}`);
+        }
+        Object.values(toolKeys).forEach(
+            (k) => {
+                if (k.startsWith('driver/') || k.startsWith('alias/') || k.startsWith('config/')) {
+                    if (k.startsWith('config/') && !this.providerDb.hasOwnProperty(k)) {
+                        // go ahead and register a provider that retrieves the configuration
+                        const configProvider = passThroughProvider(() => this.getConfig(k.replace(/^config\//, '')));
+                        this.providerDb[k] = () => configProvider;
+                    }
+                    this.allToolKeys.add(k);
+                } else {
+                    throw new Error(`Provider ${key} requested invalid tool key ${k} - must start with "driver/", "alias/", or "config/"`);
+                }
+            }
+        );
+        this.providerDb[key] = once(
+            () => {
+                const toolBox = this.fillToolBox(toolKeys); 
+                return lambda(toolBox);
+            }
+        );
+    }
 
     /**
      * Register a new provider.
+     * A provider's factory specifies the dependencies (toolbox)
+     * it wants injected.  A tool dependency must start with
+     * driver/, alias/, or config/ - where config/ translates
+     * into a call to context.getConfig
      * 
      * @param keyIn automatically prepended with "driver/" if not already
-     * @param toolKeys 
+     * @param toolKeys map from global key (driver/, alias/, or config/)
+     *           to the internal key passed to the tool factory
      * @param lambda 
      */
     putProvider(keyIn:string, toolKeys:Dictionary<string>, lambda:ToolFactory<any>) {
         const key = keyIn.replace(/^\/*(driver\/+)*/, 'driver/');
-        if (this.providerDb.hasOwnProperty(key)) {
-            throw new Error(`provider already registered for ${key}`);
-        }
-        this.providerDb[key] = this.startBarrier.wait().then(
-            () => toPromise(
-                join(
-                    split(toolKeys).map(
-                        (kv) => {
-                            const rawKey = kv.k;
-                            const alias = kv.v;
-                            const provider = this.providerDb[rawKey];
-                            if (!provider) {
-                                throw new Error(`failed to configure provider ${key} - missing dependency ${rawKey}`);
-                            }
-                            return { k: rawKey, v: provider }
-                        }
-                    )
-                )
-            )   
-        ).then(
-            (toolBox) => lambda(toolBox)
+        this.putProviderOrAlias(key, toolKeys, lambda);
+    }
+
+    /**
+     * Register a lambda to run at startup
+     * 
+     * @param toolKeys to inject into lambda - alias to rawKey
+     * @param lambda 
+     */
+    onStart<T>(toolKeys:Dictionary<string>, lambda:(ToolBox) => T|Promise<T>):Promise<T> {
+        return this.startBarrier.wait().then(
+            () => {
+                const toolBox = this.fillToolBox(toolKeys); 
+                return lambda(toolBox);
+            }
         );
+    }
+
+    /**
+     * Register a new provider.
+     * 
+     * @param alias automatically prepended with "alias/" if not already
+     * @param driverName automatically prepended with "driver/" if not already
+     */
+    putAlias(alias:string, driverName:string) {
+        const key = alias.replace(/^\/*(alias\/+)*/, 'alias/');
+        const tools = {};
+        tools["driver"] = driverName;
+
+        this.putProviderOrAlias(key, tools, 
+            (toolBox) => toolBox["driver"]
+            );
     }
 
     /**
@@ -157,7 +225,21 @@ export class AppContext {
      */
     getProvider<T>(key:string):Promise<Provider<T>> {
         return this.startBarrier.wait().then(
-            () => this.providerDb[key]
+            () => {
+                let factory = this.providerDb[key];
+                if (!factory && key.startsWith('config/') && !this.providerDb.hasOwnProperty(key)) {
+                    // go ahead and register a provider that retrieves the configuration
+                    const configKey = key.replace(/^config\//, '');
+                    const configProvider = passThroughProvider(() => this.getConfig(configKey));
+                    factory = () => configProvider;
+                    this.providerDb[key] = factory;
+                }
+
+                if (!factory) {
+                    throw new Error(`no provider registered for key ${key}`);
+                }
+                return factory();
+            }
         );
     }
 
@@ -167,13 +249,23 @@ export class AppContext {
      * overwrite a default put into the context. 
      * This method is intended for use by modules that
      * want to register default configuration at 
-     * startup time.
+     * startup time.  Multiple calls to putDeafultConfig
+     * with the same key call Object.assign() to augment
+     * the previous value.
      * 
      * @param contextIn 
      * @param key 
      */
     putDefaultConfig(key:string, value:Dictionary<any>):void {
-        this.defaultConfigs[key] = value;
+        const configKey = key.replace(/^config\//, '');
+        const providerKey = `config/${configKey}`;
+        const currentConfig = this.defaultConfigs[configKey] || {};
+        this.defaultConfigs[configKey] = { ...currentConfig, ...value };
+        if (!this.providerDb.hasOwnProperty(providerKey)) {
+            // go ahead and register a provider that retrieves the configuration
+            const configProvider = passThroughProvider(() => this.getConfig(configKey));
+            this.providerDb[providerKey] = () => configProvider;
+        }
     }
 
     async getConfig(key:string):Promise<ConfigEntry> {
@@ -188,18 +280,45 @@ export class AppContext {
     }
     
     private static singletonBarrier:Barrier<AppContext> = new Barrier<AppContext>();
-    private startBarrier = new Barrier<void>();
+    private startBarrier = new Barrier<string[]>();
 
     /**
      * Trigger context launch - invoke once
-     * from main()
+     * from main().
+     * 
+     * @returns a list of tools that
+     * are required by registered providers, but
+     * unbound.
      */
-    start(): Promise<void> {
-        if (!this.startBarrier.signal()) {
-            throw new Error('Context perviously started');
-        }
-        return this.startBarrier.wait();
-    }
+    start:() => Promise<string[]> = once(
+        async () => {
+            let configList:Dictionary<Dictionary<any>>[] = await pmap(
+                this.config.configHref,
+                (url) => this.config.fetch(url)
+            );
+            this.overrideConfigs = configList.reduce(
+                (acc, db) => Object.assign(acc, db),
+                {}
+            );
+            // register a provider for any keys not already
+            Object.keys(this.overrideConfigs).forEach(
+                (configKey) => {
+                    const providerKey = `config/${configKey}`;
+                    if (!this.providerDb.hasOwnProperty(providerKey)) {
+                        // go ahead and register a provider that retrieves the configuration
+                        const configProvider = passThroughProvider(() => this.getConfig(configKey));
+                        this.providerDb[providerKey] = () => configProvider;
+                    }
+                }
+            );
+            const unboundTools = [ ... this.allToolKeys ].filter(k => !this.providerDb.hasOwnProperty(k));   
+            if (!this.startBarrier.signal(unboundTools)) {
+                throw new Error('Context perviously started');
+            }
+            return this.startBarrier.wait();
+        },
+        () => { throw new Error('Context perviously started') }
+    );
 
     static build(config:AppContextConfig):Promise<AppContext> {
         if (AppContext.singletonBarrier.state !== 'unresolved') {

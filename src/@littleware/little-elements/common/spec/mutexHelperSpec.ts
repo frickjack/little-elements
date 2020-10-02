@@ -1,5 +1,6 @@
-import { backoff, backoffIterator, Mutex, once, sleep, squish } from "../mutexHelper.js";
+import { backoff, backoffIterator, Barrier, Mutex, once, sleep, squish } from "../mutexHelper.js";
 import { count } from "console";
+import { doesNotReject } from "assert";
 
 describe("the littleware.mutexHelper", () => {
     it("can sleep for a few seconds", (done) => {
@@ -174,3 +175,22 @@ describe("the littleware.mutexHelper", () => {
         );
     });
 });
+
+describe("the little barrier", function() {
+
+    it('can signal and wait on a barrier', function(done) {
+        const barrier = new Barrier<string>();
+        const value = "frickjack";
+
+        barrier.wait().then(
+            str => barrier.wait().then(str => str)
+        ).then(
+            (str) => {
+                expect(str).toEqual(value);
+                done();
+            }
+        );
+        barrier.signal(value);
+    });
+
+})

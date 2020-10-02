@@ -7,7 +7,7 @@ describe("the simpleLoader", () => {
         try {
             const configStr = await fetch(configPath);
             const config = JSON.parse(configStr);
-            expect(config.testConfig.idpConfigUrl).toBe("https://accounts.google.com/.well-known/openid-configuration");
+            expect(config.idpConfigUrl).toBe("https://accounts.google.com/.well-known/openid-configuration");
             done();
         } catch (err) {
             done.fail(err);

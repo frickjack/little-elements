@@ -1,5 +1,9 @@
 import { Barrier } from '../../common/mutexHelper.js';
 import AppContext from '../../common/appContext/appContext.js';
+import { configKey as i18nConfigKey } from '../../common/appContext/i18n.js';
+import { providerName as consoleProvider } from '../../common/appContext/consoleLogger.js';
+import { aliasName as loggingAlias } from '../../common/appContext/logging.js';
+import { loadConfig } from './simpleLoader.js';
 
 
 
@@ -37,7 +41,7 @@ export class LittleAppContext extends HTMLElement {
         AppContext.build(
             {
                 configHref: this.configHref,
-                fetch: (path) => fetch(path).then(res => res.text()),
+                loadConfig
             }
         ).then(
             (appCx) => this._appCx.signal(appCx)
@@ -56,4 +60,11 @@ export class LittleAppContext extends HTMLElement {
 
 window.customElements.define("lw-app-context", LittleAppContext);
 
-export default LittleAppContext;
+export default AppContext;
+
+
+AppContext.get().then(
+    (cx) => {
+        cx.putAlias(loggingAlias, consoleProvider);
+    }
+);

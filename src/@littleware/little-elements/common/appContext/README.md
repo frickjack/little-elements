@@ -12,6 +12,10 @@ An application context implements a simple dependency injection container to hel
 * analytics - GA
 * A-B testing
 * user preferences
+* in-app unit testing
+* feature flags
+* conversation driven UX and asynx UX
+* session and request management
 
 [Test case](./index.html)
 

@@ -4,8 +4,8 @@
     "**/*[sS]pec.js"
   ],
   "helpers": [
-    "helpers/**/*.js"
+    "bin/testMain.js"
   ],
-  "stopSpecOnExpectationFailure": false,
+  "stopSpecOnExpectationFailure": true,
   "random": true
 }

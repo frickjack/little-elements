@@ -136,14 +136,18 @@ export function backoff<T>(lambda: (...args) => Promise<T>, maxRetries= 10, back
 
 /**
  * Proxy that invokes lambda once, and caches the result
+ * 
+ * @param lambdaOnce to invoke just once
+ * @param lambdaTwice to invoke the second+ time called - default
+ *                   just returns the given cached value
  */
-export function once<T>(lambda: () => T): () => T {
+export function once<T>(lambdaOnce: () => T, lambdaTwice: (T) => T = t => t): () => T {
     let hasRun = false;
     let cache = null;
     return () => {
-        if (hasRun) { return cache; }
+        if (hasRun) { return lambdaTwice(cache); }
         hasRun = true;
-        cache = lambda();
+        cache = lambdaOnce();
         return cache;
     };
 }
@@ -314,3 +318,34 @@ export class Mutex {
     }
 
 }
+  
+
+/**
+ * Map the given asynchronous function over the given list
+ * synchronously, so that at most batchSize elements of the list
+ * are in process simultaneously
+ * 
+ * @param {[I]} list 
+ * @param {I => T} lambda 
+ * @param {int} batchSize max number of elements to run in parallel - between 1 and 100, default 10
+ * @param {Promise<T>} result initial list to append to - defaults to []
+ */
+export function pmap<T,R>(list:T[], lambda:(T) => Promise<R>, batchSize:number=10, result:R[]=[]):Promise<R[]> {
+    let n = batchSize;
+    if (n < 1) {
+        n = 1;
+    }
+    if (n > 100) {
+        n = 100;
+    }
+    if (list && list.length > 0) {
+      return Promise.all(list.slice(0,n).map(it => lambda(it))).then(
+        (batchResult) => {
+          return pmap(list.slice(n), lambda, n, result.concat(batchResult));
+        }
+      );
+    } else {
+      return Promise.resolve(result);
+    }
+  }
+  
