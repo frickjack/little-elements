@@ -1,5 +1,5 @@
-import { once, pmap, Barrier } from '../../common/mutexHelper.js';
-import { passThroughProvider, Provider } from '../../common/provider.js';
+import { once, pmap, Barrier } from '../mutexHelper.js';
+import { passThroughProvider, Provider } from '../provider.js';
 
 
 export interface Dictionary<T> {
@@ -81,7 +81,7 @@ export function getTools(tb:ToolBox): Promise<Dictionary<any>> {
     );
 }
 
-export type ToolFactory<T> = (toolbox:ToolBox) => Provider<T>;
+export type ToolFactory<T> = (toolbox:ToolBox) => Provider<T>|Promise<Provider<T>>;
 
 export interface ProviderInfo {
     key:string;
@@ -108,9 +108,6 @@ export class AppContext {
         this.config = {... config};
     }
 
-    // promise fetching translation overrides
-    private i18nLoad:Promise<ConfigDb> = null;
-
     private defaultConfigs:ConfigDb = {};
     private overrideConfigs:ConfigDb = {};
 
@@ -125,11 +122,11 @@ export class AppContext {
     // Dictionary of lazy-initialized providers.
     // The Provider factory is not invoked until
     // the first request for the provider.
-    private providerDb:Dictionary<() => Provider<any>> = {};
+    private providerDb:Dictionary<() => Promise<Provider<any>>> = {};
     private allToolKeys:Set<string> = new Set();
 
-    private fillToolBox(toolKeys:Dictionary<string>):ToolBox {
-        const toolBox = join(
+    private fillToolBox(toolKeys:Dictionary<string>):Promise<ToolBox> {
+        return Promise.all(
             split(toolKeys).map(
                 (kv) => {
                     const rawKey = kv.v;
@@ -138,11 +135,10 @@ export class AppContext {
                     if (!providerFactory) {
                         throw new Error(`failed to fill toolbox - missing dependency ${rawKey}`);
                     }
-                    return { k: alias, v: providerFactory() }
+                    return providerFactory().then(v => ({ k: alias, v }));
                 }
             )
-        );
-        return toolBox;
+        ).then(kvList => join(kvList));
     }
 
     private putProviderOrAlias(key:string, toolKeys:Dictionary<string>, lambda:ToolFactory<any>) {
@@ -155,7 +151,7 @@ export class AppContext {
                     if (k.startsWith('config/') && !this.providerDb.hasOwnProperty(k)) {
                         // go ahead and register a provider that retrieves the configuration
                         const configProvider = passThroughProvider(() => this.getConfig(k.replace(/^config\//, '')));
-                        this.providerDb[k] = () => configProvider;
+                        this.providerDb[k] = () => Promise.resolve(configProvider);
                     }
                     this.allToolKeys.add(k);
                 } else {
@@ -164,11 +160,10 @@ export class AppContext {
             }
         );
         this.providerDb[key] = once(
-            () => {
-                const toolBox = this.fillToolBox(toolKeys); 
-                return lambda(toolBox);
-            }
-        );
+                () => this.fillToolBox(toolKeys).then(
+                        toolBox => lambda(toolBox)
+                    )
+            );
     }
 
     /**
@@ -196,10 +191,7 @@ export class AppContext {
      */
     onStart<T>(toolKeys:Dictionary<string>, lambda:(ToolBox) => T|Promise<T>):Promise<T> {
         return this.startBarrier.wait().then(
-            () => {
-                const toolBox = this.fillToolBox(toolKeys); 
-                return lambda(toolBox);
-            }
+            () => this.fillToolBox(toolKeys).then(toolBox => lambda(toolBox)) 
         );
     }
 
@@ -227,11 +219,11 @@ export class AppContext {
         return this.startBarrier.wait().then(
             () => {
                 let factory = this.providerDb[key];
-                if (!factory && key.startsWith('config/') && !this.providerDb.hasOwnProperty(key)) {
+                if (!factory && key.startsWith('config/')) {
                     // go ahead and register a provider that retrieves the configuration
                     const configKey = key.replace(/^config\//, '');
                     const configProvider = passThroughProvider(() => this.getConfig(configKey));
-                    factory = () => configProvider;
+                    factory = () => Promise.resolve(configProvider);
                     this.providerDb[key] = factory;
                 }
 
@@ -264,7 +256,7 @@ export class AppContext {
         if (!this.providerDb.hasOwnProperty(providerKey)) {
             // go ahead and register a provider that retrieves the configuration
             const configProvider = passThroughProvider(() => this.getConfig(configKey));
-            this.providerDb[providerKey] = () => configProvider;
+            this.providerDb[providerKey] = () => Promise.resolve(configProvider);
         }
     }
 
@@ -294,7 +286,7 @@ export class AppContext {
         async () => {
             let configList:Dictionary<Dictionary<any>>[] = await pmap(
                 this.config.configHref,
-                (url) => this.config.fetch(url)
+                (url) => this.config.loadConfig(url)
             );
             this.overrideConfigs = configList.reduce(
                 (acc, db) => Object.assign(acc, db),
@@ -307,7 +299,7 @@ export class AppContext {
                     if (!this.providerDb.hasOwnProperty(providerKey)) {
                         // go ahead and register a provider that retrieves the configuration
                         const configProvider = passThroughProvider(() => this.getConfig(configKey));
-                        this.providerDb[providerKey] = () => configProvider;
+                        this.providerDb[providerKey] = () => Promise.resolve(configProvider);
                     }
                 }
             );

@@ -1,6 +1,8 @@
 {
-    "ok": "ok",
-    "cancel": "cancel",
-    "login": "login",
-    "logout": "logout"
+    "little-elements": {
+        "ok": "ok",
+        "cancel": "cancel",
+        "login": "login",
+        "logout": "logout"
+    }
 }

@@ -14,10 +14,9 @@ import { aliasName, SimpleLoader } from '../../common/appContext/simpleLoader.js
  * 
  * @param path treated as simple path if does not start with
  *           file:/// or https?://
- * @return text string - caller must convert to json
- *        if necessary via JSON.parse() or whatever
+ * @return parsed json result
  */
-export function loadConfig(path:string): Promise<Dictionary<Dictionary<any>>> {
+export function loadConfig(path:string): Promise<Dictionary<any>> {
     if (path.match(/^https?:\/\/(.+)$/)) {
         return nodeFetch(path).then(res => res.json());
     }

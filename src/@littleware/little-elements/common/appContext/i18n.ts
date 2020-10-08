@@ -1,8 +1,8 @@
-import { singletonProvider } from "../../../../../commonjs/common/provider";
-import * as i18next from "../../../../../i18next/dist/esm/i18next.js";
-import AppContext, { ConfigEntry, Dictionary, getTools } from './appContext.js';
+import AppContext, { ConfigEntry, getTools } from './appContext.js';
 import { aliasName as logKey, Logger } from './logging.js';
+import { singletonProvider } from "../provider.js";
 import { aliasName as loaderAlias, SimpleLoader } from './simpleLoader.js';
+
 
 export const providerName = 'driver/littleware/little-elements/common/i18n';
 
@@ -35,68 +35,69 @@ interface Config {
 
 interface Tools {
     loader: SimpleLoader;
-    config: Dictionary<any>;
+    config: ConfigEntry;
     logger: Logger;
 };
 
-AppContext.get().then(
-    async (cx) => {
-        cx.putProvider(providerName, toolKeys, 
-            (toolBox) => {
-                return singletonProvider(
-                    async () => {
-                        let tools = await getTools(toolBox);
-                        const configEntry:ConfigEntry = tools.config;
-                        
-                        const config = {
-                            ... {
-                                locale: getLocale(),
-                                debug: false,
-                                resourceFolders: []
-                            }, 
-                            ... configEntry.defaults,
-                            ... configEntry.overrides
-                        } as Config;
-                        
-                        const lang = (config.locale || "en").replace(/-.+$/, '');
-                                
-                        return i18next.init({ lng: config.locale }).then(
-                            () => {
-                                const loader = tools.loader as SimpleLoader;
-                                return Promise.all(
-                                        config.resourceFolders.map(
-                                            f => loader.loadConfig(
-                                                        `${f}/${lang}.json`
-                                                    ).catch(
-                                                        () => {
-                                                            tools.log.trace(`failed to load i18n resources from ${f}/${lang}.json`);
-                                                            return {};
-                                                        }
-                                                    )
+/**
+ * Configure i18next provider - 
+ * i18next is imported differently depending on if
+ * environment is server side or browser side
+ * 
+ * @param i18next 
+ */
+export function configure(i18next) {
+    AppContext.get().then(
+        async (cx) => {
+            cx.putProvider(providerName, toolKeys, 
+                (toolBox) => singletonProvider(
+                        async () => {
+                            let tools = await getTools(toolBox) as Tools;
+                            const configEntry:ConfigEntry = tools.config;
+                            
+                            const config = {
+                                ... {
+                                    locale: getLocale(),
+                                    debug: false,
+                                    resourceFolders: []
+                                }, 
+                                ... configEntry.defaults,
+                                ... configEntry.overrides
+                            } as Config;
+                            
+                            const lang = (config.locale || "en").replace(/-.+$/, '');
+                                    
+                            return i18next.init({ lng: config.locale }).then(
+                                () => {
+                                    const loader = tools.loader as SimpleLoader;
+                                    return Promise.all(
+                                            config.resourceFolders.map(
+                                                f => loader.loadConfig(
+                                                            `${f}/${lang}.json`
+                                                        ).catch(
+                                                            () => {
+                                                                tools.logger.trace(`failed to load i18n resources from ${f}/${lang}.json`);
+                                                                return {};
+                                                            }
+                                                        )
+                                        )
+                                    );
+                                }
+                            ).then(
+                                (resourceList:any[]) =>
+                                    Promise.all(
+                                        resourceList.map(
+                                            (bundle) => 
+                                                Promise.all(Object.keys(bundle).map(namespace => i18next.addResourceBundle(lang, namespace, bundle[namespace], true, true)))
+                                        )
                                     )
-                                );
-                            }
-                        ).then(
-                            (resourceList:any[]) => {
-                                recourseList.foreach(
-                                    (res) => {
-
-                                    }
-                                )
-                                i18next.addResource(i18next.language, 'little-elements', {}, true, true);
-                            }
-                        )
-                    }
-                );
-            }
-        );
-    }
-);
-
-AppContext.get().then(
-    cx => cx.onStart({ i18n: providerName },
-        async (toolBox) => {
-            let tools = await getTools(toolBox);
-            // maybe not necessary ? tools.i18n.loadNamespaces(['little-elements'])           
-        })
-)
+                            ).then(
+                                () => i18next
+                            ).catch(
+                                () => i18next
+                            );
+                })  // end singletonprovider
+            ); // end putprovider
+        }
+    );
+}

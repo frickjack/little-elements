@@ -5,7 +5,7 @@ import { Provider } from '../provider.js';
 export const aliasName = 'alias/littleware/little-elements/common/appContext/simpleLoader';
 
 export interface SimpleLoader {
-    loadConfig(path:string):Promise<Dictionary<Dictionary<any>>>;
+    loadConfig(path:string):Promise<Dictionary<any>>;
 };
 
 

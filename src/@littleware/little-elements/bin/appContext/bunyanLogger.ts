@@ -1,19 +1,29 @@
-import { createLogger } from "bunyan";
+import { createLogger, LogLevelString } from "bunyan";
 
 import { Logger } from '../../common/appContext/logging.js';
-import AppContext from '../../common/appContext/appContext.js';
+import AppContext, { getTools, ConfigEntry } from '../../common/appContext/appContext.js';
 import { Provider, singletonProvider } from '../../common/provider.js';
-
-const log = createLogger({ name: "little-app" });
 
 export const providerName = 'driver/littleware/little-elements/bin/appContext/bunyanLogger';
 
+const defaultConfig = {
+    logLevel: "trace"
+};
+
 AppContext.get().then(
     (cx) => {
-        const provider:Provider<Logger> = singletonProvider(() => log);
         cx.putProvider(providerName,
             { "config": "config/littleware/logging" },
-            () => provider);
+            async (toolBox) => {
+                const systemConfigs = await getTools(toolBox).then(
+                    tools => tools.config as ConfigEntry
+                );
+                const config = { ...defaultConfig, ...systemConfigs.defaults, ...systemConfigs.overrides };
+                const log = createLogger({ name: "little-app", level: config.logLevel as LogLevelString });
+                const provider:Provider<Logger> = singletonProvider(() => log);
+                return provider
+            }
+        );
     }
 );
 

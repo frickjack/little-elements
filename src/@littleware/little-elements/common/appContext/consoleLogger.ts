@@ -80,7 +80,7 @@ interface Tools {
 AppContext.get().then(
     (cx) => {
         cx.putProvider(providerName, 
-            { "config": "config/littleware/logging" },
+            { "config": `config/${configKey}` },
             (toolBox) => {
                 return singletonProvider(
                     async () => {

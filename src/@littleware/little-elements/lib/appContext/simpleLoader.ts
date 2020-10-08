@@ -12,7 +12,7 @@ import { aliasName, SimpleLoader } from '../../common/appContext/simpleLoader.js
  * @return text string - caller must convert to json
  *        if necessary via JSON.parse() or whatever
  */
-export function loadConfig(path:string): Promise<Dictionary<Dictionary<any>> {
+export function loadConfig(path:string): Promise<Dictionary<any>> {
     return fetch(path).then(res => res.json());
 }
 
