@@ -3,6 +3,7 @@
         "ok": "ok",
         "cancel": "cancel",
         "login": "login",
-        "logout": "logout"
+        "logout": "logout",
+        "jasmine-test": "for the test case"
     }
 }

@@ -6,6 +6,7 @@ import { aliasName, SimpleLoader } from '../../common/appContext/simpleLoader.js
 /**
  * Simple loader for loading local files or fetching
  * from the network.
+ * TODO: extend with support for local/session storage ...
  * 
  * @param path treated as simple path if does not start with
  *           file:/// or https?://

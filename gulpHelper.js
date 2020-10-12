@@ -134,7 +134,9 @@ module.exports.defineTasks = function(gulp, config) {
     gulp.task('little-json', () => {
         return merge(
             gulp.src(basePath + '/bin/**/*.json').pipe(gulp.dest('commonjs/bin')),
-            gulp.src(basePath + '/**/*.json').pipe(gulp.dest('web'))
+            gulp.src(basePath + '/common/**/*.json').pipe(gulp.dest('commonjs/common')),
+            gulp.src(basePath + '/lib/**/*.json').pipe(gulp.dest('web/lib')),
+            gulp.src(basePath + '/common/**/*.json').pipe(gulp.dest('web/common')),
         );
     });
 
