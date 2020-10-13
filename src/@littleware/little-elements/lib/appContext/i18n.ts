@@ -4,7 +4,7 @@ import AppContext from '../../common/appContext/appContext';
 import { providerName, configure } from "../../common/appContext/i18n";
 import { Provider } from '../../common/provider';
 
-configure(i18next);
+configure(i18next, [`${new URL(import.meta.url).pathname}/../../common/appContext/i18n`]);
 
 export function getI18n() {
     return AppContext.get().then(

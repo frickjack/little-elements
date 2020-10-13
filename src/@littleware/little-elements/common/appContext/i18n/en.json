@@ -1,9 +1,12 @@
 {
+    "translation": {
+        "test": "whatever"
+    },
     "little-elements": {
         "ok": "ok",
         "cancel": "cancel",
         "login": "login",
         "logout": "logout",
-        "jasmine-test": "for the test case"
+        "test": "for the test case"
     }
 }

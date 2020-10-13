@@ -10,13 +10,14 @@ describe ("appContext i18n support", function() {
 
     it("can apply en translations from the little-elements package", async (done) => {
         expect(i18n).not.toBeNull();
-        const tr = await i18n.getFixedT(null, 'little-elements');
+        const tr = await i18n.getFixedT(null, ['little-elements']);
         expect(i18n.t('ok')).toBe('ok');
         expect(i18n.t('cancel')).toBe('cancel');
         expect(i18n.t('bogus', 'whatever')).toBe('whatever');
-        expect(i18n.t('little-elements:jasmine-test')).toBe('for the test case');
+        expect(i18n.t('little-elements:test')).toBe('for the test case');
         // without explicit namespace
-        expect(tr('jasmine-test')).toBe('for the test case');
+        expect(i18n.t('test')).toBe('whatever');
+        expect(tr('test')).toBe('for the test case');
         done();
     });
 });

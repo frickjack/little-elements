@@ -84,7 +84,7 @@ module.exports.defineTasks = function(gulp, config) {
         //noImplicitAny: true,
         target: "ESNEXT",
         //module: commonsjs,
-        module: "es2015",
+        module: "esnext",
         //moduleResolution: "Node",
         sourceMap: true,
         declaration: true,

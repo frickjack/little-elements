@@ -1,6 +1,5 @@
-import "../../../../../i18next/dist/esm/i18next.js";
-
-import { Barrier } from '../../common/mutexHelper.js';
+import "./i18n.js";
+import { Barrier, once } from '../../common/mutexHelper.js';
 import AppContext from '../../common/appContext/appContext.js';
 import "../../common/appContext/i18n.js";
 import { providerName as consoleProvider } from '../../common/appContext/consoleLogger.js';
@@ -37,20 +36,15 @@ export class LittleAppContext extends HTMLElement {
 
     private _appCx:Barrier<AppContext> = null;
 
-    private bootstrap():Promise<AppContext> {
-        if (this._appCx) { return this._appCx.wait(); }
-        this._appCx = new Barrier<AppContext>();
-        AppContext.build(
+    private bootstrap:() => Promise<AppContext> = once(
+        () => AppContext.build(
             {
                 configHref: this.configHref,
                 loadConfig
             }
-        ).then(
-            (appCx) => this._appCx.signal(appCx)
-        );
-        return this._appCx.wait();
-    }
-    
+        )
+    );
+
     public connectedCallback(): void {
         this.bootstrap();
     }

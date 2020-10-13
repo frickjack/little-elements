@@ -100,9 +100,7 @@ export function configure(i18next, baseResourceFolders:string[]=[]) {
                                                 Promise.all(
                                                     Object.keys(bundle).map(
                                                         namespace =>
-                                                            i18next.addResourceBundle(lang, namespace, bundle[namespace], true, true).then(
-                                                                () => i18next.loadNamespaces([namespace])
-                                                            )
+                                                            i18next.addResourceBundle(lang, namespace, bundle[namespace], true, true)
                                                     )
                                                 )
                                         )
