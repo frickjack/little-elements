@@ -34,7 +34,10 @@ export class LittleAppContext extends HTMLElement {
         return this.getAttribute("config-href").split(/,\s*/);
     }
 
-    private _appCx:Barrier<AppContext> = null;
+    /** Property backed by "main-module" attribute */
+    get mainModule(): string {
+        return this.getAttribute("main-module");
+    }
 
     private bootstrap:() => Promise<AppContext> = once(
         () => AppContext.build(
@@ -42,6 +45,21 @@ export class LittleAppContext extends HTMLElement {
                 configHref: this.configHref,
                 loadConfig
             }
+        ).then(
+            (cx) => {
+                const mainMod = this.mainModule;
+                if (! mainMod) {
+                    throw new Error('must specify main module');
+                }
+                let modPath = mainMod;
+                if (mainMod.startsWith('.')) {
+                    // assume it's a path relative to location.href
+                    modPath = new URL(location.href).pathname.replace(/\/[^/]$/, '') + `/${mainMod}`
+                }
+                return import(modPath).then(() => cx);
+            }
+        ).then(
+            (cx) => cx.start().then(() => cx)
         )
     );
 
