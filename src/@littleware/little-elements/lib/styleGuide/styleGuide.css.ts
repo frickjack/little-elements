@@ -3,7 +3,8 @@ import {html, TemplateResult} from "../../../../../lit-html/lit-html.js";
 export const meta = html`
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="Content-Security-Policy"
-    content="default-src 'none';
+	content="default-src 'none';
+	connect-src 'self';
     img-src 'self' data: https://www.google-analytics.com;
     script-src 'self' https://www.google-analytics.com;
     style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com;

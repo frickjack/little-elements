@@ -9,6 +9,8 @@ describe("the console logger", function() {
     });
 
     it("writes logs", function() {
+        expect(logger).not.toBe(null);
+        expect(logger).toBeDefined();
         logger.info("info level log");
         logger.warn("a warning!");
         logger.error("an error!");

@@ -86,7 +86,7 @@ AppContext.get().then(
                     async () => {
                         const tools:Tools = await getTools(toolBox) as Tools;
                         const config = { ...defaultConfig, ...tools.config.defaults, ...tools.config.overrides };
-                        new ConsoleLogger(strToLevel(config.logLevel));
+                        return new ConsoleLogger(strToLevel(config.logLevel));
                     }
                 );
             }

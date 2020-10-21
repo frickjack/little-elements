@@ -11,6 +11,13 @@ import "./authMgr/spec/authMgrSpec.js";
 import "./pureMenu/spec/pureMenuSpec.js";
 import "./styleGuide/spec/styleGuideSpec.js";
 import "./test/spec/utilSpec.js";
-import {startTest} from "./test/util.js";
+import { loadConfig } from './appContext/simpleLoader.js';
+import AppContext from './appContext/appContext.js';
 
-startTest();
+import { startTest } from "./test/util.js";
+
+AppContext.build({ configHref: [], loadConfig }).then(
+    cx => cx.start()
+).then(
+    () => startTest()
+);

@@ -1,6 +1,6 @@
 import { sleep } from "../../../common/mutexHelper.js";
 import { getStage } from "../../test/util.js";
-import "../authMgr.js";
+import "../appContext.js";
 
 describe( "the lw-auth-mgr custom element", () => {
     it( "Can dance", () => {

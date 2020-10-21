@@ -1,10 +1,13 @@
-import i18next, { i18n } from "../../../../../i18next/dist/esm/i18next.js";
+import "../../../../../i18next/i18next.min.js";
+import { i18n } from "../../../../../i18next/i18next.min.js";
 
 import AppContext from '../../common/appContext/appContext.js';
 import { providerName, configure } from "../../common/appContext/i18n.js";
 import { Provider } from '../../common/provider';
 
-configure(i18next, [`${new URL(import.meta.url).pathname}/../../common/appContext/i18n`]);
+declare var i18next:18n;
+
+configure(i18next, [`${new URL(import.meta.url).pathname.replace(/\/[^/]+$/, '')}/../../common/appContext/i18n`]);
 
 export function getI18n() {
     return AppContext.get().then(

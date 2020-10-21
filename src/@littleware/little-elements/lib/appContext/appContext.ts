@@ -1,11 +1,10 @@
 import "./i18n.js";
-import { Barrier, once } from '../../common/mutexHelper.js';
+import { once } from '../../common/mutexHelper.js';
 import AppContext from '../../common/appContext/appContext.js';
 import "../../common/appContext/i18n.js";
 import { providerName as consoleProvider } from '../../common/appContext/consoleLogger.js';
 import { aliasName as loggingAlias } from '../../common/appContext/logging.js';
 import { loadConfig } from './simpleLoader.js';
-
 
 
 /**
@@ -31,7 +30,11 @@ export class LittleAppContext extends HTMLElement {
 
     /** Property backed by "config-href" attribute */
     get configHref(): string[] {
-        return this.getAttribute("config-href").split(/,\s*/);
+        const attr = this.getAttribute("config-href");
+        if (attr) {
+            return attr.split(/,\s*/);
+        }
+        return [];
     }
 
     /** Property backed by "main-module" attribute */
@@ -49,12 +52,14 @@ export class LittleAppContext extends HTMLElement {
             (cx) => {
                 const mainMod = this.mainModule;
                 if (! mainMod) {
-                    throw new Error('must specify main module');
+                    // assume the caller will load the module herself,
+                    // and start the context
+                    return cx;
                 }
                 let modPath = mainMod;
                 if (mainMod.startsWith('.')) {
                     // assume it's a path relative to location.href
-                    modPath = new URL(location.href).pathname.replace(/\/[^/]$/, '') + `/${mainMod}`
+                    modPath = new URL(location.href).pathname.replace(/\/[^/]+$/, '') + `/${mainMod}`
                 }
                 return import(modPath).then(() => cx);
             }
