@@ -1,7 +1,18 @@
 import {html, render, TemplateResult} from "../../../../../lit-html/lit-html.js";
+import AppContext, { getTools } from '../../common/appContext/appContext.js';
+import { once } from '../../common/mutexHelper.js';
+import { Ii18n, providerName as i18nProvider } from '../appContext/i18n.js';
+import { Logger, aliasName as loggerAlias } from '../../common/appContext/logging.js';
 import styleHelper from "../styleGuide/styleGuide.js";
 import {css} from "./pureMenu.css.js";
 
+
+interface Tools {
+    i18n: Ii18n;
+    log: Logger;
+}
+
+let tools: Tools = null; // initialized below
 
 const PREFIX = 'pure-',
     ACTIVE_CLASS_NAME = PREFIX + 'menu-active',
@@ -40,7 +51,8 @@ class PureDropdown {
         this._firstMenuLink = this._menu.querySelector(MENU_LINK_SELECTOR);
     }
 
-    static build(dropdownParent): PureDropdown {
+    static build(menu:LittleDropDownMenu): PureDropdown {
+        const dropdownParent = menu.querySelector('.pure-menu-has-children');
         if (!dropdownParent) { return null; }
         const ddm = new PureDropdown(dropdownParent); // drop down menu
         
@@ -65,6 +77,7 @@ class PureDropdown {
         // Toggle on click
         ddm._link.addEventListener('click', function (e) {
             e.stopPropagation();
+            tools.log.debug(`lw-drop-down click on ${e.target.href}`);
             e.preventDefault();
             ddm.toggle();
         });
@@ -90,13 +103,13 @@ class PureDropdown {
             currentLink = ddm._menu.querySelector(':focus');
 
             // Dismiss an open menu on ESC
-            if (e.keyCode === 27) {
+            if (e.key === "Escape") {
                 /* Esc */
                 ddm.halt(e);
                 ddm.hide();
             }
             // Go to the next link on down arrow
-            else if (ARROW_KEYS_ENABLED && e.keyCode === 40) {
+            else if (ARROW_KEYS_ENABLED && e.key === 'ArrowDown') {
                 /* Down arrow */
                 ddm.halt(e);
                 // get the nextSibling (an LI) of the current link's LI
@@ -115,7 +128,7 @@ class PureDropdown {
                 }
             }
             // Go to the previous link on up arrow
-            else if (ARROW_KEYS_ENABLED && e.keyCode === 38) {
+            else if (ARROW_KEYS_ENABLED && e.key === 'ArrowUp') {
                 /* Up arrow */
                 ddm.halt(e);
                 // get the currently focused link
@@ -149,54 +162,51 @@ class PureDropdown {
 
     
     show() {
-            if (this._state !== MENU_OPEN) {
-                this._dropdownParent.classList.add(ACTIVE_CLASS_NAME);
-                this._menu.setAttribute(ARIA_HIDDEN, false);
-                this._state = MENU_OPEN;
-            }
+        if (this._state !== MENU_OPEN) {
+            this._dropdownParent.classList.add(ACTIVE_CLASS_NAME);
+            this._menu.setAttribute(ARIA_HIDDEN, false);
+            this._state = MENU_OPEN;
+        }
     }
 
     hide() {
-            if (this._state !== MENU_CLOSED) {
-                this._dropdownParent.classList.remove(ACTIVE_CLASS_NAME);
-                this._menu.setAttribute(ARIA_HIDDEN, true);
-                this._link.focus();
-                this._state = MENU_CLOSED;
-            }
+        if (this._state !== MENU_CLOSED) {
+            this._dropdownParent.classList.remove(ACTIVE_CLASS_NAME);
+            this._menu.setAttribute(ARIA_HIDDEN, true);
+            this._link.focus();
+            this._state = MENU_CLOSED;
+        }
     };
 
     toggle () {
-            this[this._state === MENU_CLOSED ? 'show' : 'hide']();
+        this[this._state === MENU_CLOSED ? 'show' : 'hide']();
     };
 
     halt (e) {
-            e.stopPropagation();
-            e.preventDefault();
+        e.stopPropagation();
+        e.preventDefault();
     };
 
 }
 
 
+let idCounter=0;
+
 /**
  * 
  * @param model for instrumenting the template
  */
-function templateFactory(model: LittlePureMenu): TemplateResult {
+function templateFactory(model: DropDownModel): TemplateResult {
     return html`
-<div class="pure-menu pure-menu-horizontal lw-auth-mgr lw-auth-mgr_login">
+<div class="pure-menu pure-menu-horizontal lw-drop-down ${model.root.className}">
     <ul class="pure-menu-list">
-        <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
-            <a href="#" id="menuLink1" class="pure-menu-link">Sign In</a>
+        <li class="pure-menu-item pure-menu-has-children">
+            <a href="${model.root.href}" id="ldd${idCounter++}" class="pure-menu-link">${tools.i18n.t(model.root.labelKey)}</a>
             <ul class="pure-menu-children">
-                <li class="pure-menu-item lw-auth-mgr__item lw-auth-mgr__item_logout">
-                    <a href="#" class="pure-menu-link">Logout</a>
-                </li>
-                <li class="pure-menu-item lw-auth-mgr__item lw-auth-mgr__item_login">
-                    <a href="#" class="pure-menu-link">Login</a>
-                </li>
-                <li class="pure-menu-item lw-auth-mgr__item lw-auth-mgr__item_logout">
-                    <a href="#" class="pure-menu-link">Account Info</a>
-                </li>
+                ${model.items.map(
+                    it => html`<li class="pure-menu-item ${it.className}">
+                    <a href="${it.href}" id="ldd${idCounter++}" class="pure-menu-link">${tools.i18n.t(it.labelKey)}</a>
+                </li>`)}
             </ul>
         </li>
     </ul>
@@ -204,11 +214,32 @@ function templateFactory(model: LittlePureMenu): TemplateResult {
     `;
 }
 
+export interface MenuItem {
+    className: string;
+    labelKey: string;
+    href: string;
+}
 
-export class LittlePureMenu extends HTMLElement {
+export interface DropDownModel {
+    root: MenuItem;
+    items: MenuItem[];
+}
+
+export class LittleDropDownMenu extends HTMLElement {
+    private _model:DropDownModel = {
+        root: {
+            labelKey: "uninitialized",
+            className: "lw-drop-down_uninitialized",
+            href: "#ignore"
+        },
+        items: []
+    }
+
     constructor() {
         super();
     }
+
+    get model(): DropDownModel { return this._model; }
 
     public connectedCallback(): void {
         this.render();
@@ -218,27 +249,48 @@ export class LittlePureMenu extends HTMLElement {
         // console.log( "Disconnected!" );
     }
   
+    /*
     public attributeChangedCallback(attrName?: string, oldVal?: string, newVal?: string): void {
         // console.log( "Attribute change! " + attrName );
         this.render();
+    }
+    */
+
+    get contextPath(): string {
+        return this.getAttribute('context');
     }
 
     // drop-down manager
     private ddm = null;
 
     // Render element DOM by returning a `lit-html` template.
-    render() {
-        if (!this.ddm) {
-            render(templateFactory(this), this);
-            this.ddm = PureDropdown.build(this);
+    // Wired to run once only - static configuration.
+    private render = once(async () => {
+        const cxPath = this.contextPath;
+        if (cxPath) {
+            this._model = await AppContext.get().then(
+                    cx => cx.getConfig(this.contextPath)
+                ).then(
+                    entry => ({ ... this.model, ... entry.defaults, ... entry.overrides } as DropDownModel)
+                )
         }
-    }
-
+        render(templateFactory(this.model), this);
+        this.ddm = PureDropdown.build(this);
+    });
 }
 
-window.customElements.define("lw-pure-menu", LittlePureMenu);
+AppContext.get().then(
+    (cx) => {
+        cx.onStart(
+            { i18n: i18nProvider, log: loggerAlias },
+            async (toolBox) => {
+                tools = await getTools(toolBox) as Tools;
+                window.customElements.define("lw-drop-down", LittleDropDownMenu);
+                styleHelper.componentCss.push(css);
+                styleHelper.render();
+            }
+        );
+    }
+);
 
-export default LittlePureMenu;
-
-styleHelper.componentCss.push(css);
-styleHelper.render();
+export default LittleDropDownMenu;

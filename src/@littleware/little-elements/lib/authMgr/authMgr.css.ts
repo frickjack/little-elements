@@ -11,9 +11,5 @@ lw-auth-mgr {
   display: block;
 }
 
-.lw-auth-mgr__item_hidden {
-  display: none;
-}
-
 </style>
 `;

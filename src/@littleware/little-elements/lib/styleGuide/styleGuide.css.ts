@@ -167,5 +167,9 @@ h1,h2,h3,h4 {
 	width: 100%;
 }
 
+.lw_hidden {
+	display: none;
+}
+
 </style>
 `;

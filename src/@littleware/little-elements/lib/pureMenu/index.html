@@ -19,13 +19,14 @@
 <section>
 
 <p> Here is the lw-pure-menu custom element </p>
-<lw-pure-menu 
-  items="item1, item2, item3, item3/item3-1, item3/item3-2",
-  states="login, logout"
+<lw-drop-down 
+  context="little-elements/lw-drop-down/spec/testConfig"
   >
-</lw-pure-menu>
+</lw-drop-down>
 
+<lw-app-context main-module="./spec/main.js"></lw-app-context>
 
 </section>
-<script src="./spec/main.js" type="module"></script>
+<script src="../appContext/appContext.js" type="module"></script>
+
 {% endblock %}

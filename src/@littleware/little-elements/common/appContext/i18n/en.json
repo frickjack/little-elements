@@ -3,10 +3,11 @@
         "test": "whatever"
     },
     "little-elements": {
-        "ok": "ok",
+        "accountInfo": "Account Info",
         "cancel": "cancel",
         "login": "login",
         "logout": "logout",
+        "ok": "ok",
         "test": "for the test case"
     }
 }
