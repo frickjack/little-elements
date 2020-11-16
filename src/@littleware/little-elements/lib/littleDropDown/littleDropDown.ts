@@ -1,10 +1,10 @@
 import {html, render, TemplateResult} from "../../../../../lit-html/lit-html.js";
 import AppContext, { getTools } from '../../common/appContext/appContext.js';
-import { once } from '../../common/mutexHelper.js';
+import { squish } from '../../common/mutexHelper.js';
 import { Ii18n, providerName as i18nProvider } from '../appContext/i18n.js';
 import { Logger, aliasName as loggerAlias } from '../../common/appContext/logging.js';
 import styleHelper from "../styleGuide/styleGuide.js";
-import {css} from "./pureMenu.css.js";
+import {css} from "./littleDropDown.css.js";
 
 
 interface Tools {
@@ -30,8 +30,10 @@ const PREFIX = 'pure-',
     ARROW_KEYS_ENABLED = true;
 
 /**
- * Puremenu dropdown handler - originally from:
+ * littleDropDown dropdown handler - originally from:
  *     https://purecss.io/js/menus.js
+ * TODO - add mechanism to remove listeners when
+ * a drop down is removed from the page.
  *
  * Enable drop-down menus in Pure
  * Inspired by YUI3 gallery-simple-menu by Julien LeComte
@@ -83,72 +85,79 @@ class PureDropdown {
         });
 
         // Keyboard navigation
-        document.addEventListener('keydown', function (e) {
-            var currentLink,
-                previousSibling,
-                nextSibling,
-                previousLink,
-                nextLink;
+        // disable this for now - not relevent on mobile,
+        // and prone to memory leak as currently constructed
+        if (false) {
+            document.addEventListener('keydown', function (e) {
+                var currentLink,
+                    previousSibling,
+                    nextSibling,
+                    previousLink,
+                    nextLink;
 
-            // if the menu isn't active, ignore
-            if (ddm._state !== MENU_OPEN) {
-                return;
-            }
+                // if the menu isn't active, ignore
+                if (ddm._state !== MENU_OPEN) {
+                    return;
+                }
 
-            // if the menu is the parent of an open, active submenu, ignore
-            if (ddm._menu.querySelector(MENU_ACTIVE_SELECTOR)) {
-                return;
-            }
+                // if the menu is the parent of an open, active submenu, ignore
+                if (ddm._menu.querySelector(MENU_ACTIVE_SELECTOR)) {
+                    return;
+                }
 
-            currentLink = ddm._menu.querySelector(':focus');
+                currentLink = ddm._menu.querySelector(':focus');
 
-            // Dismiss an open menu on ESC
-            if (e.key === "Escape") {
-                /* Esc */
-                ddm.halt(e);
-                ddm.hide();
-            }
-            // Go to the next link on down arrow
-            else if (ARROW_KEYS_ENABLED && e.key === 'ArrowDown') {
-                /* Down arrow */
-                ddm.halt(e);
-                // get the nextSibling (an LI) of the current link's LI
-                nextSibling = (currentLink) ? currentLink.parentNode.nextSibling : null;
-                // if the nextSibling is a text node (not an element), go to the next one
-                while (nextSibling && nextSibling.nodeType !== 1) {
-                    nextSibling = nextSibling.nextSibling;
+                // Dismiss an open menu on ESC
+                if (e.key === "Escape") {
+                    /* Esc */
+                    ddm.halt(e);
+                    ddm.hide();
                 }
-                nextLink = (nextSibling) ? nextSibling.querySelector('.pure-menu-link') : null;
-                // if there is no currently focused link, focus the first one
-                if (!currentLink) {
-                    ddm._menu.querySelector('.pure-menu-link').focus();
+                // Go to the next link on down arrow
+                else if (ARROW_KEYS_ENABLED && e.key === 'ArrowDown') {
+                    /* Down arrow */
+                    ddm.halt(e);
+                    // get the nextSibling (an LI) of the current link's LI
+                    nextSibling = (currentLink) ? currentLink.parentNode.nextSibling : null;
+                    // if the nextSibling is a text node (not an element), go to the next one
+                    while (nextSibling && nextSibling.nodeType !== 1) {
+                        nextSibling = nextSibling.nextSibling;
+                    }
+                    nextLink = (nextSibling) ? nextSibling.querySelector('.pure-menu-link') : null;
+                    // if there is no currently focused link, focus the first one
+                    if (!currentLink) {
+                        ddm._menu.querySelector('.pure-menu-link').focus();
+                    }
+                    else if (nextLink) {
+                        nextLink.focus();
+                    }
                 }
-                else if (nextLink) {
-                    nextLink.focus();
+                // Go to the previous link on up arrow
+                else if (ARROW_KEYS_ENABLED && e.key === 'ArrowUp') {
+                    /* Up arrow */
+                    ddm.halt(e);
+                    // get the currently focused link
+                    previousSibling = (currentLink) ? currentLink.parentNode.previousSibling : null;
+                    while (previousSibling && previousSibling.nodeType !== 1) {
+                        previousSibling = previousSibling.previousSibling;
+                    }
+                    previousLink = (previousSibling) ? previousSibling.querySelector('.pure-menu-link') : null;
+                    // if there is no currently focused link, focus the last link
+                    if (!currentLink) {
+                        ddm._menu.querySelector('.pure-menu-item:last-child .pure-menu-link').focus();
+                    }
+                    // else if there is a previous item, go to the previous item
+                    else if (previousLink) {
+                        previousLink.focus();
+                    }
                 }
-            }
-            // Go to the previous link on up arrow
-            else if (ARROW_KEYS_ENABLED && e.key === 'ArrowUp') {
-                /* Up arrow */
-                ddm.halt(e);
-                // get the currently focused link
-                previousSibling = (currentLink) ? currentLink.parentNode.previousSibling : null;
-                while (previousSibling && previousSibling.nodeType !== 1) {
-                    previousSibling = previousSibling.previousSibling;
-                }
-                previousLink = (previousSibling) ? previousSibling.querySelector('.pure-menu-link') : null;
-                // if there is no currently focused link, focus the last link
-                if (!currentLink) {
-                    ddm._menu.querySelector('.pure-menu-item:last-child .pure-menu-link').focus();
-                }
-                // else if there is a previous item, go to the previous item
-                else if (previousLink) {
-                    previousLink.focus();
-                }
-            }
-        });
+            });
+        }
 
         // Dismiss an open menu on outside event
+        // TODO - Adding a listener at the document level is prone
+        // to memory leak if these components are dynamically
+        // created and destroyed ....
         document.addEventListener(DISMISS_EVENT, function (e) {
             var target = e.target;
             if (target !== ddm._link && !ddm._menu.contains(target)) {
@@ -226,20 +235,55 @@ export interface DropDownModel {
 }
 
 export class LittleDropDownMenu extends HTMLElement {
-    private _model:DropDownModel = {
-        root: {
-            labelKey: "uninitialized",
-            className: "lw-drop-down_uninitialized",
-            href: "#ignore"
-        },
-        items: []
+    // Gets a copy of the default model
+    get defaultModel():DropDownModel {
+        return {
+            root: {
+                labelKey: "uninitialized",
+                className: "lw-drop-down_uninitialized",
+                href: "#ignore"
+            },
+            items: []
+        };
     }
+
+    private modelVal:DropDownModel = null;
 
     constructor() {
         super();
     }
 
-    get model(): DropDownModel { return this._model; }
+    getModel():Promise<DropDownModel> {
+        if (null === this.modelVal) {
+            const cxPath = this.contextPath;
+            if (cxPath) {
+                return AppContext.get().then(
+                        cx => cx.getConfig(this.contextPath)
+                    ).then(
+                        entry => ({ ... this.defaultModel, ... entry.defaults, ... entry.overrides } as DropDownModel)
+                    ).then(
+                        (newModel:DropDownModel) => {
+                            if (null === this.modelVal) {
+                                this.modelVal = newModel;
+                            }
+                            return this.modelVal;
+                        }
+                    );
+            } else {
+                this.modelVal = this.defaultModel;
+            }
+        }
+        return Promise.resolve(this.modelVal);
+    }
+
+    // Provide mechanism for app to customize
+    // labels, etc in response to new data
+    set model(value: DropDownModel) {
+        if (value) {
+            this.modelVal = value;
+            this.render();
+        }
+    }
 
     public connectedCallback(): void {
         this.render();
@@ -265,20 +309,22 @@ export class LittleDropDownMenu extends HTMLElement {
 
     // Render element DOM by returning a `lit-html` template.
     // Wired to run once only - static configuration.
-    private render = once(async () => {
-        const cxPath = this.contextPath;
-        if (cxPath) {
-            this._model = await AppContext.get().then(
-                    cx => cx.getConfig(this.contextPath)
-                ).then(
-                    entry => ({ ... this.model, ... entry.defaults, ... entry.overrides } as DropDownModel)
-                )
-        }
-        render(templateFactory(this.model), this);
-        this.ddm = PureDropdown.build(this);
+    private render:() => void = squish(() => {
+        return this.getModel().then(
+            (model) => {
+                render(templateFactory(this.modelVal), this);
+                this.ddm = PureDropdown.build(this);
+            }
+        );
     });
 }
 
+//
+// Note that the customElement is not defined
+// until the tools have been loaded here, so
+// we can avoid asynchronously
+// loading tools from the code above
+//
 AppContext.get().then(
     (cx) => {
         cx.onStart(

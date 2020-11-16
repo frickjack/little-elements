@@ -1,4 +1,4 @@
-# lw-pure-menu Custom Element
+# lw-drop-down Custom Element
 
 A custom element for automating some of the management around [pure menus](https://purecss.io/menus/)
 
@@ -29,5 +29,5 @@ Configuration can also be specified or augmented with an application context par
 
 ex:
 ```
-<lw-pure-menu context="/menus/signin" />
+<lw-drop-down context="/menus/signin" />
 ```

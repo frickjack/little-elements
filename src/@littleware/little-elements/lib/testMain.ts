@@ -8,7 +8,7 @@ import "../common/spec/providerSpec.js";
 import "./appContext/spec/appContextSpec.js";
 import "./arrivalPie/spec/arrivalPieSpec.js";
 import "./authMgr/spec/authMgrSpec.js";
-import "./pureMenu/spec/pureMenuSpec.js";
+import "./littleDropDown/spec/littleDropDownSpec.js";
 import "./styleGuide/spec/styleGuideSpec.js";
 import "./test/spec/utilSpec.js";
 import { loadConfig } from './appContext/simpleLoader.js';

@@ -1,9 +1,9 @@
 import AppContext from '../../../common/appContext/appContext.js';
 import { sleep } from "../../../common/mutexHelper.js";
 import { getStage } from "../../test/util.js";
-import "../pureMenu.js";
+import "../littleDropDown.js";
 
-const testContext = 'littleware/lib/pureMenu/spec'
+const testContext = 'littleware/lib/littleDropDown/spec'
 
 
 describe( "the lw-drop-down custom element", () => {
@@ -12,7 +12,7 @@ describe( "the lw-drop-down custom element", () => {
     });
 
     it( "Can render a lw-drop-down", (done) => {
-        const stage = getStage("dropdown1", "LittlePureMenu");
+        const stage = getStage("dropdown1", "LittlelittleDropDown");
         const elem = document.createElement("lw-drop-down");
         elem.setAttribute('context', testContext);
         stage.appendChild(elem);

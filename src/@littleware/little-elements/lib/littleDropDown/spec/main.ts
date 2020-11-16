@@ -1,4 +1,4 @@
 import {startTest} from "../../test/util.js";
-import "./pureMenuSpec.js";
+import "./littleDropDownSpec.js";
 
 startTest();
