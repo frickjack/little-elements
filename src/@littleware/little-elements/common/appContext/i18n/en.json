@@ -4,10 +4,12 @@
     },
     "little-elements": {
         "accountInfo": "Account Info",
-        "cancel": "cancel",
-        "login": "login",
-        "logout": "logout",
-        "ok": "ok",
+        "cancel": "Cancel",
+        "login": "Singn In",
+        "logout": "Sign Out",
+        "anonymous": "anonymous",
+        "userinfo": "User Info",
+        "ok": "Ok",
         "test": "for the test case"
     }
 }

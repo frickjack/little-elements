@@ -276,13 +276,17 @@ export class LittleDropDownMenu extends HTMLElement {
         return Promise.resolve(this.modelVal);
     }
 
-    // Provide mechanism for app to customize
-    // labels, etc in response to new data
-    set model(value: DropDownModel) {
-        if (value) {
-            this.modelVal = value;
-            this.render();
-        }
+    changeModel(handler:(DropDownModel) => DropDownModel|Promise<DropDownModel>):Promise<void> {
+        return this.getModel().then(
+            model => handler(model)
+        ).then(
+            (newModel) => {
+                if (newModel) {
+                    this.modelVal = newModel;
+                    this.render();
+                }
+            }
+        );
     }
 
     public connectedCallback(): void {
@@ -309,14 +313,14 @@ export class LittleDropDownMenu extends HTMLElement {
 
     // Render element DOM by returning a `lit-html` template.
     // Wired to run once only - static configuration.
-    private render:() => void = squish(() => {
+    private render() {
         return this.getModel().then(
             (model) => {
                 render(templateFactory(this.modelVal), this);
                 this.ddm = PureDropdown.build(this);
             }
         );
-    });
+    }
 }
 
 //
