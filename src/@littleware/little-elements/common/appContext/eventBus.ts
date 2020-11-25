@@ -1,21 +1,22 @@
 import AppContext, { Dictionary, getTools } from './appContext.js';
+import { deepCopy } from '../mutexHelper.js';
 import { Provider, singletonProvider } from '../provider.js';
 import { aliasName as logKey, Logger } from './logging.js';
 
 export interface Event {
-    category: string;
-    detail: string;
+    evType: string;
     data: any;
 }
 
 type Listener = (Event) => any;
+
 
 interface Tools {
     logger: Logger;
 }
 
 export class EventBus {
-    private listenerDb:Dictionary<Dictionary<Listener[]>> = {};
+    private listenerDb:Dictionary<Listener[]> = {};
     private tools:Tools = null;
     
     constructor(tools:Tools) {
@@ -23,44 +24,48 @@ export class EventBus {
     }
 
     /**
+     * Attach a listener for any event with the given type prefix
      * 
-     * @param category 
-     * @param detail may be a wildcard '*'
+     * @param evTypePrefix to listen for
      * @param listener 
      * @return true if listener added, false if listener already present
      */
-    addListener(category:string, detail:string, listener:Listener):boolean {
-        if (!this.listenerDb.hasOwnProperty(category)) {
-            this.listenerDb[category] = {};
+    addListener(evTypePrefix:string, listener:Listener):boolean {
+        let listenerList = this.listenerDb[evTypePrefix];
+        if (!listenerList) {
+            listenerList = [];
+            this.listenerDb[evTypePrefix] = listenerList;
         }
-        if (!this.listenerDb[category].hasOwnProperty(detail)) {
-            this.listenerDb[category][detail] = [];
-        }
-        if (this.listenerDb[category][detail].find(it => it === listener)) {
+        if (listenerList.find(it => it === listener)) {
             return false;
         }
-        this.listenerDb[category][detail].push(listener);
+        listenerList.push(listener);
         return true;
     }
 
-    removeListener(category:string, detail:string, listener:Listener):boolean {
-        if (this.listenerDb.hasOwnProperty(category) && this.listenerDb[category].hasOwnProperty(detail)) {
-            const old = this.listenerDb[category][detail];
-            this.listenerDb[category][detail] = old.filter(it => it !== listener);
-            return this.listenerDb[category][detail].length !== old.length;
-        } else {
+    removeListener(evTypePrefix:string, listener:Listener):boolean {
+        const listenerList = this.listenerDb[evTypePrefix];
+        if (!listenerList) {
             return false;
-        }        
-    }
-
-    dispatch(category:string, detail:string, data:any) {
-        if (this.listenerDb.hasOwnProperty(category) && this.listenerDb[category].hasOwnProperty(detail)) {
-            this.listenerDb[category][detail].forEach(
-                (lambda:Listener) => Promise.resolve('ok').then(() => lambda({ category, detail, data }))
-            );
         }
+        this.listenerDb[evTypePrefix] = listenerList.filter(it => it !== listener);
+        return this.listenerDb[evTypePrefix].length !== listenerList.length;
     }
 
+    dispatch(evType:string, data:any) {
+        const ev:Event = deepCopy({ evType, data }, true);
+        
+        Object.entries(this.listenerDb).reduce(
+                (acc, [listenerPrefix, listeners]) => {
+                    if (evType.startsWith(listenerPrefix)) {
+                        acc = acc.concat(listeners);
+                    }
+                    return acc;
+                }, []
+            ).forEach(
+                (lambda:Listener) => Promise.resolve('ok').then(() => lambda(ev))
+            );
+    }
 }
 
 export const providerName = 'driver/littleware/little-elements/common/appContext/eventBus';

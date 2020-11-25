@@ -349,3 +349,37 @@ export function pmap<T,R>(list:T[], lambda:(T) => Promise<R>, batchSize:number=1
     }
   }
   
+  /**
+   * Make a deep copy of the given object, and
+   * optionally freeze.
+   * 
+   * @param thing 
+   * @param freeze 
+   */
+  export function deepCopy<T>(thing:T, freeze=false):T {
+    let result = null;
+
+    switch (typeof thing) {
+        case "object":
+            if (Array.isArray(thing)) {
+                result = [];
+                for (const it of thing) {
+                    result.push(deepCopy(it, freeze));
+                }
+            } else {
+                result = {};
+                for (const [key, value] of Object.entries(thing)) {
+                    result[key] = deepCopy(value, freeze);
+                }
+            }
+            if (freeze) {
+                Object.freeze(result);
+            }
+            break;
+        default:
+            result = thing;
+            break;
+    }
+    return result;
+  }
+  

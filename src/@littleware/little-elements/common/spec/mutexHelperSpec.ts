@@ -1,6 +1,5 @@
-import { backoff, backoffIterator, Barrier, Mutex, once, sleep, squish } from "../mutexHelper.js";
-import { count } from "console";
-import { doesNotReject } from "assert";
+import { backoff, backoffIterator, deepCopy, Barrier, Mutex, once, sleep, squish } from "../mutexHelper.js";
+
 
 describe("the littleware.mutexHelper", () => {
     it("can sleep for a few seconds", (done) => {
@@ -173,6 +172,32 @@ describe("the littleware.mutexHelper", () => {
         ).then(
             () => done()
         );
+    });
+
+    it("can do a deep copy", function() {
+        const testObj = {
+            abc: {
+                def: {
+                    g: 123,
+                    hij: [ { xyz: 123 }]
+                }
+            },
+            whatever: "whatever"
+        };
+        const copy = deepCopy(testObj, true);
+        expect(copy).not.toBe(testObj, "deepCopy creates new object");
+        expect(copy.abc).not.toBe(testObj.abc);
+        expect(copy.abc.def).not.toBe(testObj.abc.def);
+        expect(copy.abc.def.g).toEqual(testObj.abc.def.g);
+        expect(copy.abc.def.hij[0]).not.toBe(testObj.abc.def.hij[0]);
+        expect(copy.abc.def.hij[0].xyz).toEqual(testObj.abc.def.hij[0].xyz);
+
+        try {
+            copy.whatever = "freeze";
+            fail("assigment to frozen object should fail");
+        } catch (ex) {
+        }
+        expect(copy.whatever).toEqual(testObj.whatever, "freeze works");
     });
 });
 

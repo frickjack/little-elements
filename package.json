@@ -9,7 +9,7 @@
     "font-awesome": "^4.7.0",
     "i18next": "^19.7.0",
     "lit-html": "^1.2.1",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.1"
   },
   "files": [
     "README.md",
@@ -45,7 +45,6 @@
     "marked": "latest",
     "merge2": "latest",
     "mkdirp": "latest",
-    "node-fetch": "latest",
     "nunjucks": "latest",
     "nunjucks-markdown": "latest",
     "ts-custom-elements": "latest",
