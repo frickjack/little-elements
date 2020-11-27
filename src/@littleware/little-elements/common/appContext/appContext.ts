@@ -270,6 +270,22 @@ export class AppContext {
             )
         );
     }
+
+    private state:Dictionary<any> = {};
+
+    async getState(key:string, part:string):Promise<any> {
+        return null;
+    }
+
+    async changeState(key:string, handler:(any) => Promise<any>):Promise<any> {
+        return null;
+    }
+
+    private subscriptions:Dictionary<any> = {};
+    
+    subscribe(key:string, listener:(any) => any) {}
+    unsubscribe(key:string, listener:(any) => any) {}
+    trigger(key:string, data:any) {}
     
     private static singletonBarrier:Barrier<AppContext> = new Barrier<AppContext>();
     private startBarrier = new Barrier<string[]>();
