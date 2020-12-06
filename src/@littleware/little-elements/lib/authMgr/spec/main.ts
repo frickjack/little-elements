@@ -1,4 +1,5 @@
 import {startTest} from "../../test/util.js";
-import "./authMgrSpec.js";
+import "./authUiSpec.js";
+import "./authControlSpec.js";
 
 startTest();

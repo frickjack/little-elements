@@ -1,4 +1,4 @@
-import { getBus, Event, EventBus } from "../eventBus.js";
+import { getBus, BusEvent, EventBus } from "../eventBus.js";
 
 describe ("the eventBus", function() {
     let bus:EventBus = null;
@@ -25,7 +25,7 @@ describe ("the eventBus", function() {
         let counter = 0;
 
         const addListener = () => {
-            const listener = (ev:Event) => {
+            const listener = (ev:BusEvent) => {
                 expect(ev.evType).toBe(testType);
                 expect(ev.data).toEqual(testData);
                 expect(counter).toBeGreaterThan(0); // dispatch is async

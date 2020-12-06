@@ -3,12 +3,12 @@ import { deepCopy } from '../mutexHelper.js';
 import { Provider, singletonProvider } from '../provider.js';
 import { aliasName as logKey, Logger } from './logging.js';
 
-export interface Event {
+export interface BusEvent {
     evType: string;
     data: any;
 }
 
-type Listener = (Event) => any;
+export type BusListener = (BusEvent) => any;
 
 
 interface Tools {
@@ -16,7 +16,7 @@ interface Tools {
 }
 
 export class EventBus {
-    private listenerDb:Dictionary<Listener[]> = {};
+    private listenerDb:Dictionary<BusListener[]> = {};
     private tools:Tools = null;
     
     constructor(tools:Tools) {
@@ -30,7 +30,7 @@ export class EventBus {
      * @param listener 
      * @return true if listener added, false if listener already present
      */
-    addListener(evTypePrefix:string, listener:Listener):boolean {
+    addListener(evTypePrefix:string, listener:BusListener):boolean {
         let listenerList = this.listenerDb[evTypePrefix];
         if (!listenerList) {
             listenerList = [];
@@ -43,7 +43,7 @@ export class EventBus {
         return true;
     }
 
-    removeListener(evTypePrefix:string, listener:Listener):boolean {
+    removeListener(evTypePrefix:string, listener:BusListener):boolean {
         const listenerList = this.listenerDb[evTypePrefix];
         if (!listenerList) {
             return false;
@@ -53,7 +53,7 @@ export class EventBus {
     }
 
     dispatch(evType:string, data:any) {
-        const ev:Event = deepCopy({ evType, data }, true);
+        const ev:BusEvent = deepCopy({ evType, data }, true);
         
         Object.entries(this.listenerDb).reduce(
                 (acc, [listenerPrefix, listeners]) => {
@@ -63,16 +63,17 @@ export class EventBus {
                     return acc;
                 }, []
             ).forEach(
-                (lambda:Listener) => Promise.resolve('ok').then(() => lambda(ev))
+                (lambda:BusListener) => Promise.resolve('ok').then(() => lambda(ev))
             );
     }
+
+    static get providerName() { return 'driver/littleware/little-elements/common/appContext/eventBus'; }
 }
 
-export const providerName = 'driver/littleware/little-elements/common/appContext/eventBus';
 
 AppContext.get().then(
     (cx) => {
-        cx.putProvider(providerName, { logger: logKey },
+        cx.putProvider(EventBus.providerName, { logger: logKey },
             async (toolBox) => {
                 const tools:Tools = await getTools(toolBox) as Tools;
                 return singletonProvider(() => new EventBus(tools));
@@ -83,7 +84,7 @@ AppContext.get().then(
 
 export async function getBus():Promise<EventBus> {
     return AppContext.get().then(
-        cx => cx.getProvider(providerName)
+        cx => cx.getProvider(EventBus.providerName)
     ).then(
         (provider:Provider<EventBus>) => provider.get()
     );

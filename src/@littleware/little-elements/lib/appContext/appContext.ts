@@ -4,7 +4,7 @@ import AppContext from '../../common/appContext/appContext.js';
 import "../../common/appContext/eventBus.js";
 import "../../common/appContext/i18n.js";
 import "../../common/appContext/sharedState.js";
-import { providerName as consoleProvider } from '../../common/appContext/consoleLogger.js';
+import { ConsoleLogger } from '../../common/appContext/consoleLogger.js';
 import { aliasName as loggingAlias } from '../../common/appContext/logging.js';
 import { loadConfig } from './simpleLoader.js';
 
@@ -86,6 +86,6 @@ export default AppContext;
 
 AppContext.get().then(
     (cx) => {
-        cx.putAlias(loggingAlias, consoleProvider);
+        cx.putAlias(loggingAlias, ConsoleLogger.providerName);
     }
 );

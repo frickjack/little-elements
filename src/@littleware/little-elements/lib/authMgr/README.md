@@ -1,4 +1,4 @@
-# lw-auth-mgr Custom Element
+# lw-auth-ui Custom Element
 
 A custom element for managing login, logout, user-info UX.
 

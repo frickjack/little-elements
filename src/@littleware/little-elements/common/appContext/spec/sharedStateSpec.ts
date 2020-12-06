@@ -1,5 +1,5 @@
-import { providerName as busKey, EventBus, Event } from "../eventBus.js";
-import { providerName as stateKey, SharedState } from "../sharedState.js";
+import { EventBus, BusEvent } from "../eventBus.js";
+import { SharedState } from "../sharedState.js";
 import { AppContext, getTools } from "../appContext.js";
 import { Barrier } from '../../mutexHelper.js';
 
@@ -14,7 +14,7 @@ describe("the sharedState helper", function() {
     beforeAll(async (done) => {
         const cx = await AppContext.get();
         cx.onStart(
-            { bus: busKey, state: stateKey },
+            { bus: EventBus.providerName, state: SharedState.providerName },
             async (toolBox) => {
                 tools = (await getTools(toolBox)) as Tools;
                 done();
@@ -41,7 +41,7 @@ describe("the sharedState helper", function() {
         const testValue = { "whatever": "bla bla", "boris": "turkey" };
         const listenKey = `lw-sc:${testKey}`;
         const doneBarrier = new Barrier<string>();
-        const listener = (ev:Event) => {
+        const listener = (ev:BusEvent) => {
             expect(ev.data.old).toEqual({});
             expect(ev.data.new).toEqual(testValue);
             tools.bus.removeListener(listenKey, listener);

@@ -64,10 +64,12 @@ export class ConsoleLogger implements Logger {
     trace(info:any, msg?:string) {
         this.log(traceLevel, info, msg);
     }
+
+    static get providerName() { return 'driver/littleware/little-elements/common/appContext/consoleLogger'; }
+
 }
 
 
-export const providerName = 'driver/littleware/little-elements/common/appContext/consoleLogger';
 
 const defaultConfig = {
     logLevel: "info"
@@ -79,7 +81,7 @@ interface Tools {
 
 AppContext.get().then(
     (cx) => {
-        cx.putProvider(providerName, 
+        cx.putProvider(ConsoleLogger.providerName, 
             { "config": `config/${configKey}` },
             (toolBox) => {
                 return singletonProvider(
@@ -96,7 +98,7 @@ AppContext.get().then(
 
 export async function getLogger():Promise<Logger> {
     return AppContext.get().then(
-        cx => cx.getProvider(providerName)
+        cx => cx.getProvider(ConsoleLogger.providerName)
     ).then(
         (provider:Provider<Logger>) => provider.get()
     );
