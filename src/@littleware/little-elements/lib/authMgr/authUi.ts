@@ -1,12 +1,12 @@
 import { singleton as styleHelper } from "../styleGuide/styleGuide.js";
 import AppContext, { getTools } from "../../common/appContext/appContext.js";
 import { Ii18n, providerName as i18nProvider } from "../appContext/i18n.js";
-import { Logger, aliasName as loggerAlias } from "../../common/appContext/logging.js";
 import LittleDropDown from "../littleDropDown/littleDropDown.js";
+import { Logger, aliasName as loggerAlias } from "../../common/appContext/logging.js";
 import { SharedState, StateEvent } from "../../common/appContext/sharedState.js";
 import { css } from "./authUi.css.js";
 
-export const stateKey = "littleware/auth/userInfo";
+export const stateKey = "little-elements/lib/authMgr/userInfo";
 
 interface Tools {
     i18n: Ii18n;
@@ -80,6 +80,7 @@ export class LittleAuthUI extends HTMLElement {
     };
 
     public connectedCallback(): void {
+        this.render();
         tools.state.addListener(
             stateKey,
             this.listener

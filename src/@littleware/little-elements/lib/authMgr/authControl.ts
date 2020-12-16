@@ -1,12 +1,15 @@
 import AppContext, { getTools, ToolBox } from "../../common/appContext/appContext.js";
-import { SharedState } from "../../common/appContext/sharedState.js";
+import { SharedState, StateEvent, StateListener } from "../../common/appContext/sharedState.js";
 import { Logger, aliasName as loggerAlias } from "../../common/appContext/logging.js";
 import { once } from "../../common/mutexHelper.js";
-import { stateKey, UserInfo, anonymousUserInfo } from "./authUi.js";
+import { stateKey as authStateKey, UserInfo, anonymousUserInfo } from "./authUi.js";
+import { stateKey as historyStateKey, HistoryState } from "../appContext/historyHelper.js";
 
 
 interface ControllerConfig {
     userInfoEndpoint: string;
+    loginRedirect: string;
+    logoutRedirect: string;
 }
 
 interface Tools {
@@ -31,9 +34,12 @@ export class Controller {
      * return anonymousUserInfo on failure to fetch
      */
     async fetchUserInfo():Promise<UserInfo> {
-        const info = await fetch(this.tools.config.userInfoEndpoint).then(
-            res => res.json()
-        ) as UserInfo;
+        const info = await fetch(
+                this.tools.config.userInfoEndpoint,
+                { mode: "cors", credentials: "include" }
+            ).then(
+                res => res.json()
+            ) as UserInfo;
         if (!info.email) {
             return anonymousUserInfo;
         }
@@ -45,18 +51,65 @@ export class Controller {
      * if necessary
      */
     async updateUserInfo():Promise<UserInfo> {
-        const result = await this.tools.state.changeState(stateKey,
+        const result = await this.tools.state.changeState(authStateKey,
                 async (oldInfo:UserInfo) => {
                     const newInfo = await this.fetchUserInfo();
                     if (newInfo.email !== oldInfo.email) {
                         return newInfo;
                     }
+                    // no state change
                     return null;
                 }
         ) as UserInfo;
         return result;
     }
 
+    /**
+     * Handle the login/logout statemachine:
+     * #authmgr/login, #authmgr/logout, #authmgr/loginresult, #authmgr/userinfo
+     * 
+     * @param ev 
+     */
+    navEventHandler: StateListener = (ev:StateEvent) => {
+        const hashPath = (ev.data.new as HistoryState).hashPath;
+        let redirect = "";  // no redirect by default
+        let newUrl = "";
+        if (hashPath.endsWith("authmgr/login")) {
+            let redirectHash = (ev.data.old as HistoryState).hashPath;
+            if (redirectHash.endsWith("/login") || redirectHash.endsWith("/logout")) {
+                redirectHash = "";
+            }
+            newUrl = this.tools.config.loginRedirect;
+            redirect = `${location.origin}${location.pathname}?backto=${encodeURIComponent(redirectHash)}#authmgr/loginresult`;
+        } else if (hashPath.endsWith("authmgr/logout")) {
+            newUrl = this.tools.config.logoutRedirect;
+            redirect = `${location.origin}${location.pathname}`;
+        }
+        if (newUrl && redirect) {
+            newUrl += (newUrl.indexOf("?") > 0) ? "&" : "?";
+            newUrl += `redirect_uri=${encodeURIComponent(redirect)}`;
+            location.replace(newUrl);
+            return;
+        }
+        if (hashPath.endsWith("authmgr/loginresult")) {
+            const params = (new URL(location.href)).searchParams;
+            const backto = params.get("backto") || "";
+            const state = params.get("state");
+            params.delete("backto");
+            params.delete("state");
+            params.delete("backto");
+            history.replaceState({}, "", `?${params.toString()}#${backto}`);
+            return;
+        } else if (hashPath.endsWith("authmgr/userinfo")) { 
+            if ((ev.data.old as HistoryState).hashPath) {
+                // TODO - implement userinfo endpoint
+                this.tools.log.info("authmgr/userinfo not yet implemented");
+                history.go(-1);
+            } else {
+                location.hash = "";
+            }
+        }
+    };
 
     /**
      * Controller factory enforces singleton
@@ -65,7 +118,7 @@ export class Controller {
         async () => new Promise(
             async (resolve, reject) => {
                 const cx = await AppContext.get();
-                cx.onStart( { log: loggerAlias, state: SharedState.providerName, config: `config:${configKey}` }, 
+                cx.onStart( { log: loggerAlias, state: SharedState.providerName, config: `config/${configKey}` }, 
                     async (toolBox:ToolBox) => {
                         const tools = await getTools(toolBox).then(
                                 (tools) => ({
@@ -85,6 +138,7 @@ export class Controller {
                                 );        
                             }
                         );
+                        tools.state.addListener(historyStateKey, controller.navEventHandler)
                         resolve(controller);
                     }
                 );
@@ -114,9 +168,14 @@ export class LittleAuthController extends HTMLElement {
 
 AppContext.get().then(
     (cx) => {
-        cx.putDefaultConfig(configKey, {
-            userInfoEndpoint: "https://api.frickjack.com/authn/user"
-        });
+        const apiDomain = "api.frickjack.com";
+        cx.putDefaultConfig(configKey, 
+            {
+                loginRedirect: `https://${apiDomain}/authn/login`,
+                logoutRedirect: `https://${apiDomain}/authn/logout`,
+                userInfoEndpoint: `https://${apiDomain}/authn/user`
+            } as ControllerConfig
+            );
     }
 );
 

@@ -8,13 +8,12 @@ describe( "the lw-auth-ui custom element", () => {
         expect(true).toBe(true);
     });
 
-    it( "Can render an lw-auth-ui", (done) => {
-        const stage = getStage( "authmgr1", "LittleAuthUI" );
-        const elem = document.createElement( "lw-auth-ui" ) as LittleAuthUI;
+    it( "Can render an lw-auth-ui in logout state", (done) => {
+        const stage = getStage("authmgr1", "LittleAuthUI - logout");
+        const elem = document.createElement("lw-auth-ui") as LittleAuthUI;
         // little hack to disconnect from state bus
         (elem as any).listener = () => {}
         elem.user = "frickjack";
-        // 6 degrees === 1 minute
         stage.appendChild(elem);
         
         // Give browser chance to render
@@ -25,4 +24,21 @@ describe( "the lw-auth-ui custom element", () => {
             },
         );
     });
+
+    it( "Can render an lw-auth-ui in login state", (done) => {
+        const stage = getStage("authmgr2", "LittleAuthUI - login");
+        const elem = document.createElement("lw-auth-ui") as LittleAuthUI;
+        // little hack to disconnect from state bus
+        (elem as any).listener = () => {}
+        stage.appendChild(elem);
+        
+        // Give browser chance to render
+        sleep(20).then(
+            () => {
+                expect(stage.querySelectorAll("lw-auth-ui").length).toBe(1);
+                done();
+            },
+        );
+    });
+
 });

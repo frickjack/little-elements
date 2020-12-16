@@ -2,6 +2,7 @@ import { sleep } from "../../../common/mutexHelper.js";
 import { getStage } from "../../test/util.js";
 import { LittleAuthUI, stateKey, newUserInfo } from "../authUi.js";
 import { LittleAuthController } from "../authControl.js";
+import "../authControl.js";
 import { getSharedState } from "../../../common/appContext/sharedState.js";
 
 

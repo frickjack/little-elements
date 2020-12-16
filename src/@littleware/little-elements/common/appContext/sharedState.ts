@@ -73,13 +73,14 @@ export class SharedState {
         const cleanKey = this.cleanKey(key);
         return this.getState(cleanKey).then(
             v1 => Promise.resolve(handler(deepCopy(v1))).then(
-                v2 => ({v1, v2: deepCopy(v2, true)})
+                v2 => ({v1, v2})
             )
         ).then(
             ({v1, v2}) => {
                 if (!v2) {
                     return v1;
                 }
+                v2 = deepCopy(v2, true);
                 if (typeof v2 !== "object" || Array.isArray(v2)) {
                     v2 = Object.freeze({thing: v2});
                 }
