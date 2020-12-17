@@ -13,7 +13,7 @@ describe( "the lw-auth-ui custom element", () => {
         const elem = document.createElement("lw-auth-ui") as LittleAuthUI;
         // little hack to disconnect from state bus
         (elem as any).listener = () => {}
-        elem.user = "frickjack";
+        elem.user = "frickjack@whatever";
         stage.appendChild(elem);
         
         // Give browser chance to render

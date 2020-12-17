@@ -59,7 +59,7 @@ export class LittleAuthUI extends HTMLElement {
             this.userVal = value;
             this.logoutMenu.changeModel(
                 (model) => {
-                    model.root.labelKey = this.userVal;
+                    model.root.labelKey = (this.userVal || "...").replace(/@.+$/, '@...');
                     return model;
                 }
             ).then(
