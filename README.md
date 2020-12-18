@@ -33,52 +33,20 @@ Utilities for testing little web components with jasmine and karmajs.
 [./src/@littleware/little-elements/bin/README.md](./src/@littleware/little-elements/bin/README.md)
 
 
-## Design, develop, test, document, deploy
+## Documentation TOC
 
-### Source layout
+See [this bLog](https://www.divio.com/blog/documentation/) for an introduction to the different types of documentation (explanation, how-to, tutorial, reference).
 
-```
-src/@module-group/module/
-    bin
-    common
-    lib
-    site
-    web
-```
-
-* `bin` - compiled into `./commonjs/bin` folder as `commonjs` modules suitable for nodejs applications and lambdas
-* `common` - compiled into the `./commonjs/common/` folder as commonjs modules, and also `./web/common/` as es2015 modules
-* `lib` - compiled into `./web/lib/`
-* `site` - html, nunjucks templates, and other web content compiled into `./site`
-
-### Deployment
-
-The build process is setup so that commonjs and web modules are layed out for easy import into other npm packages.  The web content is setup to load code via relative paths when possible, but otherwise assumes javascript modules are deployed under a `/modules/` root.
-
-
-### Dev-test
-
-See the `./buildspec.yml` [codebuild](https://aws.amazon.com/codebuild/) configuration.
-
-```
-npm run build
-npm test
-npm run lint
-npm audit
-```
-
-The `npm test` command runs a [jasmine](https://jasmine.github.io/index.html) test suites for web modules (using [karmajs](http://karma-runner.github.io/4.0/index.html)) and commonjs modules (with jasmine's nodejs runner).
-
-### linting
-
-The `lint` script integrates with `tslint`.  There is active development under way in the `typescript` and `eslint` community to integrate via the [typescript-eslint project](https://github.com/typescript-eslint/typescript-eslint), so we'll migrate to that when it's ready.
-
-* https://medium.com/palantir/tslint-in-2019-1a144c2317a9
-* https://eslint.org/blog/2019/01/future-typescript-eslint
-
-
-## More documentation
+### Explanation
 
 * the [gulp helper](./Notes/explanation/gulpHelper.md) includes a variety of rules to help build and deploy server and client side typescript apps.
 * the [little server](./Notes/explanation/littleServerAndLambda.md) provides a simple [expressjs](https://expressjs.com) server for locally serving web apps to clients and running server side express routers
 * [executable test plans](./Notes/explanation/executableTestPlans.md) provide a framework for specifying, running, reporting from, and automating test plans that begin as instructions to for manual testing
+
+### How-to
+
+* [dev-test](Notes/howto/devTest.md)
+
+### Tutorials
+
+### Reference
