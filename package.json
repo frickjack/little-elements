@@ -50,7 +50,8 @@
     "nunjucks-markdown": "latest",
     "ts-custom-elements": "latest",
     "tslint": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "workbox-build": "^6.0.2"
   },
   "bin": {
     "little-server": "./commonjs/bin/little-server.js"

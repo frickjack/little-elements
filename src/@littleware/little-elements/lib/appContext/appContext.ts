@@ -1,34 +1,28 @@
-import "./i18n.js";
-import { once } from '../../common/mutexHelper.js';
-import AppContext from '../../common/appContext/appContext.js';
+import AppContext from "../../common/appContext/appContext.js";
+import { ConsoleLogger } from "../../common/appContext/consoleLogger.js";
 import "../../common/appContext/eventBus.js";
 import "../../common/appContext/i18n.js";
+import { aliasName as loggingAlias } from "../../common/appContext/logging.js";
 import "../../common/appContext/sharedState.js";
-import { ConsoleLogger } from '../../common/appContext/consoleLogger.js';
-import { aliasName as loggingAlias } from '../../common/appContext/logging.js';
-import { loadConfig } from './simpleLoader.js';
-
+import { once } from "../../common/mutexHelper.js";
+import "./i18n.js";
+import { loadConfig } from "./simpleLoader.js";
 
 /**
  * Custom element for configuring the application
  * context.
  */
 export class LittleAppContext extends HTMLElement {
-    
-    constructor() {
-        super();
-    }
-    
+
     /**
      *  Monitor the 'name' attribute for changes, see:
      *     https://developer.mozilla.org/en-US/docs/Web/Web_Components/Custom_Elements
      */
-    static get observedAttributes(): string[] { 
+    static get observedAttributes(): string[] {
         return [
-            //"config-href"
-            ]; 
+            // "config-href"
+            ];
     }
-
 
     /** Property backed by "config-href" attribute */
     get configHref(): string[] {
@@ -44,12 +38,16 @@ export class LittleAppContext extends HTMLElement {
         return this.getAttribute("main-module");
     }
 
-    private bootstrap:() => Promise<AppContext> = once(
+    get appCx(): Promise<AppContext> {
+        return this.bootstrap();
+    }
+
+    private bootstrap: () => Promise<AppContext> = once(
         () => AppContext.build(
             {
                 configHref: this.configHref,
-                loadConfig
-            }
+                loadConfig,
+            },
         ).then(
             (cx) => {
                 const mainMod = this.mainModule;
@@ -59,23 +57,29 @@ export class LittleAppContext extends HTMLElement {
                     return cx;
                 }
                 let modPath = mainMod;
-                if (mainMod.startsWith('.')) {
+                if (mainMod.startsWith(".")) {
                     // assume it's a path relative to location.href
-                    modPath = new URL(location.href).pathname.replace(/\/[^/]+$/, '') + `/${mainMod}`
+                    modPath = new URL(location.href).pathname.replace(/\/[^/]+$/, "") + `/${mainMod}`;
                 }
                 return import(modPath).then(() => cx);
+            },
+        ).then(
+            // clear the loading shell if present
+            (cx) => {
+                const shellPromise = globalThis.littleShell ? globalThis.littleShell.clear() as Promise<string> : Promise.resolve("ok");
+                return shellPromise.then(() => cx);
             }
         ).then(
-            (cx) => cx.start().then(() => cx)
-        )
+            (cx) => cx.start().then(() => cx),
+        ),
     );
+
+    constructor() {
+        super();
+    }
 
     public connectedCallback(): void {
         this.bootstrap();
-    }
-  
-    get appCx(): Promise<AppContext> {
-        return this.bootstrap();
     }
 }
 
@@ -83,9 +87,13 @@ window.customElements.define("lw-app-context", LittleAppContext);
 
 export default AppContext;
 
-
 AppContext.get().then(
     (cx) => {
         cx.putAlias(loggingAlias, ConsoleLogger.providerName);
-    }
+    },
 );
+
+(() => {
+    const workerPath = `${new URL(import .meta.url).pathname.replace(/\/[^/]+$/, "")}/service-worker.js`;
+    navigator.serviceWorker.register(workerPath);
+})();

@@ -7,7 +7,6 @@ describe( "the lw-auth-ui custom element", () => {
         expect(true).toBe(true);
     });
 
-
     it( "Can render an lw-auth-ui", (done) => {
         const stage = getStage( "authmgr1", "LittleAuthUI" );
         const elem = document.createElement( "lw-auth-ui" );

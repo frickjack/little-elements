@@ -60,7 +60,7 @@ module.exports.defineTasks = function(gulp, config) {
     // see https://zellwk.com/blog/nunjucks-with-gulp/
     // Also incorporating markdown support with nunjucks-markdown.
     //
-    gulp.task( 'little-compilenunjucks', () => {
+    gulp.task('little-compilenunjucks', () => {
         return gulp.src( 
             [ basePath + '/**/*.html' ],
             { base: basePath }
@@ -113,7 +113,7 @@ module.exports.defineTasks = function(gulp, config) {
     });
 
     // compile all folders except bin/ as es2015 modules
-    gulp.task( 'little-compilets-web', () => {
+    gulp.task('little-compilets-web', () => {
         const tsResult = gulp.src( ['src/**/*.ts', `!${basePath}/bin/**/*.ts`], 
                 { base: basePath })
             .pipe( sourcemaps.init() )
@@ -141,7 +141,7 @@ module.exports.defineTasks = function(gulp, config) {
     });
 
     /** Copy nunjucks templates over */
-    gulp.task( 'little-copynjk', () => {
+    gulp.task('little-copynjk', () => {
         return gulp.src( basePath + '/lib/**/*.njk' ).pipe( gulp.dest( "web/lib/" ) );
     });
 

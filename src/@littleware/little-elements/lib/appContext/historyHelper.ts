@@ -1,6 +1,6 @@
 
-import AppContext, { getTools } from '../../common/appContext/appContext.js';
-import { Logger, aliasName as loggerAlias } from "../../common/appContext/logging.js";
+import AppContext, { getTools } from "../../common/appContext/appContext.js";
+import { aliasName as loggerAlias, Logger } from "../../common/appContext/logging.js";
 import { SharedState } from "../../common/appContext/sharedState.js";
 
 export const stateKey = "little-elements/lib/appContext/historyHelper";
@@ -15,16 +15,16 @@ export interface HistoryState {
 }
 
 class HistoryHelper {
-    tools:Tools;
+    public tools: Tools;
 
     constructor(tools: Tools) {
         this.tools = tools;
     }
 
     // TODO: i18n, etc
-    popup(): Promise<Object> { return null; }
+    public popup(): Promise<Object> { return null; }
     // TODO: support Undo
-    toaster(): Promise<Object> { return null; }
+    public toaster(): Promise<Object> { return null; }
 
     /**
      * Simple helper - for now just listens for
@@ -32,30 +32,29 @@ class HistoryHelper {
      * to the shared state for state listeners to
      * respond to.
      */
-    hashChangeListener = () => {
+    public hashChangeListener = () => {
         this.tools.state.changeState(
-            stateKey, 
+            stateKey,
             () => (
                 { hashPath: location.hash ? location.hash.slice(1) : location.hash } as HistoryState
-            )
+            ),
         );
     }
 
     static get providerName() {
-        return 'driver/littleware/little-elements/lib/appContext/historyHelper';
+        return "driver/littleware/little-elements/lib/appContext/historyHelper";
     }
 }
-
 
 AppContext.get().then(
     (cx) => {
         cx.onStart({ logger: loggerAlias, state: SharedState.providerName },
             async (toolBox) => {
-                const tools:Tools = await getTools(toolBox) as Tools;
+                const tools: Tools = await getTools(toolBox) as Tools;
                 const helper = new HistoryHelper(tools);
                 window.addEventListener("hashchange", helper.hashChangeListener);
                 helper.hashChangeListener(); // initial state
-            }
+            },
         );
-    }
+    },
 );
