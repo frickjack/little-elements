@@ -1,15 +1,15 @@
-import { EventBus, BusEvent } from "../eventBus.js";
-import { SharedState } from "../sharedState.js";
+import { Barrier } from "../../mutexHelper.js";
 import { AppContext, getTools } from "../appContext.js";
-import { Barrier } from '../../mutexHelper.js';
+import { BusEvent, EventBus } from "../eventBus.js";
+import { SharedState } from "../sharedState.js";
 
 interface Tools {
     bus: EventBus;
     state: SharedState;
 }
 
-describe("the sharedState helper", function() {
-    let tools:Tools = null;
+describe("the sharedState helper", () => {
+    let tools: Tools = null;
 
     beforeAll(async (done) => {
         const cx = await AppContext.get();
@@ -18,11 +18,11 @@ describe("the sharedState helper", function() {
             async (toolBox) => {
                 tools = (await getTools(toolBox)) as Tools;
                 done();
-            }
+            },
         );
     });
 
-    it("integrates with the app context", function() {
+    it("integrates with the app context", () => {
         expect(tools).toBeDefined();
         expect(tools).not.toBeNull();
     });
@@ -38,10 +38,10 @@ describe("the sharedState helper", function() {
 
     it("triggers events on state change", async (done) => {
         const testKey = `${testKeyPrefix}/change`;
-        const testValue = { "whatever": "bla bla", "boris": "turkey" };
+        const testValue = { whatever: "bla bla", boris: "turkey" };
         const listenKey = `lw-sc:${testKey}`;
         const doneBarrier = new Barrier<string>();
-        const listener = (ev:BusEvent) => {
+        const listener = (ev: BusEvent) => {
             expect(ev.data.old).toEqual({});
             expect(ev.data.new).toEqual(testValue);
             tools.bus.removeListener(listenKey, listener);

@@ -1,14 +1,14 @@
 import { getLogger } from "../consoleLogger.js";
 
-describe("the console logger", function() {
+describe("the console logger", () => {
     let logger = null;
-    
+
     beforeAll(async (done) => {
         logger = await getLogger();
         done();
     });
 
-    it("writes logs", function() {
+    it("writes logs", () => {
         expect(logger).not.toBe(null);
         expect(logger).toBeDefined();
         logger.info("info level log");
@@ -16,5 +16,5 @@ describe("the console logger", function() {
         logger.error("an error!");
         logger.debug("some debugging");
         logger.trace("some tracing");
-    })
+    });
 });

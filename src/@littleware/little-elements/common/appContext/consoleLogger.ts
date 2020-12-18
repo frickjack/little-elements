@@ -1,7 +1,6 @@
-import AppContext, { ConfigEntry, getTools } from './appContext.js';
-import { configKey, Logger } from './logging.js';
-import { singletonProvider, Provider } from '../provider.js';
-
+import { Provider, singletonProvider } from "../provider.js";
+import AppContext, { ConfigEntry, getTools } from "./appContext.js";
+import { configKey, Logger } from "./logging.js";
 
 const traceLevel = 1;
 const debugLevel = 2;
@@ -11,17 +10,17 @@ const errorLevel = 5;
 const fatalLevel = 6;
 
 export function strToLevel(levelStr) {
-    const key = (levelStr || 'info').toLowerCase();
+    const key = (levelStr || "info").toLowerCase();
     switch (key) {
-        case 'fatal':
+        case "fatal":
             return fatalLevel;
-        case 'error':
+        case "error":
             return errorLevel;
-        case 'warn':
+        case "warn":
             return warnLevel;
-        case 'debug':
+        case "debug":
             return debugLevel;
-        case 'trace':
+        case "trace":
             return traceLevel;
         default:
             return infoLevel;
@@ -29,50 +28,49 @@ export function strToLevel(levelStr) {
 }
 
 export class ConsoleLogger implements Logger {
-    minLevel = 0;
+    public minLevel = 0;
 
-    constructor(minLevel=infoLevel) {
+    constructor(minLevel= infoLevel) {
         this.minLevel = minLevel;
     }
 
-    log(level:number, info:any, msg?:string) {
+    public log(level: number, info: any, msg?: string) {
         if (level >= this.minLevel) {
+            // tslint:disable-next-line
             console.log({ ... info, msg: msg || info.msg });
         }
     }
 
-    fatal(info:any, msg?:string) {
+    public fatal(info: any, msg?: string) {
         this.log(fatalLevel, info, msg);
     }
 
-    error(info:any, msg?:string) {
+    public error(info: any, msg?: string) {
         this.log(errorLevel, info, msg);
     }
 
-    warn(info:any, msg?:string) {
+    public warn(info: any, msg?: string) {
         this.log(warnLevel, info, msg);
     }
 
-    info(info:any, msg?:string) {
+    public info(info: any, msg?: string) {
         this.log(infoLevel, info, msg);
     }
 
-    debug(info:any, msg?:string) {
+    public debug(info: any, msg?: string) {
         this.log(debugLevel, info, msg);
     }
 
-    trace(info:any, msg?:string) {
+    public trace(info: any, msg?: string) {
         this.log(traceLevel, info, msg);
     }
 
-    static get providerName() { return 'driver/littleware/little-elements/common/appContext/consoleLogger'; }
+    static get providerName() { return "driver/littleware/little-elements/common/appContext/consoleLogger"; }
 
 }
 
-
-
 const defaultConfig = {
-    logLevel: "info"
+    logLevel: "info",
 };
 
 interface Tools {
@@ -81,25 +79,25 @@ interface Tools {
 
 AppContext.get().then(
     (cx) => {
-        cx.putProvider(ConsoleLogger.providerName, 
-            { "config": `config/${configKey}` },
+        cx.putProvider(ConsoleLogger.providerName,
+            { config: `config/${configKey}` },
             (toolBox) => {
                 return singletonProvider(
                     async () => {
-                        const tools:Tools = await getTools(toolBox) as Tools;
+                        const tools: Tools = await getTools(toolBox) as Tools;
                         const config = { ...defaultConfig, ...tools.config.defaults, ...tools.config.overrides };
                         return new ConsoleLogger(strToLevel(config.logLevel));
-                    }
+                    },
                 );
-            }
+            },
         );
-    }
+    },
 );
 
-export async function getLogger():Promise<Logger> {
+export async function getLogger(): Promise<Logger> {
     return AppContext.get().then(
-        cx => cx.getProvider(ConsoleLogger.providerName)
+        (cx) => cx.getProvider(ConsoleLogger.providerName),
     ).then(
-        (provider:Provider<Logger>) => provider.get()
+        (provider: Provider<Logger>) => provider.get(),
     );
 }

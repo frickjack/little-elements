@@ -10,7 +10,7 @@ export interface Provider<T> {
  * Little lazy singleton provider with memory and mutex
  * that self-updates on get() after a ttl
  * expires.
- * 
+ *
  * - if ttl < 0, then the LazyProvider acts as a LazySingleton
  * - if ttl === 0, then the LazyProvider calls through to the loader
  *             on every call - there is no cache
@@ -113,14 +113,14 @@ export class LazyProvider<T> implements Provider<T> {
     }
 }
 
-export function singletonProvider<T>(loader: () => T|Promise<T>):Provider<T> {
+export function singletonProvider<T>(loader: () => T|Promise<T>): Provider<T> {
     return new LazyProvider(loader);
 }
 
-export function passThroughProvider<T>(loader: () => T|Promise<T>):Provider<T> {
+export function passThroughProvider<T>(loader: () => T|Promise<T>): Provider<T> {
     return new LazyProvider(loader, 0);
 }
 
-export function asFactory<T>(provider:LazyProvider<T>):() => Promise<T> {
+export function asFactory<T>(provider: LazyProvider<T>): () => Promise<T> {
     return () => provider.get();
 }

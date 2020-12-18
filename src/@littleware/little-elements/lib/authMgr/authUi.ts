@@ -1,9 +1,9 @@
-import { singleton as styleHelper } from "../styleGuide/styleGuide.js";
 import AppContext, { getTools } from "../../common/appContext/appContext.js";
+import { aliasName as loggerAlias, Logger } from "../../common/appContext/logging.js";
+import { SharedState, StateEvent } from "../../common/appContext/sharedState.js";
 import { Ii18n, providerName as i18nProvider } from "../appContext/i18n.js";
 import LittleDropDown from "../littleDropDown/littleDropDown.js";
-import { Logger, aliasName as loggerAlias } from "../../common/appContext/logging.js";
-import { SharedState, StateEvent } from "../../common/appContext/sharedState.js";
+import { singleton as styleHelper } from "../styleGuide/styleGuide.js";
 import { css } from "./authUi.css.js";
 
 export const stateKey = "little-elements/lib/authMgr/userInfo";
@@ -24,27 +24,25 @@ export function newUserInfo(email: string, groups: string[] = [], iat: number = 
     return { email, groups, iat };
 }
 
-export const anonymousUserInfo:UserInfo = Object.freeze(
+export const anonymousUserInfo: UserInfo = Object.freeze(
     {
         email: "anonymous",
         groups: [],
-        iat: 0
-    }
+        iat: 0,
+    },
 );
 
 const loginContext = "littleware/lib/authMgr/login";
 const logoutContext = "littleware/lib/authMgr/logout";
 
-
 // initialized below - before web component registered
-let tools: Tools = null; 
-
+let tools: Tools = null;
 
 export class LittleAuthUI extends HTMLElement {
-    private userVal:string = "anonymous";
-    private loginMenu:LittleDropDown;
-    private logoutMenu:LittleDropDown;
-    
+    private userVal: string = "anonymous";
+    private loginMenu: LittleDropDown;
+    private logoutMenu: LittleDropDown;
+
     constructor() {
         super();
         this.loginMenu = new LittleDropDown();
@@ -54,16 +52,16 @@ export class LittleAuthUI extends HTMLElement {
     }
 
     get user() { return this.userVal; }
-    set user(value:string) {
+    set user(value: string) {
         if (this.userVal !== value) {
             this.userVal = value;
             this.logoutMenu.changeModel(
                 (model) => {
-                    model.root.labelKey = (this.userVal || "...").replace(/@.+$/, '@...');
+                    model.root.labelKey = (this.userVal || "...").replace(/@.+$/, "@...");
                     return model;
-                }
+                },
             ).then(
-                () => this.render()
+                () => this.render(),
             );
         }
     }
@@ -72,27 +70,27 @@ export class LittleAuthUI extends HTMLElement {
      * Can set to NOOP if you do not want the element
      * to udpate on shared state change - for testing
      * or whatever.
-     * 
-     * @param ev 
+     *
+     * @param ev
      */
-    public listener = (ev:StateEvent) => {
+    public listener = (ev: StateEvent) => {
         this.user = (ev.data.new as UserInfo).email;
-    };
+    }
 
     public connectedCallback(): void {
         this.render();
         tools.state.addListener(
             stateKey,
-            this.listener
+            this.listener,
         );
     }
 
     public disconnectedCallback(): void {
         tools.state.removeListener(stateKey, this.listener);
     }
-    
+
     // Render element DOM by returning a `lit-html` template.
-    render() {
+    public render() {
         if (this.user && this.user !== "anonymous") {
             if (this.loginMenu.parentElement) {
                 this.removeChild(this.loginMenu);
@@ -120,8 +118,8 @@ AppContext.get().then(
                     labelKey: "little-elements:login",
                     className: "lw-authmgr__item",
                     href: "#authmgr/login",
-                }
-            ]
+                },
+            ],
         });
         cx.putDefaultConfig(logoutContext, {
             root: {
@@ -140,7 +138,7 @@ AppContext.get().then(
                     className: "lw-authmgr__item",
                     href: "#authmgr/userinfo",
                 },
-            ]
+            ],
         });
         cx.onStart(
             { i18n: i18nProvider, log: loggerAlias, state: SharedState.providerName },
@@ -149,10 +147,9 @@ AppContext.get().then(
                 window.customElements.define("lw-auth-ui", LittleAuthUI);
                 styleHelper.componentCss.push(css);
                 styleHelper.render();
-            }
+            },
         );
-    }
+    },
 );
-
 
 export default LittleAuthUI;

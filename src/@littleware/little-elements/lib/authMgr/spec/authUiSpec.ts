@@ -12,10 +12,10 @@ describe( "the lw-auth-ui custom element", () => {
         const stage = getStage("authmgr1", "LittleAuthUI - logout");
         const elem = document.createElement("lw-auth-ui") as LittleAuthUI;
         // little hack to disconnect from state bus
-        (elem as any).listener = () => {}
+        (elem as any).listener = () => {};
         elem.user = "frickjack@whatever";
         stage.appendChild(elem);
-        
+
         // Give browser chance to render
         sleep(20).then(
             () => {
@@ -29,9 +29,9 @@ describe( "the lw-auth-ui custom element", () => {
         const stage = getStage("authmgr2", "LittleAuthUI - login");
         const elem = document.createElement("lw-auth-ui") as LittleAuthUI;
         // little hack to disconnect from state bus
-        (elem as any).listener = () => {}
+        (elem as any).listener = () => {};
         stage.appendChild(elem);
-        
+
         // Give browser chance to render
         sleep(20).then(
             () => {

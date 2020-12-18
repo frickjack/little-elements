@@ -1,10 +1,9 @@
 import AppContext, { getTools, ToolBox } from "../../common/appContext/appContext.js";
+import { aliasName as loggerAlias, Logger } from "../../common/appContext/logging.js";
 import { SharedState, StateEvent, StateListener } from "../../common/appContext/sharedState.js";
-import { Logger, aliasName as loggerAlias } from "../../common/appContext/logging.js";
 import { once } from "../../common/mutexHelper.js";
-import { stateKey as authStateKey, UserInfo, anonymousUserInfo } from "./authUi.js";
-import { stateKey as historyStateKey, HistoryState } from "../appContext/historyHelper.js";
-
+import { HistoryState, stateKey as historyStateKey } from "../appContext/historyHelper.js";
+import { anonymousUserInfo, stateKey as authStateKey, UserInfo } from "./authUi.js";
 
 interface ControllerConfig {
     userInfoEndpoint: string;
@@ -20,12 +19,46 @@ interface Tools {
 
 const configKey = "littleware/lib/authMgr/controller";
 
-
 export class Controller {
-    // initialized below - before web component registered
-    tools: Tools = null;
 
-    constructor(tools:Tools) {
+    /**
+     * Controller factory enforces singleton
+     */
+    public static startController: () => Promise<Controller> = once(
+        async () => new Promise(
+            async (resolve, reject) => {
+                const cx = await AppContext.get();
+                cx.onStart( { log: loggerAlias, state: SharedState.providerName, config: `config/${configKey}` },
+                    async (toolBox: ToolBox) => {
+                        const tools = await getTools(toolBox).then(
+                                (tools) => ({
+                                    ... tools,
+                                    config: { ...tools.config.defaults, ...tools.config.overrides },
+                                }) as Tools,
+                            );
+                        const controller = new Controller(tools);
+                        controller.updateUserInfo().then(
+                            () => {
+                                // check in every 5 minutes
+                                setInterval(
+                                    async () => {
+                                        controller.updateUserInfo();
+                                    },
+                                    300000,
+                                );
+                            },
+                        );
+                        tools.state.addListener(historyStateKey, controller.navEventHandler);
+                        resolve(controller);
+                    },
+                );
+            },
+        ) as Promise<Controller>,
+    );
+    // initialized below - before web component registered
+    public tools: Tools = null;
+
+    constructor(tools: Tools) {
         this.tools = tools;
     }
 
@@ -33,12 +66,12 @@ export class Controller {
      * Fetch UserInfo from the config.userInfoEndpoint,
      * return anonymousUserInfo on failure to fetch
      */
-    async fetchUserInfo():Promise<UserInfo> {
+    public async fetchUserInfo(): Promise<UserInfo> {
         const info = await fetch(
                 this.tools.config.userInfoEndpoint,
-                { mode: "cors", credentials: "include" }
+                { mode: "cors", credentials: "include" },
             ).then(
-                res => res.json()
+                (res) => res.json(),
             ) as UserInfo;
         if (!info.email) {
             return anonymousUserInfo;
@@ -50,16 +83,16 @@ export class Controller {
      * Fetch the latest user info, and update the shared state
      * if necessary
      */
-    async updateUserInfo():Promise<UserInfo> {
+    public async updateUserInfo(): Promise<UserInfo> {
         const result = await this.tools.state.changeState(authStateKey,
-                async (oldInfo:UserInfo) => {
+                async (oldInfo: UserInfo) => {
                     const newInfo = await this.fetchUserInfo();
                     if (newInfo.email !== oldInfo.email) {
                         return newInfo;
                     }
                     // no state change
                     return null;
-                }
+                },
         ) as UserInfo;
         return result;
     }
@@ -67,10 +100,10 @@ export class Controller {
     /**
      * Handle the login/logout statemachine:
      * #authmgr/login, #authmgr/logout, #authmgr/loginresult, #authmgr/userinfo
-     * 
-     * @param ev 
+     *
+     * @param ev
      */
-    navEventHandler: StateListener = (ev:StateEvent) => {
+    public navEventHandler: StateListener = (ev: StateEvent) => {
         const hashPath = (ev.data.new as HistoryState).hashPath;
         let redirect = "";  // no redirect by default
         let newUrl = "";
@@ -100,7 +133,7 @@ export class Controller {
             params.delete("backto");
             history.replaceState({}, "", `?${params.toString()}#${backto}`);
             return;
-        } else if (hashPath.endsWith("authmgr/userinfo")) { 
+        } else if (hashPath.endsWith("authmgr/userinfo")) {
             if ((ev.data.old as HistoryState).hashPath) {
                 // TODO - implement userinfo endpoint
                 this.tools.log.info("authmgr/userinfo not yet implemented");
@@ -109,44 +142,8 @@ export class Controller {
                 location.hash = "";
             }
         }
-    };
-
-    /**
-     * Controller factory enforces singleton
-     */
-    static startController:() => Promise<Controller> = once(
-        async () => new Promise(
-            async (resolve, reject) => {
-                const cx = await AppContext.get();
-                cx.onStart( { log: loggerAlias, state: SharedState.providerName, config: `config/${configKey}` }, 
-                    async (toolBox:ToolBox) => {
-                        const tools = await getTools(toolBox).then(
-                                (tools) => ({
-                                    ... tools,
-                                    config: { ...tools.config.defaults, ...tools.config.overrides }
-                                }) as Tools
-                            );
-                        const controller = new Controller(tools);
-                        controller.updateUserInfo().then(
-                            () => {
-                                // check in every 5 minutes
-                                setInterval(
-                                    async () => {
-                                        controller.updateUserInfo();
-                                    }, 
-                                    300000
-                                );        
-                            }
-                        );
-                        tools.state.addListener(historyStateKey, controller.navEventHandler)
-                        resolve(controller);
-                    }
-                );
-            }
-        ) as Promise<Controller>
-    );
+    }
 }
-
 
 /**
  * Controller web component - launches singleton controller
@@ -163,22 +160,21 @@ export class LittleAuthController extends HTMLElement {
 
     public disconnectedCallback(): void {
         // console.log( "Disconnected!" );
-    }    
+    }
 }
 
 AppContext.get().then(
     (cx) => {
         const apiDomain = "api.frickjack.com";
-        cx.putDefaultConfig(configKey, 
+        cx.putDefaultConfig(configKey,
             {
                 loginRedirect: `https://${apiDomain}/authn/login`,
                 logoutRedirect: `https://${apiDomain}/authn/logout`,
-                userInfoEndpoint: `https://${apiDomain}/authn/user`
-            } as ControllerConfig
+                userInfoEndpoint: `https://${apiDomain}/authn/user`,
+            } as ControllerConfig,
             );
-    }
+    },
 );
-
 
 window.customElements.define("lw-auth-control", LittleAuthController);
 

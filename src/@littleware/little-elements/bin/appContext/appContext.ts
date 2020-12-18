@@ -12,7 +12,7 @@ import "./simpleLoader.js";
 AppContext.get().then(
     (cx) => {
         cx.putAlias(loggingAlias, bunyanProvider);
-    }
+    },
 );
 
 export default AppContext;

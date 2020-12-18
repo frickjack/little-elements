@@ -1,11 +1,10 @@
 import {html, render, TemplateResult} from "../../../../../lit-html/lit-html.js";
-import AppContext, { getTools } from '../../common/appContext/appContext.js';
-import { squish } from '../../common/mutexHelper.js';
-import { Ii18n, providerName as i18nProvider } from '../appContext/i18n.js';
-import { Logger, aliasName as loggerAlias } from '../../common/appContext/logging.js';
+import AppContext, { getTools } from "../../common/appContext/appContext.js";
+import { aliasName as loggerAlias, Logger } from "../../common/appContext/logging.js";
+import { squish } from "../../common/mutexHelper.js";
+import { Ii18n, providerName as i18nProvider } from "../appContext/i18n.js";
 import styleHelper from "../styleGuide/styleGuide.js";
 import {css} from "./littleDropDown.css.js";
-
 
 interface Tools {
     i18n: Ii18n;
@@ -14,18 +13,18 @@ interface Tools {
 
 let tools: Tools = null; // initialized below
 
-const PREFIX = 'pure-',
-    ACTIVE_CLASS_NAME = PREFIX + 'menu-active',
-    ARIA_ROLE = 'role',
-    ARIA_HIDDEN = 'aria-hidden',
+const PREFIX = "pure-",
+    ACTIVE_CLASS_NAME = PREFIX + "menu-active",
+    ARIA_ROLE = "role",
+    ARIA_HIDDEN = "aria-hidden",
     MENU_OPEN = 0,
     MENU_CLOSED = 1,
-    MENU_ACTIVE_SELECTOR = '.pure-menu-active',
-    MENU_LINK_SELECTOR = '.pure-menu-link',
-    MENU_SELECTOR = '.pure-menu-children',
+    MENU_ACTIVE_SELECTOR = ".pure-menu-active",
+    MENU_LINK_SELECTOR = ".pure-menu-link",
+    MENU_SELECTOR = ".pure-menu-children",
     DISMISS_EVENT = (window.hasOwnProperty &&
-        window.hasOwnProperty('ontouchstart')) ?
-        'touchstart' : 'mousedown',
+        window.hasOwnProperty("ontouchstart")) ?
+        "touchstart" : "mousedown",
 
     ARROW_KEYS_ENABLED = true;
 
@@ -40,44 +39,32 @@ const PREFIX = 'pure-',
  * [https://github.com/yui/yui3-gallery/blob/master/src/gallery-simple-menu/js/simple-menu.js]
  */
 class PureDropdown {
-    private _state = MENU_CLOSED;
-    private _dropdownParent;
-    private _link;
-    private _menu;
-    private _firstMenuLink;
 
-    constructor(dropdownParent) {
-        this._dropdownParent = dropdownParent;
-        this._link = this._dropdownParent.querySelector(MENU_LINK_SELECTOR);
-        this._menu = this._dropdownParent.querySelector(MENU_SELECTOR);
-        this._firstMenuLink = this._menu.querySelector(MENU_LINK_SELECTOR);
-    }
-
-    static build(menu:LittleDropDownMenu): PureDropdown {
-        const dropdownParent = menu.querySelector('.pure-menu-has-children');
+    public static build(menu: LittleDropDownMenu): PureDropdown {
+        const dropdownParent = menu.querySelector(".pure-menu-has-children");
         if (!dropdownParent) { return null; }
         const ddm = new PureDropdown(dropdownParent); // drop down menu
-        
+
         // Set ARIA attributes
-        ddm._link.setAttribute('aria-haspopup', 'true');
-        ddm._menu.setAttribute(ARIA_ROLE, 'menu');
-        ddm._menu.setAttribute('aria-labelledby', ddm._link.getAttribute('id'));
-        ddm._menu.setAttribute('aria-hidden', 'true');
+        ddm._link.setAttribute("aria-haspopup", "true");
+        ddm._menu.setAttribute(ARIA_ROLE, "menu");
+        ddm._menu.setAttribute("aria-labelledby", ddm._link.getAttribute("id"));
+        ddm._menu.setAttribute("aria-hidden", "true");
         [].forEach.call(
-            ddm._menu.querySelectorAll('li'),
-            function(el){
-                el.setAttribute(ARIA_ROLE, 'presentation');
-            }
+            ddm._menu.querySelectorAll("li"),
+            function(el) {
+                el.setAttribute(ARIA_ROLE, "presentation");
+            },
         );
         [].forEach.call(
-            ddm._menu.querySelectorAll('a'),
-            function(el){
-                el.setAttribute(ARIA_ROLE, 'menuitem');
-            }
+            ddm._menu.querySelectorAll("a"),
+            function(el) {
+                el.setAttribute(ARIA_ROLE, "menuitem");
+            },
         );
 
         // Toggle on click
-        ddm._link.addEventListener('click', function (e) {
+        ddm._link.addEventListener("click", function(e) {
             e.stopPropagation();
             tools.log.debug(`lw-drop-down click on ${e.target.href}`);
             e.preventDefault();
@@ -88,8 +75,8 @@ class PureDropdown {
         // disable this for now - not relevent on mobile,
         // and prone to memory leak as currently constructed
         if (false) {
-            document.addEventListener('keydown', function (e) {
-                var currentLink,
+            document.addEventListener("keydown", function(e) {
+                let currentLink,
                     previousSibling,
                     nextSibling,
                     previousLink,
@@ -105,16 +92,14 @@ class PureDropdown {
                     return;
                 }
 
-                currentLink = ddm._menu.querySelector(':focus');
+                currentLink = ddm._menu.querySelector(":focus");
 
                 // Dismiss an open menu on ESC
                 if (e.key === "Escape") {
                     /* Esc */
                     ddm.halt(e);
                     ddm.hide();
-                }
-                // Go to the next link on down arrow
-                else if (ARROW_KEYS_ENABLED && e.key === 'ArrowDown') {
+                } else if (ARROW_KEYS_ENABLED && e.key === "ArrowDown") {
                     /* Down arrow */
                     ddm.halt(e);
                     // get the nextSibling (an LI) of the current link's LI
@@ -123,17 +108,14 @@ class PureDropdown {
                     while (nextSibling && nextSibling.nodeType !== 1) {
                         nextSibling = nextSibling.nextSibling;
                     }
-                    nextLink = (nextSibling) ? nextSibling.querySelector('.pure-menu-link') : null;
+                    nextLink = (nextSibling) ? nextSibling.querySelector(".pure-menu-link") : null;
                     // if there is no currently focused link, focus the first one
                     if (!currentLink) {
-                        ddm._menu.querySelector('.pure-menu-link').focus();
-                    }
-                    else if (nextLink) {
+                        ddm._menu.querySelector(".pure-menu-link").focus();
+                    } else if (nextLink) {
                         nextLink.focus();
                     }
-                }
-                // Go to the previous link on up arrow
-                else if (ARROW_KEYS_ENABLED && e.key === 'ArrowUp') {
+                } else if (ARROW_KEYS_ENABLED && e.key === "ArrowUp") {
                     /* Up arrow */
                     ddm.halt(e);
                     // get the currently focused link
@@ -141,13 +123,11 @@ class PureDropdown {
                     while (previousSibling && previousSibling.nodeType !== 1) {
                         previousSibling = previousSibling.previousSibling;
                     }
-                    previousLink = (previousSibling) ? previousSibling.querySelector('.pure-menu-link') : null;
+                    previousLink = (previousSibling) ? previousSibling.querySelector(".pure-menu-link") : null;
                     // if there is no currently focused link, focus the last link
                     if (!currentLink) {
-                        ddm._menu.querySelector('.pure-menu-item:last-child .pure-menu-link').focus();
-                    }
-                    // else if there is a previous item, go to the previous item
-                    else if (previousLink) {
+                        ddm._menu.querySelector(".pure-menu-item:last-child .pure-menu-link").focus();
+                    } else if (previousLink) {
                         previousLink.focus();
                     }
                 }
@@ -158,8 +138,8 @@ class PureDropdown {
         // TODO - Adding a listener at the document level is prone
         // to memory leak if these components are dynamically
         // created and destroyed ....
-        document.addEventListener(DISMISS_EVENT, function (e) {
-            var target = e.target;
+        document.addEventListener(DISMISS_EVENT, function(e) {
+            const target = e.target;
             if (target !== ddm._link && !ddm._menu.contains(target)) {
                 ddm.hide();
                 ddm._link.blur();
@@ -168,9 +148,20 @@ class PureDropdown {
 
         return ddm;
     }
+    private _state = MENU_CLOSED;
+    private _dropdownParent;
+    private _link;
+    private _menu;
+    private _firstMenuLink;
 
-    
-    show() {
+    constructor(dropdownParent) {
+        this._dropdownParent = dropdownParent;
+        this._link = this._dropdownParent.querySelector(MENU_LINK_SELECTOR);
+        this._menu = this._dropdownParent.querySelector(MENU_SELECTOR);
+        this._firstMenuLink = this._menu.querySelector(MENU_LINK_SELECTOR);
+    }
+
+    public show() {
         if (this._state !== MENU_OPEN) {
             this._dropdownParent.classList.add(ACTIVE_CLASS_NAME);
             this._menu.setAttribute(ARIA_HIDDEN, false);
@@ -178,31 +169,27 @@ class PureDropdown {
         }
     }
 
-    hide() {
+    public hide() {
         if (this._state !== MENU_CLOSED) {
             this._dropdownParent.classList.remove(ACTIVE_CLASS_NAME);
             this._menu.setAttribute(ARIA_HIDDEN, true);
             this._link.focus();
             this._state = MENU_CLOSED;
         }
-    };
-
-    toggle () {
-        this[this._state === MENU_CLOSED ? 'show' : 'hide']();
-    };
-
-    halt (e) {
+    }
+    public toggle() {
+        this[this._state === MENU_CLOSED ? "show" : "hide"]();
+    }
+    public halt(e) {
         e.stopPropagation();
         e.preventDefault();
-    };
-
+    }
 }
 
-
-let idCounter=0;
+let idCounter = 0;
 
 /**
- * 
+ *
  * @param model for instrumenting the template
  */
 function templateFactory(model: DropDownModel): TemplateResult {
@@ -213,13 +200,13 @@ function templateFactory(model: DropDownModel): TemplateResult {
             <a href="${model.root.href}" id="ldd${idCounter++}" class="pure-menu-link">${tools.i18n.t(model.root.labelKey)}</a>
             <ul class="pure-menu-children">
                 ${model.items.map(
-                    it => html`<li class="pure-menu-item ${it.className}">
+                    (it) => html`<li class="pure-menu-item ${it.className}">
                     <a href="${it.href}" id="ldd${idCounter++}" class="pure-menu-link">${tools.i18n.t(it.labelKey)}</a>
                 </li>`)}
             </ul>
         </li>
     </ul>
-</div>    
+</div>
     `;
 }
 
@@ -236,38 +223,52 @@ export interface DropDownModel {
 
 export class LittleDropDownMenu extends HTMLElement {
     // Gets a copy of the default model
-    get defaultModel():DropDownModel {
+    get defaultModel(): DropDownModel {
         return {
             root: {
                 labelKey: "uninitialized",
                 className: "lw-drop-down_uninitialized",
-                href: "#ignore"
+                href: "#ignore",
             },
-            items: []
+            items: [],
         };
     }
 
-    private modelVal:DropDownModel = null;
+    /*
+    public attributeChangedCallback(attrName?: string, oldVal?: string, newVal?: string): void {
+        // console.log( "Attribute change! " + attrName );
+        this.render();
+    }
+    */
+
+    get contextPath(): string {
+        return this.getAttribute("context");
+    }
+
+    private modelVal: DropDownModel = null;
+
+    // drop-down manager
+    private ddm = null;
 
     constructor() {
         super();
     }
 
-    getModel():Promise<DropDownModel> {
+    public getModel(): Promise<DropDownModel> {
         if (null === this.modelVal) {
             const cxPath = this.contextPath;
             if (cxPath) {
                 return AppContext.get().then(
-                        cx => cx.getConfig(this.contextPath)
+                        (cx) => cx.getConfig(this.contextPath),
                     ).then(
-                        entry => ({ ... this.defaultModel, ... entry.defaults, ... entry.overrides } as DropDownModel)
+                        (entry) => ({ ... this.defaultModel, ... entry.defaults, ... entry.overrides } as DropDownModel),
                     ).then(
-                        (newModel:DropDownModel) => {
+                        (newModel: DropDownModel) => {
                             if (null === this.modelVal) {
                                 this.modelVal = newModel;
                             }
                             return this.modelVal;
-                        }
+                        },
                     );
             } else {
                 this.modelVal = this.defaultModel;
@@ -276,16 +277,16 @@ export class LittleDropDownMenu extends HTMLElement {
         return Promise.resolve(this.modelVal);
     }
 
-    changeModel(handler:(DropDownModel) => DropDownModel|Promise<DropDownModel>):Promise<void> {
+    public changeModel(handler: (DropDownModel) => DropDownModel|Promise<DropDownModel>): Promise<void> {
         return this.getModel().then(
-            model => handler(model)
+            (model) => handler(model),
         ).then(
             (newModel) => {
                 if (newModel) {
                     this.modelVal = newModel;
                     this.render();
                 }
-            }
+            },
         );
     }
 
@@ -296,20 +297,6 @@ export class LittleDropDownMenu extends HTMLElement {
     public disconnectedCallback(): void {
         // console.log( "Disconnected!" );
     }
-  
-    /*
-    public attributeChangedCallback(attrName?: string, oldVal?: string, newVal?: string): void {
-        // console.log( "Attribute change! " + attrName );
-        this.render();
-    }
-    */
-
-    get contextPath(): string {
-        return this.getAttribute('context');
-    }
-
-    // drop-down manager
-    private ddm = null;
 
     // Render element DOM by returning a `lit-html` template.
     // Wired to run once only - static configuration.
@@ -318,7 +305,7 @@ export class LittleDropDownMenu extends HTMLElement {
             (model) => {
                 render(templateFactory(this.modelVal), this);
                 this.ddm = PureDropdown.build(this);
-            }
+            },
         );
     }
 }
@@ -338,9 +325,9 @@ AppContext.get().then(
                 window.customElements.define("lw-drop-down", LittleDropDownMenu);
                 styleHelper.componentCss.push(css);
                 styleHelper.render();
-            }
+            },
         );
-    }
+    },
 );
 
 export default LittleDropDownMenu;

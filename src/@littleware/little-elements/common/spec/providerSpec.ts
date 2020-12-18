@@ -48,10 +48,10 @@ describe( "the provider tools", () => {
 
     it("does not cache when ttl is zero", async (done) => {
         let counter = 0;
-        let provider = passThroughProvider(() => counter++);
-        for (let it=0; it < 10; ++it) {
-            let shouldbe = it;
-            let result = await provider.get();
+        const provider = passThroughProvider(() => counter++);
+        for (let it = 0; it < 10; ++it) {
+            const shouldbe = it;
+            const result = await provider.get();
             expect(result).toBe(shouldbe);
         }
         done();
@@ -60,8 +60,8 @@ describe( "the provider tools", () => {
     it("supports singletons", async (done) => {
         const thing = "frickjack";
         const provider = singletonProvider(() => thing);
-        let thing1 = await provider.get();
-        let thing2 = await provider.get();
+        const thing1 = await provider.get();
+        const thing2 = await provider.get();
         expect(thing1).toBe(thing2);
         expect(thing).toBe(thing1);
         done();

@@ -1,5 +1,4 @@
-import { backoff, backoffIterator, deepCopy, Barrier, Mutex, once, sleep, squish } from "../mutexHelper.js";
-
+import { backoff, backoffIterator, Barrier, deepCopy, Mutex, once, sleep, squish } from "../mutexHelper.js";
 
 describe("the littleware.mutexHelper", () => {
     it("can sleep for a few seconds", (done) => {
@@ -146,43 +145,43 @@ describe("the littleware.mutexHelper", () => {
         expect(cacheCount()).toBe(0);
     });
 
-    it("can rate limit access to a critical section", function(done) {
+    it("can rate limit access to a critical section", (done) => {
         const mx = new Mutex();
         let counter = 0;
-        let batch = [];
-        for (let i=0; i < mx.maxQueueLen + mx.maxConcurrency; ++i) {
+        const batch = [];
+        for (let i = 0; i < mx.maxQueueLen + mx.maxConcurrency; ++i) {
             const num = i;
-            let task = mx.enter(() => sleep(100).then(
+            const task = mx.enter(() => sleep(100).then(
                 () => {
                     counter += 1;
                     return counter;
-                }
+                },
             )).then(
                 (numPlus1) => {
                     expect(numPlus1).toBe(num + 1);
-                }
+                },
             );
             batch.push(task);
         }
-        mx.enter(() => Promise.resolve('ok')).then(
-            () => { done.fail('should have been throttled'); },
-            (err) => { expect(err).toBe('mutex throttle'); }
+        mx.enter(() => Promise.resolve("ok")).then(
+            () => { done.fail("should have been throttled"); },
+            (err) => { expect(err).toBe("mutex throttle"); },
         ).then(
-            () => Promise.all(batch)
+            () => Promise.all(batch),
         ).then(
-            () => done()
+            () => done(),
         );
     });
 
-    it("can do a deep copy", function() {
+    it("can do a deep copy", () => {
         const testObj = {
             abc: {
                 def: {
                     g: 123,
-                    hij: [ { xyz: 123 }]
-                }
+                    hij: [ { xyz: 123 }],
+                },
             },
-            whatever: "whatever"
+            whatever: "whatever",
         };
         const copy = deepCopy(testObj, true);
         expect(copy).not.toBe(testObj, "deepCopy creates new object");
@@ -201,21 +200,21 @@ describe("the littleware.mutexHelper", () => {
     });
 });
 
-describe("the little barrier", function() {
+describe("the little barrier", () => {
 
-    it('can signal and wait on a barrier', function(done) {
+    it("can signal and wait on a barrier", (done) => {
         const barrier = new Barrier<string>();
         const value = "frickjack";
 
         barrier.wait().then(
-            str => barrier.wait().then(str => str)
+            (str) => barrier.wait().then((str) => str),
         ).then(
             (str) => {
                 expect(str).toEqual(value);
                 done();
-            }
+            },
         );
         barrier.signal(value);
     });
 
-})
+});

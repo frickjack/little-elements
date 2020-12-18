@@ -136,12 +136,12 @@ export function backoff<T>(lambda: (...args) => Promise<T>, maxRetries= 10, back
 
 /**
  * Proxy that invokes lambda once, and caches the result
- * 
+ *
  * @param lambdaOnce to invoke just once
  * @param lambdaTwice to invoke the second+ time called - default
  *                   just returns the given cached value
  */
-export function once<T>(lambdaOnce: () => T, lambdaTwice: (T) => T = t => t): () => T {
+export function once<T>(lambdaOnce: () => T, lambdaTwice: (T) => T = (t) => t): () => T {
     let hasRun = false;
     let cache = null;
     return () => {
@@ -157,8 +157,8 @@ export function once<T>(lambdaOnce: () => T, lambdaTwice: (T) => T = t => t): ()
  * when signaled or canceled
  */
 export class Barrier<T> {
-    private resolver:(value:T) => void = null;
-    private rejecter:(err:any) => void = null;
+    private resolver: (value: T) => void = null;
+    private rejecter: (err: any) => void = null;
     private promise: Promise<T> = null;
     private barrierState = "unresolved";
 
@@ -167,19 +167,19 @@ export class Barrier<T> {
             (resolve, reject) => {
                 this.resolver = resolve;
                 this.rejecter = reject;
-            }
+            },
         );
     }
 
     /**
      * Resolve the wait() promise with value
-     * 
+     *
      * @param value
      * @return true if value propagated to waiters,
      *      false if barrier was already signaled
-     *      or canceled 
+     *      or canceled
      */
-    signal(value:T|Promise<T>):boolean {
+    public signal(value: T|Promise<T>): boolean {
         if (this.state === "unresolved") {
             Promise.resolve(value).then((v) => { this.resolver(v); });
             this.barrierState = "resolved";
@@ -190,13 +190,13 @@ export class Barrier<T> {
 
     /**
      * Propagate an error to waiters
-     * 
-     * @param err 
+     *
+     * @param err
      * @return true if value propagated to waiters,
      *      false if barrier was already signaled
-     *      or canceled 
+     *      or canceled
      */
-    cancel(err:any):boolean {
+    public cancel(err: any): boolean {
         if (this.state === "unresolved") {
             this.rejecter(err);
             this.barrierState = "rejected";
@@ -208,13 +208,12 @@ export class Barrier<T> {
     /**
      * @return unresolved, resolved, or rejected
      */
-    get state():string { return this.barrierState; }
+    get state(): string { return this.barrierState; }
 
-    wait():Promise<T> {
+    public wait(): Promise<T> {
         return this.promise;
     }
 }
-
 
 /**
  * Helper rate limiting, circuite breaking, and mutual exclusion.
@@ -223,17 +222,16 @@ export class Barrier<T> {
  */
 // tslint:disable-next-line
 export class Mutex {
+
+    get maxQueueLen() { return this.maxQueueLenVal; }
+    get maxConcurrency() { return this.maxConcurrencyVal; }
     private maxConcurrencyVal: number;
     private maxReqsPerSec: number;
     private rateWindowEnd = new Date(Date.now() + 5000).getTime();
     private rateWindowCount = 0;
     private maxQueueLenVal: number;
     private numRunning: number = 0;
-    private waitQueue:Array<Barrier<void>> = [];
-
-
-    get maxQueueLen() { return this.maxQueueLenVal; }
-    get maxConcurrency() { return this.maxConcurrencyVal; }
+    private waitQueue: Array<Barrier<void>> = [];
 
     /**
      * @param maxConcurrency max number of concurrently running requests (subsequent requests are queued) - default is 4
@@ -246,44 +244,6 @@ export class Mutex {
         this.maxQueueLenVal = maxQueueLen;
     }
 
-    private popTheQ() {
-        const now = Date.now();
-        if (now > this.rateWindowEnd) {
-            // 5 second rate limit window
-            this.rateWindowEnd = now + 5000;
-            this.rateWindowCount = 0;
-        }
-        // release rate-limitted requests
-        for (
-            let count=0; 
-            count + this.numRunning < this.maxConcurrency
-                && count + this.rateWindowCount < this.maxReqsPerSec * 5
-                && this.waitQueue.length > 0;
-            count += 1
-        ) {
-            const barrier:Barrier<void> = this.waitQueue.shift();
-            if (barrier) {
-                this.numRunning += 1;
-                this.rateWindowCount += 1;
-                barrier.signal();
-            }
-        }
-        if (this.numRunning === 0 && this.waitQueue.length > 0) {
-            // rate limiting has kicked in - wake up the queue
-            // when a new rate window opens
-            sleep(this.rateWindowEnd - now + 50).then(
-                () => this.popTheQ()
-            );
-        }
-    }
-
-    private exit() {
-        if (this.numRunning > 0) {
-            --this.numRunning;
-        }
-        this.popTheQ();
-    }
-
     /**
      * Aquire the mutex, then invoke lambda, then release the mutex
      * @param lambda
@@ -292,7 +252,7 @@ export class Mutex {
         // push the request onto the wait queue
         const barrier = new Barrier<void>();
         if (this.waitQueue.length + 1 > this.maxQueueLen) {
-            return Promise.reject('mutex throttle');
+            return Promise.reject("mutex throttle");
         }
         this.waitQueue.push(barrier);
         this.popTheQ();
@@ -313,24 +273,61 @@ export class Mutex {
      */
     public throttle<T>(lambda: (...args) => Promise<T>): (...args) => Promise<T> {
         return (...args) => this.enter(
-                () => lambda(args)
+                () => lambda(args),
             );
     }
 
+    private popTheQ() {
+        const now = Date.now();
+        if (now > this.rateWindowEnd) {
+            // 5 second rate limit window
+            this.rateWindowEnd = now + 5000;
+            this.rateWindowCount = 0;
+        }
+        // release rate-limitted requests
+        for (
+            let count = 0;
+            count + this.numRunning < this.maxConcurrency
+                && count + this.rateWindowCount < this.maxReqsPerSec * 5
+                && this.waitQueue.length > 0;
+            count += 1
+        ) {
+            const barrier: Barrier<void> = this.waitQueue.shift();
+            if (barrier) {
+                this.numRunning += 1;
+                this.rateWindowCount += 1;
+                barrier.signal();
+            }
+        }
+        if (this.numRunning === 0 && this.waitQueue.length > 0) {
+            // rate limiting has kicked in - wake up the queue
+            // when a new rate window opens
+            sleep(this.rateWindowEnd - now + 50).then(
+                () => this.popTheQ(),
+            );
+        }
+    }
+
+    private exit() {
+        if (this.numRunning > 0) {
+            --this.numRunning;
+        }
+        this.popTheQ();
+    }
+
 }
-  
 
 /**
  * Map the given asynchronous function over the given list
  * synchronously, so that at most batchSize elements of the list
  * are in process simultaneously
- * 
- * @param {[I]} list 
- * @param {I => T} lambda 
+ *
+ * @param {[I]} list
+ * @param {I => T} lambda
  * @param {int} batchSize max number of elements to run in parallel - between 1 and 100, default 10
  * @param {Promise<T>} result initial list to append to - defaults to []
  */
-export function pmap<T,R>(list:T[], lambda:(T) => Promise<R>, batchSize:number=10, result:R[]=[]):Promise<R[]> {
+export function pmap<T, R>(list: T[], lambda: (T) => Promise<R>, batchSize: number= 10, result: R[]= []): Promise<R[]> {
     let n = batchSize;
     if (n < 1) {
         n = 1;
@@ -339,24 +336,24 @@ export function pmap<T,R>(list:T[], lambda:(T) => Promise<R>, batchSize:number=1
         n = 100;
     }
     if (list && list.length > 0) {
-      return Promise.all(list.slice(0,n).map(it => lambda(it))).then(
+      return Promise.all(list.slice(0, n).map((it) => lambda(it))).then(
         (batchResult) => {
           return pmap(list.slice(n), lambda, n, result.concat(batchResult));
-        }
+        },
       );
     } else {
       return Promise.resolve(result);
     }
   }
-  
+
   /**
    * Make a deep copy of the given object, and
    * optionally freeze.
-   * 
-   * @param thing 
-   * @param freeze 
+   *
+   * @param thing
+   * @param freeze
    */
-  export function deepCopy<T>(thing:T, freeze=false):T {
+export function deepCopy<T>(thing: T, freeze= false): T {
     let result = null;
 
     switch (typeof thing) {
@@ -382,4 +379,3 @@ export function pmap<T,R>(list:T[], lambda:(T) => Promise<R>, batchSize:number=1
     }
     return result;
   }
-  

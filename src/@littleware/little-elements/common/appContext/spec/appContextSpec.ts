@@ -9,56 +9,56 @@ interface Tools {
 }
 
 const toolKeys = {
-    'config': 'config/littleware/little-elements/appContextSpec'
+    config: "config/littleware/little-elements/appContextSpec",
 };
 
 const testConfig = {
-    "a": 1, 
-    "whatever": "bla"
+    a: 1,
+    whatever: "bla",
 };
 
 describe( "the application context (appContext)", () => {
     it("can provide tools onStart", (done) => {
         AppContext.get().then(
-            cx => cx.onStart(toolKeys, (toolBox) => getTools(toolBox))
+            (cx) => cx.onStart(toolKeys, (toolBox) => getTools(toolBox)),
         ).then(
-            (boxOfTools) => { 
+            (boxOfTools) => {
                 expect(!!boxOfTools).toBe(true, "app context delivers tools");
                 done();
-            }
+            },
         );
     });
 
-    it("signals the build barrier", function(done) {
+    it("signals the build barrier", (done) => {
         AppContext.get().then(
             (cx) => {
                 expect(cx).toBeDefined();
                 done();
-            }
+            },
         );
     });
 
-    it("looks up config after start", function(done) {
+    it("looks up config after start", (done) => {
         AppContext.get().then(
-            cx => cx.getConfig("whatever")
+            (cx) => cx.getConfig("whatever"),
         ).then(
             (configEntry) => {
                 expect(!!configEntry).toBe(true, "got config");
                 done();
-            }
+            },
         );
     });
 
-    it("provides tools after start", function(done) {
+    it("provides tools after start", (done) => {
         AppContext.get().then(
             (cx) => {
                 return cx.getProvider("config/whatever");
-            }
+            },
         ).then(
             (configProvider) => {
                 expect(configProvider).toBeTruthy();
                 done();
-            }
+            },
         );
     });
 });
@@ -66,5 +66,5 @@ describe( "the application context (appContext)", () => {
 AppContext.get().then(
     (cx) => {
         cx.putDefaultConfig(toolKeys.config, testConfig);
-    }
+    },
 );
