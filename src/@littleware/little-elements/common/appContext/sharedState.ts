@@ -68,7 +68,7 @@ export class SharedState {
      * @param key
      * @param handler
      */
-    public changeState(key: string, handler: (object) => Object|Promise<object>): Promise<object> {
+    public changeState(key: string, handler: (object) => object|Promise<object>): Promise<object> {
         const cleanKey = this.cleanKey(key);
         return this.getState(cleanKey).then(
             (v1) => Promise.resolve(handler(deepCopy(v1))).then(

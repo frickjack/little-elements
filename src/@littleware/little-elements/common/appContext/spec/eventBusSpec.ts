@@ -10,7 +10,7 @@ describe ("the eventBus", () => {
 
     it("can add and remove listeners", async (done) => {
         expect(bus).not.toBeNull();
-        const listener = () => {};
+        const listener = () => null;
         expect(bus.addListener("little-test/eventBusSpec", listener)).toBe(true);
         expect(bus.addListener("little-test/eventBusSpec", listener)).toBe(false);
         expect(bus.removeListener("little-test/eventBusSpec", listener)).toBe(true);

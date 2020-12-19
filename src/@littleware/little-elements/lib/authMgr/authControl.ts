@@ -31,8 +31,8 @@ export class Controller {
                 cx.onStart( { log: loggerAlias, state: SharedState.providerName, config: `config/${configKey}` },
                     async (toolBox: ToolBox) => {
                         const tools = await getTools(toolBox).then(
-                                (tools) => ({
-                                    ... tools,
+                                (toolsFromBox) => ({
+                                    ... toolsFromBox,
                                     config: { ...tools.config.defaults, ...tools.config.overrides },
                                 }) as Tools,
                             );

@@ -22,9 +22,9 @@ class HistoryHelper {
     }
 
     // TODO: i18n, etc
-    public popup(): Promise<Object> { return null; }
+    public popup(): Promise<object> { return null; }
     // TODO: support Undo
-    public toaster(): Promise<Object> { return null; }
+    public toaster(): Promise<object> { return null; }
 
     /**
      * Simple helper - for now just listens for

@@ -195,6 +195,7 @@ describe("the littleware.mutexHelper", () => {
             copy.whatever = "freeze";
             fail("assigment to frozen object should fail");
         } catch (ex) {
+            expect(ex).toBeDefined();
         }
         expect(copy.whatever).toEqual(testObj.whatever, "freeze works");
     });
@@ -207,7 +208,7 @@ describe("the little barrier", () => {
         const value = "frickjack";
 
         barrier.wait().then(
-            (str) => barrier.wait().then((str) => str),
+            () => barrier.wait().then((str) => str),
         ).then(
             (str) => {
                 expect(str).toEqual(value);

@@ -27,23 +27,23 @@ describe( "the lw-drop-down custom element", () => {
 AppContext.get().then(
     (cx) => {
         cx.putDefaultConfig(testContext, {
-            root: {
-                labelKey: "test-drop-down",
-                className: "lw-dd-test",
-                href: "#whatever",
-            },
             items: [
                 {
-                    labelKey: "test-label1",
                     className: "lw-dd-test__label1",
                     href: "#lw-dd-test/whatever1",
+                    labelKey: "test-label1",
                 },
                 {
-                    labelKey: "test-label2",
                     className: "lw-dd-test__label2",
                     href: "#lw-dd-test/whatever2",
+                    labelKey: "test-label2",
                 },
             ],
+            root: {
+                className: "lw-dd-test",
+                href: "#whatever",
+                labelKey: "test-drop-down",
+            },
         });
     },
 );

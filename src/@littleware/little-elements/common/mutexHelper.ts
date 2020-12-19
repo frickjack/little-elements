@@ -1,4 +1,3 @@
-import { resolve } from "dns";
 
 export function sleep(ms: number): Promise<void> {
     return new Promise(
@@ -234,9 +233,12 @@ export class Mutex {
     private waitQueue: Array<Barrier<void>> = [];
 
     /**
-     * @param maxConcurrency max number of concurrently running requests (subsequent requests are queued) - default is 4
-     * @param maxReqsPerSec max number of requests per second before throttling kicks in - must be greater than maxConcurrency
-     * @param maxQueueLen max length of the throttle queue before a fast fail circuit breaker kicks in
+     * @param maxConcurrency max number of concurrently running
+     *     requests (subsequent requests are queued) - default is 4
+     * @param maxReqsPerSec max number of requests per second
+     *     before throttling kicks in - must be greater than maxConcurrency
+     * @param maxQueueLen max length of the throttle queue before a
+     *     fast fail circuit breaker kicks in
      */
     constructor(maxConcurrency= 4, maxReqsPerSec = 20, maxQueueLen= 20) {
         this.maxConcurrencyVal = maxConcurrency;

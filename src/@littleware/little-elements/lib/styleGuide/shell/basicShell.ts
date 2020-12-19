@@ -1,7 +1,7 @@
 /**
  * Loading shell - the main app should invoke: littleShell.clear()
  */
-(() =>{
+(() => {
     const startTime = Date.now();
     const template = `
     <div class="lw-shell">
@@ -32,10 +32,10 @@
      * Throttles page load by minimum of 250ms.
      * TODO: transition animation, service worker setup
      */
-    const littleShell = window["littleShell"] = {
+    const littleShell = window.littleShell = {
         /**
          * Clear the shell
-         * 
+         *
          * @return promise that resolves when the shell clears
          */
         clear: () => {
@@ -43,38 +43,38 @@
                 const now = Date.now();
                 clearInterval(intervalId);
                 intervalId = null;
-                
+
                 clearPromise = new Promise(
-                    function(resolve) {
+                    (resolve) => {
                         setTimeout(
                             () => {
-                                let shell = document.body.querySelector('div.lw-shell');
+                                const shell = document.body.querySelector("div.lw-shell");
                                 if (shell) {
                                     document.body.removeChild(shell);
                                 }
-                                resolve('ok');
-                            }, Math.max(250-(now-startTime), 20)
+                                resolve("ok");
+                            }, Math.max(250 - (now - startTime), 20),
                         );
-                    }
-                )
+                    },
+                );
             }
             return clearPromise;
-        }
+        },
     };
 
-    let shellParent = document.createElement("DIV");
+    const shellParent = document.createElement("DIV");
     shellParent.innerHTML = template;
     document.body.appendChild(shellParent.children[0]);
-    
+
     intervalId = setInterval(() => {
-        const str = 'Loading ....................';
+        const str = "Loading ....................";
         count = (count + 1) % 15;
-        let heading = document.body.querySelector('#lw-loading');
+        const heading = document.body.querySelector("#lw-loading");
         if (heading) {
-            heading.textContent = str.substring(0, 10+count);
+            heading.textContent = str.substring(0, 10 + count);
         } else {
             littleShell.clear();
         }
     }, 500);
-    
+
 })();

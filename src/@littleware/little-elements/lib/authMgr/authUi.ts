@@ -108,37 +108,39 @@ export class LittleAuthUI extends HTMLElement {
 AppContext.get().then(
     (cx) => {
         cx.putDefaultConfig(loginContext, {
-            root: {
-                labelKey: "little-elements:anonymous",
-                className: "lw-authmgr",
-                href: "#whatever",
-            },
             items: [
                 {
-                    labelKey: "little-elements:login",
                     className: "lw-authmgr__item",
                     href: "#authmgr/login",
+                    labelKey: "little-elements:login",
                 },
             ],
-        });
-        cx.putDefaultConfig(logoutContext, {
             root: {
-                labelKey: "little-elements:logout",
                 className: "lw-authmgr",
                 href: "#whatever",
+                labelKey: "little-elements:anonymous",
             },
+        });
+        cx.putDefaultConfig(logoutContext, {
             items: [
                 {
-                    labelKey: "little-elements:logout",
                     className: "lw-authmgr__item",
                     href: "#authmgr/logout",
+                    labelKey: "little-elements:logout",
                 },
+                /* TODO: enable this ...
                 {
-                    labelKey: "little-elements:userinfo",
                     className: "lw-authmgr__item",
                     href: "#authmgr/userinfo",
+                    labelKey: "little-elements:userinfo",
                 },
+                */
             ],
+            root: {
+                className: "lw-authmgr",
+                href: "#whatever",
+                labelKey: "little-elements:logout",
+            },
         });
         cx.onStart(
             { i18n: i18nProvider, log: loggerAlias, state: SharedState.providerName },

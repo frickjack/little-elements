@@ -66,9 +66,11 @@ export class LittleAppContext extends HTMLElement {
         ).then(
             // clear the loading shell if present
             (cx) => {
-                const shellPromise = globalThis.littleShell ? globalThis.littleShell.clear() as Promise<string> : Promise.resolve("ok");
+                const shellPromise = globalThis.littleShell ?
+                    globalThis.littleShell.clear() as Promise<string> :
+                    Promise.resolve("ok");
                 return shellPromise.then(() => cx);
-            }
+            },
         ).then(
             (cx) => cx.start().then(() => cx),
         ),

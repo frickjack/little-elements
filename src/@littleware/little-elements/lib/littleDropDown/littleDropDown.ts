@@ -13,6 +13,7 @@ interface Tools {
 
 let tools: Tools = null; // initialized below
 
+// tslint:disable
 const PREFIX = "pure-",
     ACTIVE_CLASS_NAME = PREFIX + "menu-active",
     ARIA_ROLE = "role",
@@ -27,6 +28,7 @@ const PREFIX = "pure-",
         "touchstart" : "mousedown",
 
     ARROW_KEYS_ENABLED = true;
+// tslint:enable
 
 /**
  * littleDropDown dropdown handler - originally from:
@@ -52,19 +54,19 @@ class PureDropdown {
         ddm._menu.setAttribute("aria-hidden", "true");
         [].forEach.call(
             ddm._menu.querySelectorAll("li"),
-            function(el) {
+            (el) => {
                 el.setAttribute(ARIA_ROLE, "presentation");
             },
         );
         [].forEach.call(
             ddm._menu.querySelectorAll("a"),
-            function(el) {
+            (el) => {
                 el.setAttribute(ARIA_ROLE, "menuitem");
             },
         );
 
         // Toggle on click
-        ddm._link.addEventListener("click", function(e) {
+        ddm._link.addEventListener("click", (e) => {
             e.stopPropagation();
             tools.log.debug(`lw-drop-down click on ${e.target.href}`);
             e.preventDefault();
@@ -75,12 +77,14 @@ class PureDropdown {
         // disable this for now - not relevent on mobile,
         // and prone to memory leak as currently constructed
         if (false) {
-            document.addEventListener("keydown", function(e) {
+            document.addEventListener("keydown", (e) => {
+                // tslint:disable
                 let currentLink,
                     previousSibling,
                     nextSibling,
                     previousLink,
                     nextLink;
+                // tslint:enable
 
                 // if the menu isn't active, ignore
                 if (ddm._state !== MENU_OPEN) {
@@ -138,7 +142,7 @@ class PureDropdown {
         // TODO - Adding a listener at the document level is prone
         // to memory leak if these components are dynamically
         // created and destroyed ....
-        document.addEventListener(DISMISS_EVENT, function(e) {
+        document.addEventListener(DISMISS_EVENT, (e) => {
             const target = e.target;
             if (target !== ddm._link && !ddm._menu.contains(target)) {
                 ddm.hide();
@@ -148,11 +152,14 @@ class PureDropdown {
 
         return ddm;
     }
+
+    // tslint:disable
     private _state = MENU_CLOSED;
     private _dropdownParent;
     private _link;
     private _menu;
     private _firstMenuLink;
+    // tslint:enable
 
     constructor(dropdownParent) {
         this._dropdownParent = dropdownParent;
@@ -225,12 +232,12 @@ export class LittleDropDownMenu extends HTMLElement {
     // Gets a copy of the default model
     get defaultModel(): DropDownModel {
         return {
+            items: [],
             root: {
-                labelKey: "uninitialized",
                 className: "lw-drop-down_uninitialized",
                 href: "#ignore",
+                labelKey: "uninitialized",
             },
-            items: [],
         };
     }
 
@@ -261,7 +268,13 @@ export class LittleDropDownMenu extends HTMLElement {
                 return AppContext.get().then(
                         (cx) => cx.getConfig(this.contextPath),
                     ).then(
-                        (entry) => ({ ... this.defaultModel, ... entry.defaults, ... entry.overrides } as DropDownModel),
+                        (entry) => (
+                            {
+                                ... this.defaultModel,
+                                ... entry.defaults,
+                                ... entry.overrides,
+                            } as DropDownModel
+                        ),
                     ).then(
                         (newModel: DropDownModel) => {
                             if (null === this.modelVal) {
