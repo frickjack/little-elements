@@ -1,0 +1,32 @@
+{% extends "lib/styleGuide/shell/basicShell.html.njk" %}
+
+{% block head %}
+<title>littleDropDown UX Canvas</title>
+
+<link rel="stylesheet" type="text/css" href="/modules/jasmine-core/lib/jasmine-core/jasmine.css" />
+<script src="/modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+<script src="/modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+<script src="../test/littleJasmineBoot.js"></script>
+{% endblock %}
+
+{% block content %}
+<section id="README">
+  {% markdown %}
+     {% include "lib/littleDropDown/README.md" %}
+  {% endmarkdown %}
+</section>
+
+<section>
+
+<p> Here is the lw-drop-down custom element </p>
+<lw-drop-down 
+  context="little-elements/lw-drop-down/spec/testConfig"
+  >
+</lw-drop-down>
+
+<lw-app-context main-module="./spec/main.js"></lw-app-context>
+
+</section>
+<script src="../appContext/appContext.js" type="module"></script>
+
+{% endblock %}

@@ -1,4 +1,4 @@
-import {html, render, svg, TemplateResult} from "../../../../../lit-html/lit-html.js";
+import {render, svg, TemplateResult} from "../../../../../lit-html/lit-html.js";
 import {singleton as styleHelper} from "../styleGuide/styleGuide.js";
 import {css} from "./arrivalPie.css.js";
 

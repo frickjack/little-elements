@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        // for lit-element decorators
+        "experimentalDecorators": true,
         //noImplicitAny: true,
         "target": "ESNEXT",
         "sourceMap": true,

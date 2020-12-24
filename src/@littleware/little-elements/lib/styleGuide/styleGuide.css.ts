@@ -1,23 +1,7 @@
-import {html, TemplateResult} from "../../../../../lit-html/lit-html.js";
-
-export const meta = html`
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="Content-Security-Policy"
-    content="default-src 'none';
-    img-src 'self' data: https://www.google-analytics.com;
-    script-src 'self' https://www.google-analytics.com;
-    style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com;
-    object-src 'none';
-    font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com"
-    >
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-`;
+import {html} from "../../../../../lit-html/lit-html.js";
 
 export const links = html`
-<link href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"
-      integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w"
-      crossorigin="anonymous" rel="stylesheet" />
+<link href="/modules/purecss/build/pure-min.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css?family=Noto+Sans|Oswald" crossorigin="anonymous" rel="stylesheet" />
 <link href="/modules/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
 `;
@@ -164,6 +148,10 @@ h1,h2,h3,h4 {
 
 .lw-section {
 	width: 100%;
+}
+
+.lw_hidden {
+	display: none;
 }
 
 </style>

@@ -13,14 +13,20 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      { pattern: 'web/lib/appContext/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/arrivalPie/**/*.js', type: 'module', included: false },
+      { pattern: 'web/lib/authMgr/**/*.js', type: 'module', included: false },
+      { pattern: 'web/lib/littleDropDown/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/styleGuide/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/test/**/*.js', type: 'module', included: false },
       { pattern: 'web/common/**/*.js', type: 'module', included: false },
+      { pattern: 'web/**/*.json', included: false },
       { pattern: 'web/lib/testMain.js', type: 'module', included: true },
+      { pattern: 'node_modules/i18next/*.js', type: 'module', included: false },
       { pattern: 'node_modules/lit-html/*.js', type: 'module', included: false },
       { pattern: 'node_modules/lit-html/lib/*.js', type: 'module', included: false },
-      { pattern: 'node_modules/font-awesome/css/*.css', included: false }
+      { pattern: 'node_modules/font-awesome/css/*.css', included: false },
+      { pattern: 'node_modules/purecss/build/*.css', included: false },
     ],
 
     // list of files to exclude
@@ -35,8 +41,10 @@ module.exports = function(config) {
     },
     // relative paths are a little weird
     proxies: {
+      '/i18next': '/base/node_modules/i18next',
       '/lit-html': '/base/node_modules/lit-html',
-      '/modules/font-awesome': '/base/node_modules/font-awesome'
+      '/modules/font-awesome': '/base/node_modules/font-awesome',
+      '/modules/purecss': '/base/node_modules/purecss'
     },
 
     // test results reporter to use

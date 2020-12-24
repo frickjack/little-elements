@@ -1,5 +1,5 @@
 import {html, render, TemplateResult} from "../../../../../lit-html/lit-html.js";
-import {css, links, meta} from "./styleGuide.css.js";
+import {css, links} from "./styleGuide.css.js";
 
 // TODO - service worker - import workbox
 let container = null;
@@ -51,6 +51,8 @@ ${
 `;
 
 export const singleton = new StyleHelper();
+export default singleton;
+
 // do not include 'meta' - shell usually handles that
 [links, css].forEach(
     (block) => { singleton.baseCss.push(block); },

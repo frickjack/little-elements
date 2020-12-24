@@ -5,9 +5,12 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "bunyan": "^1.8.12",
+    "bunyan": "^1.8.14",
     "font-awesome": "^4.7.0",
-    "lit-html": "^1.1.2"
+    "i18next": "^19.7.0",
+    "lit-html": "^1.2.1",
+    "node-fetch": "^2.6.1",
+    "purecss": "^2.0.3"
   },
   "files": [
     "README.md",
@@ -43,12 +46,12 @@
     "marked": "latest",
     "merge2": "latest",
     "mkdirp": "latest",
-    "node-fetch": "latest",
     "nunjucks": "latest",
     "nunjucks-markdown": "latest",
     "ts-custom-elements": "latest",
     "tslint": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "workbox-build": "^6.0.2"
   },
   "bin": {
     "little-server": "./commonjs/bin/little-server.js"

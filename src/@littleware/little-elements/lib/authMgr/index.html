@@ -1,0 +1,29 @@
+{% extends "lib/styleGuide/shell/basicShell.html.njk" %}
+
+{% block head %}
+<title>Auth UX Canvas</title>
+
+<link rel="stylesheet" type="text/css" href="/modules/jasmine-core/lib/jasmine-core/jasmine.css" />
+<script src="/modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+<script src="/modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+<script src="../test/littleJasmineBoot.js"></script>
+{% endblock %}
+
+{% block content %}
+<section id="README">
+  {% markdown %}
+     {% include "lib/authMgr/README.md" %}
+  {% endmarkdown %}
+</section>
+
+<section>
+
+<p> Here is the lw-auth-ui custom element </p>
+<lw-auth-ui></lw-auth-ui>
+
+<lw-app-context main-module="./spec/main.js"></lw-app-context>
+
+</section>
+<script src="../appContext/appContext.js" type="module"></script>
+
+{% endblock %}

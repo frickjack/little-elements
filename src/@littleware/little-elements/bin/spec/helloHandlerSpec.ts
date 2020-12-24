@@ -11,9 +11,9 @@ describe("hello express handler", () => {
         helloHelper.expressRouter().then(
             (router) => {
                 app.use("/", router);
-                server = app.listen(3000, () => {
+                server = app.listen(3333, () => {
                     // tslint:disable-next-line
-                    console.log("helloHandlerSpec listening at http://localhost:3000/");
+                    console.log("helloHandlerSpec listening at http://localhost:3333/");
                 });
                 done();
             },
@@ -28,7 +28,7 @@ describe("hello express handler", () => {
     });
 
     it("responds to hello requests", (done) => {
-        fetch("http://localhost:3000/hello").then(
+        fetch("http://localhost:3333/hello").then(
             (r) => r.json(),
         ).then(
             (info) => {
