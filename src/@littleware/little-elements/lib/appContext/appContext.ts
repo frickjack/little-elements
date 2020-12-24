@@ -88,6 +88,7 @@ export class LittleAppContext extends HTMLElement {
 window.customElements.define("lw-app-context", LittleAppContext);
 
 export default AppContext;
+export * from "../../common/appContext/appContext.js";
 
 AppContext.get().then(
     (cx) => {

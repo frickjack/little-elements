@@ -1,7 +1,6 @@
 import {html, render, TemplateResult} from "../../../../../lit-html/lit-html.js";
 import AppContext, { getTools } from "../../common/appContext/appContext.js";
 import { aliasName as loggerAlias, Logger } from "../../common/appContext/logging.js";
-import { squish } from "../../common/mutexHelper.js";
 import { Ii18n, providerName as i18nProvider } from "../appContext/i18n.js";
 import styleHelper from "../styleGuide/styleGuide.js";
 import {css} from "./littleDropDown.css.js";

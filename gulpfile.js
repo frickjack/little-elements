@@ -7,10 +7,6 @@ const workboxBuild = require('workbox-build');
 const buildSW = () => {
     // This will return a Promise
     return workboxBuild.generateSW({
-      globDirectory: 'build',
-      globPatterns: [
-        '**/*.{html,json,js,css}',
-      ],
       swDest: 'web/lib/appContext/service-worker.js',
   
       // Define runtime caching rules.

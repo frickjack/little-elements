@@ -32,7 +32,8 @@
      * Throttles page load by minimum of 250ms.
      * TODO: transition animation, service worker setup
      */
-    const littleShell = window.littleShell = {
+    // tslint:disable-next-line
+    const littleShell = window["littleShell"] = {
         /**
          * Clear the shell
          *

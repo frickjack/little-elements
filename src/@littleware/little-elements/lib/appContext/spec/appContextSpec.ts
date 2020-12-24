@@ -1,21 +1,24 @@
-import { sleep } from "../../../common/mutexHelper.js";
-import { getStage } from "../../test/util.js";
-import "../appContext.js";
+import { aliasName as loggerAlias, Logger } from "../../../common/appContext/logging.js";
+import { Ii18n, providerName as i18nProvider } from "../../appContext/i18n.js";
+import AppContext, { getTools } from "../appContext.js";
 
-describe( "the lw-auth-ui custom element", () => {
-    it( "Can dance", () => {
-        expect(true).toBe(true);
-    });
+interface Tools {
+    i18n: Ii18n;
+    log: Logger;
+}
 
-    it( "Can render an lw-auth-ui", (done) => {
-        const stage = getStage( "authmgr1", "LittleAuthUI" );
-        const elem = document.createElement( "lw-auth-ui" );
-        // 6 degrees === 1 minute
-        stage.appendChild( elem );
-        // Give browser chance to render
-        sleep(1).then(
-            () => {
-                expect( stage.querySelectorAll( "lw-auth-ui" ).length ).toBe( 1 );
+const toolKeys = {
+    i18n: i18nProvider,
+    log: loggerAlias,
+};
+
+describe( "the lw-app-context custom element", () => {
+    it("can provide tools onStart", (done) => {
+        AppContext.get().then(
+            (cx) => cx.onStart(toolKeys, (toolBox) => getTools(toolBox)),
+        ).then(
+            (boxOfTools) => {
+                expect(!!boxOfTools).toBe(true, "app context delivers tools");
                 done();
             },
         );
