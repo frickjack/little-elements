@@ -33,7 +33,7 @@ export class Controller {
                         const tools = await getTools(toolBox).then(
                                 (toolsFromBox) => ({
                                     ... toolsFromBox,
-                                    config: { ...tools.config.defaults, ...tools.config.overrides },
+                                    config: { ...toolsFromBox.config.defaults, ...toolsFromBox.config.overrides },
                                 }) as Tools,
                             );
                         const controller = new Controller(tools);
