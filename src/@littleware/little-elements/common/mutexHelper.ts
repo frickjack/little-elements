@@ -230,7 +230,7 @@ export class Mutex {
     private rateWindowCount = 0;
     private maxQueueLenVal: number;
     private numRunning: number = 0;
-    private waitQueue: Array<Barrier<void>> = [];
+    private waitQueue: Barrier<void>[] = [];
 
     /**
      * @param maxConcurrency max number of concurrently running

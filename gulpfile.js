@@ -1,5 +1,5 @@
 const gulp = require('gulp');
-const gulpHelper = require('./gulpHelper');
+const gulpHelper = require('@littleware/little-nodedev/gulpHelper');
 const basePath = "src/@littleware/little-elements";
 
 const workboxBuild = require('workbox-build');

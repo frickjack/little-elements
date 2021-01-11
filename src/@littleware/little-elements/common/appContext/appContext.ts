@@ -23,7 +23,7 @@ export function lookup<T>(all: Dictionary<T>, keyList: string[]): Dictionary<T> 
         );
 }
 
-export function join<T>(kvList: Array<{ k: string, v: T }>): Dictionary<T> {
+export function join<T>(kvList: { k: string, v: T }[]): Dictionary<T> {
     return kvList.reduce(
         (acc, { k, v }) => {
             acc[k] = v;
@@ -32,7 +32,7 @@ export function join<T>(kvList: Array<{ k: string, v: T }>): Dictionary<T> {
     );
 }
 
-export function split<T>(dict: Dictionary<T>): Array<{ k: string, v: T }> {
+export function split<T>(dict: Dictionary<T>): { k: string, v: T }[] {
     return Object.entries(dict).map(
         ([k, v]) => ({ k, v }),
     );
@@ -123,7 +123,7 @@ export class AppContext {
      */
     public start: () => Promise<string[]> = once(
         async () => {
-            const configList: Array<Dictionary<Dictionary<any>>> = await pmap(
+            const configList: Dictionary<Dictionary<any>>[] = await pmap(
                 this.config.configHref,
                 (url) => this.config.loadConfig(url),
             );

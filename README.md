@@ -50,3 +50,6 @@ See [this bLog](https://www.divio.com/blog/documentation/) for an introduction t
 ### Tutorials
 
 ### Reference
+
+* [release notes](Notes/reference/releaseNotes.md)
+

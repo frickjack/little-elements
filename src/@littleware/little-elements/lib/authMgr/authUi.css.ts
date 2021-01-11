@@ -7,7 +7,6 @@ export const css = html`
 <style id="lw-authMgr-css">
 lw-auth-ui {
   width: 100px;
-  height: 100px;
   display: block;
 }
 
