@@ -1,6 +1,6 @@
-import { backoff, backoffIterator, once, sleep, squish } from "../mutexHelper.js";
+import { backoff, backoffIterator, Barrier, deepCopy, Mutex, once, sleep, squish } from "../mutexHelper.js";
 
-describe( "the littleware.mutexHelper", () => {
+describe("the littleware.mutexHelper", () => {
     it("can sleep for a few seconds", (done) => {
         const startMs = Date.now();
         sleep(3000).then(
@@ -11,6 +11,7 @@ describe( "the littleware.mutexHelper", () => {
             },
         );
     });
+
     it("can squish a lambda to avoid overlapping calls", (done) => {
         const lambda = squish(() => sleep(1000));
         const s1 = lambda();
@@ -143,4 +144,78 @@ describe( "the littleware.mutexHelper", () => {
         expect(count()).toBe(1);
         expect(cacheCount()).toBe(0);
     });
+
+    it("can rate limit access to a critical section", (done) => {
+        const mx = new Mutex();
+        let counter = 0;
+        const batch = [];
+        for (let i = 0; i < mx.maxQueueLen + mx.maxConcurrency; ++i) {
+            const num = i;
+            const task = mx.enter(() => sleep(100).then(
+                () => {
+                    counter += 1;
+                    return counter;
+                },
+            )).then(
+                (numPlus1) => {
+                    expect(numPlus1).toBe(num + 1);
+                },
+            );
+            batch.push(task);
+        }
+        mx.enter(() => Promise.resolve("ok")).then(
+            () => { done.fail("should have been throttled"); },
+            (err) => { expect(err).toBe("mutex throttle"); },
+        ).then(
+            () => Promise.all(batch),
+        ).then(
+            () => done(),
+        );
+    });
+
+    it("can do a deep copy", () => {
+        const testObj = {
+            abc: {
+                def: {
+                    g: 123,
+                    hij: [ { xyz: 123 }],
+                },
+            },
+            whatever: "whatever",
+        };
+        const copy = deepCopy(testObj, true);
+        expect(copy).not.toBe(testObj, "deepCopy creates new object");
+        expect(copy.abc).not.toBe(testObj.abc);
+        expect(copy.abc.def).not.toBe(testObj.abc.def);
+        expect(copy.abc.def.g).toEqual(testObj.abc.def.g);
+        expect(copy.abc.def.hij[0]).not.toBe(testObj.abc.def.hij[0]);
+        expect(copy.abc.def.hij[0].xyz).toEqual(testObj.abc.def.hij[0].xyz);
+
+        try {
+            copy.whatever = "freeze";
+            fail("assigment to frozen object should fail");
+        } catch (ex) {
+            expect(ex).toBeDefined();
+        }
+        expect(copy.whatever).toEqual(testObj.whatever, "freeze works");
+    });
+});
+
+describe("the little barrier", () => {
+
+    it("can signal and wait on a barrier", (done) => {
+        const barrier = new Barrier<string>();
+        const value = "frickjack";
+
+        barrier.wait().then(
+            () => barrier.wait().then((str) => str),
+        ).then(
+            (str) => {
+                expect(str).toEqual(value);
+                done();
+            },
+        );
+        barrier.signal(value);
+    });
+
 });

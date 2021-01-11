@@ -1,14 +1,9 @@
 {
   "name": "@littleware/little-elements",
-  "version": "1.0.14",
+  "version": "1.1.0",
   "type": "commonjs",
   "description": "",
   "main": "index.js",
-  "dependencies": {
-    "bunyan": "^1.8.12",
-    "font-awesome": "^4.7.0",
-    "lit-html": "^1.1.2"
-  },
   "files": [
     "README.md",
     "web/*",
@@ -16,49 +11,45 @@
     "site/*",
     "gulpHelper.js"
   ],
+  "dependencies": {
+    "bunyan": "^1.8.14",
+    "font-awesome": "^4.7.0",
+    "i18next": "^19.7.0",
+    "lit-html": "^1.2.1",
+    "node-fetch": "^2.6.1",
+    "purecss": "^2.0.3",
+    "@webcomponents/webcomponentsjs": "latest"
+  },
   "devDependencies": {
+    "@littleware/little-nodedev": "1.0.2",
     "@types/bunyan": "latest",
     "@types/express": "latest",
     "@types/jasmine": "latest",
     "@types/node": "latest",
     "@webcomponents/webcomponentsjs": "latest",
-    "aws-sdk": "^2.614.0",
+    "aws-sdk": "^2.819.0",
     "express": "latest",
     "gulp": "latest",
-    "gulp-debug": "latest",
-    "gulp-nunjucks-render": "latest",
-    "gulp-rename": "latest",
-    "gulp-rev": "latest",
-    "gulp-rev-replace": "latest",
-    "gulp-rimraf": "latest",
-    "gulp-sequence": "latest",
-    "gulp-sourcemaps": "latest",
-    "gulp-typescript": "latest",
-    "gulp-watch": "latest",
     "jasmine": "latest",
     "jasmine-core": "latest",
     "karma": "latest",
     "karma-chrome-launcher": "latest",
     "karma-jasmine": "latest",
-    "marked": "latest",
-    "merge2": "latest",
-    "mkdirp": "latest",
-    "node-fetch": "latest",
-    "nunjucks": "latest",
-    "nunjucks-markdown": "latest",
     "ts-custom-elements": "latest",
     "tslint": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "workbox-build": "latest"
   },
   "bin": {
     "little-server": "./commonjs/bin/little-server.js"
   },
   "scripts": {
-    "test": "jasmine && karma start karma.conf.js",
     "build": "gulp",
+    "jasmine": "jasmine --config=node_modules/@littleware/little-nodedev/spec/support/jasmine.json",
+    "lint": "tslint -c node_modules/@littleware/little-nodedev/tslint.json 'src/**/*.ts'",
     "start": "node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/ /admin module:./commonjs/bin/helloHandler.js",
-    "watch": "gulp little-watch",
-    "lint": "tslint -c tslint.json 'src/**/*.ts'"
+    "test": "jasmine --config=node_modules/@littleware/little-nodedev/spec/support/jasmine.json && karma start karma.conf.js",
+    "watch": "gulp little-watch"
   },
   "repository": {
     "type": "git",

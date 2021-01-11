@@ -9,6 +9,9 @@ initialization of an application page, and registers a service worker
 
 ## BEM CSS rules
 
+This [article](https://www.smashingmagazine.com/2014/07/bem-methodology-for-small-projects/) reviews the 
+block-element-modifier (BEM) approach to CSS management.
+
 ## Font awesome icons
 
 ## styleHelper

@@ -1,7 +1,7 @@
 import { sleep } from "../mutexHelper.js";
-import { LazyProvider } from "../provider.js";
+import { LazyProvider, passThroughProvider, singletonProvider } from "../provider.js";
 
-describe( "the littleware.LazyProvider", () => {
+describe( "the provider tools", () => {
     it("can lazy load a thing with reload", async (done) => {
         const startMs = Date.now();
         let counter = 0;
@@ -32,7 +32,7 @@ describe( "the littleware.LazyProvider", () => {
     it("can transform a thing", async (done) => {
         let counter = 0;
         const lazy = new LazyProvider(() => sleep(100).then(() => { counter += 1; return counter; }), 1,
-        ).then((num) => `The number is ${num}`);
+        ).transform((num) => `The number is ${num}`);
 
         // first value should be 1 - note that LazyProvider is "then-able" ...
         const str1 = await lazy.get();
@@ -46,4 +46,24 @@ describe( "the littleware.LazyProvider", () => {
         done();
     });
 
+    it("does not cache when ttl is zero", async (done) => {
+        let counter = 0;
+        const provider = passThroughProvider(() => counter++);
+        for (let it = 0; it < 10; ++it) {
+            const shouldbe = it;
+            const result = await provider.get();
+            expect(result).toBe(shouldbe);
+        }
+        done();
+    });
+
+    it("supports singletons", async (done) => {
+        const thing = "frickjack";
+        const provider = singletonProvider(() => thing);
+        const thing1 = await provider.get();
+        const thing2 = await provider.get();
+        expect(thing1).toBe(thing2);
+        expect(thing).toBe(thing1);
+        done();
+    });
 });

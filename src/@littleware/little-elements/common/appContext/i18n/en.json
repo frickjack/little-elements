@@ -1,0 +1,15 @@
+{
+    "translation": {
+        "test": "whatever"
+    },
+    "little-elements": {
+        "accountInfo": "Account Info",
+        "cancel": "Cancel",
+        "login": "Sign In",
+        "logout": "Sign Out",
+        "anonymous": "anonymous",
+        "userinfo": "User Info",
+        "ok": "Ok",
+        "test": "for the test case"
+    }
+}
