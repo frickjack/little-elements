@@ -33,15 +33,15 @@ Utilities for testing little web components with jasmine and karmajs.
 [./src/@littleware/little-elements/bin/README.md](./src/@littleware/little-elements/bin/README.md)
 
 
-## Documentation TOC
+## TOC
 
-See [this bLog](https://www.divio.com/blog/documentation/) for an introduction to the different types of documentation (explanation, how-to, tutorial, reference).
+See [this site](https://documentation.divio.com/introduction/) for an introduction to the different types of documentation (explanation, how-to, tutorial, reference).
 
 ### Explanation
 
-* the [gulp helper](./Notes/explanation/gulpHelper.md) includes a variety of rules to help build and deploy server and client side typescript apps.
 * the [little server](./Notes/explanation/littleServerAndLambda.md) provides a simple [expressjs](https://expressjs.com) server for locally serving web apps to clients and running server side express routers
 * [executable test plans](./Notes/explanation/executableTestPlans.md) provide a framework for specifying, running, reporting from, and automating test plans that begin as instructions to for manual testing
+* [async toolbox](./Notes/explanation/asyncToolbox.md) pattern for javascript
 
 ### How-to
 
