@@ -1,4 +1,8 @@
 import {startTest} from "../../test/util.js";
 import "./styleGuideSpec.js";
 
-startTest();
+// delay for a few seconds, so we can see the shell
+setTimeout(
+    startTest,
+    5000
+);

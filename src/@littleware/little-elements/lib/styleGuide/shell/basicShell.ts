@@ -18,8 +18,21 @@
         .lw-content-root {
             display: none;
         }
+        #lw-loading {
+            margin-bottom: 50px;
+        }
+        .lw-shell__spinner {
+            margin: auto;
+            width: 150px;height: 150px;
+            animation: sweep 1s infinite linear;
+            border-radius:75px;
+            border-bottom:5px solid blue;
+        }
+        @keyframes sweep { to { transform: rotate(360deg); } }
     </style>
-    <h1 id="lw-loading"></h1>
+    <h2 id="lw-loading"></h2>
+
+    <div class="lw-shell__spinner"></div>
 </div>
     `;
     let intervalId = null;
