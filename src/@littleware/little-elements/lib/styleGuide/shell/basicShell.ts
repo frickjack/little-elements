@@ -30,9 +30,9 @@
         }
         @keyframes sweep { to { transform: rotate(360deg); } }
     </style>
-    <h2 id="lw-loading"></h2>
-
     <div class="lw-shell__spinner"></div>
+
+    <h2 id="lw-loading"></h2>
 </div>
     `;
     let intervalId = null;
