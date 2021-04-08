@@ -21,14 +21,12 @@ phases:
       - mkdir -p "$HOME/.aws"; /bin/echo -e "[default]\nregion = us-east-2\noutput = json\ncredential_source = Ec2InstanceMetadata\n" | tee "$HOME/.aws/config"
       - npm ci
       - pip install yq --upgrade
-      - useradd -m -s /bin/bash littleware
   build:
     commands:
       - npm run build
       - npm run lint
       - npm audit --audit-level=high
-      # chrome does not like to run as root
-      - su littleware -c 'npm run test'
+      - npm run test
   post_build:
     commands:
       - echo "CODEBUILD_WEBHOOK_TRIGGER == $CODEBUILD_WEBHOOK_TRIGGER"
