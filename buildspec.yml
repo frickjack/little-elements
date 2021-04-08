@@ -21,7 +21,7 @@ phases:
       - mkdir -p "$HOME/.aws"; /bin/echo -e "[default]\nregion = us-east-2\noutput = json\ncredential_source = Ec2InstanceMetadata\n" | tee "$HOME/.aws/config"
       - npm ci
       - pip install yq --upgrade
-      - useradd -s /bin/bash littleware
+      - useradd -m -s /bin/bash littleware
   build:
     commands:
       - npm run build
