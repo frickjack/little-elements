@@ -104,7 +104,7 @@ export class Controller {
      * @param ev
      */
     public navEventHandler: StateListener = (ev: StateEvent) => {
-        const hashPath = (ev.data.new as HistoryState).hashPath;
+        const hashPath = (ev.data.new as HistoryState).hashPath || "";
         let redirect = "";  // no redirect by default
         let newUrl = "";
         if (hashPath.endsWith("authmgr/login")) {
