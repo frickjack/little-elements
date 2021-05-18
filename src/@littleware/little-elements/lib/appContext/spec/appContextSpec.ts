@@ -12,7 +12,7 @@ const toolKeys = {
     log: loggerAlias,
 };
 
-describe( "the lw-app-context custom element", () => {
+describe("the lw-app-context custom element", () => {
     it("can provide tools onStart", (done) => {
         AppContext.get().then(
             (cx) => cx.onStart(toolKeys, (toolBox) => getTools(toolBox)),
