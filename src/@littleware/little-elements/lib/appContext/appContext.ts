@@ -24,11 +24,17 @@ export class LittleAppContext extends HTMLElement {
             ];
     }
 
-    /** Property backed by "config-href" attribute */
+    /**
+     * Property backed by "config-href" attribute,
+     * filtered to replace HOSTNAME with location.hostname
+     */
     get configHref(): string[] {
         const attr = this.getAttribute("config-href");
         if (attr) {
-            return attr.split(/,\s*/);
+            return attr.split(/,\s*/
+                ).filter(it => it.match(/\S/)
+                ).map(it => it.replace(/HOSTNAME/g, location.hostname)
+                );
         }
         return [];
     }
