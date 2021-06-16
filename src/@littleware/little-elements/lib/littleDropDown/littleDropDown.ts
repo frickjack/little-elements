@@ -38,6 +38,9 @@ const PREFIX = "pure-",
  * Enable drop-down menus in Pure
  * Inspired by YUI3 gallery-simple-menu by Julien LeComte
  * [https://github.com/yui/yui3-gallery/blob/master/src/gallery-simple-menu/js/simple-menu.js]
+ *
+ * TODO: port this stuff to just change properties on the element,
+ *  then re-render, and let lit-html handle the property changes.
  */
 class PureDropdown {
 
@@ -67,75 +70,10 @@ class PureDropdown {
         // Toggle on click
         ddm._link.addEventListener("click", (e) => {
             e.stopPropagation();
-            tools.log.debug(`lw-drop-down click on ${e.target.href}`);
+            //tools.log.debug(`lw-drop-down click on ${e.target.href}`);
             e.preventDefault();
             ddm.toggle();
         });
-
-        // Keyboard navigation
-        // disable this for now - not relevent on mobile,
-        // and prone to memory leak as currently constructed
-        if (false) {
-            document.addEventListener("keydown", (e) => {
-                // tslint:disable
-                let currentLink,
-                    previousSibling,
-                    nextSibling,
-                    previousLink,
-                    nextLink;
-                // tslint:enable
-
-                // if the menu isn't active, ignore
-                if (ddm._state !== MENU_OPEN) {
-                    return;
-                }
-
-                // if the menu is the parent of an open, active submenu, ignore
-                if (ddm._menu.querySelector(MENU_ACTIVE_SELECTOR)) {
-                    return;
-                }
-
-                currentLink = ddm._menu.querySelector(":focus");
-
-                // Dismiss an open menu on ESC
-                if (e.key === "Escape") {
-                    /* Esc */
-                    ddm.halt(e);
-                    ddm.hide();
-                } else if (ARROW_KEYS_ENABLED && e.key === "ArrowDown") {
-                    /* Down arrow */
-                    ddm.halt(e);
-                    // get the nextSibling (an LI) of the current link's LI
-                    nextSibling = (currentLink) ? currentLink.parentNode.nextSibling : null;
-                    // if the nextSibling is a text node (not an element), go to the next one
-                    while (nextSibling && nextSibling.nodeType !== 1) {
-                        nextSibling = nextSibling.nextSibling;
-                    }
-                    nextLink = (nextSibling) ? nextSibling.querySelector(".pure-menu-link") : null;
-                    // if there is no currently focused link, focus the first one
-                    if (!currentLink) {
-                        ddm._menu.querySelector(".pure-menu-link").focus();
-                    } else if (nextLink) {
-                        nextLink.focus();
-                    }
-                } else if (ARROW_KEYS_ENABLED && e.key === "ArrowUp") {
-                    /* Up arrow */
-                    ddm.halt(e);
-                    // get the currently focused link
-                    previousSibling = (currentLink) ? currentLink.parentNode.previousSibling : null;
-                    while (previousSibling && previousSibling.nodeType !== 1) {
-                        previousSibling = previousSibling.previousSibling;
-                    }
-                    previousLink = (previousSibling) ? previousSibling.querySelector(".pure-menu-link") : null;
-                    // if there is no currently focused link, focus the last link
-                    if (!currentLink) {
-                        ddm._menu.querySelector(".pure-menu-item:last-child .pure-menu-link").focus();
-                    } else if (previousLink) {
-                        previousLink.focus();
-                    }
-                }
-            });
-        }
 
         // Dismiss an open menu on outside event
         // TODO - Adding a listener at the document level is prone
@@ -143,7 +81,7 @@ class PureDropdown {
         // created and destroyed ....
         document.addEventListener(DISMISS_EVENT, (e) => {
             const target = e.target;
-            if (target !== ddm._link && !ddm._menu.contains(target)) {
+            if (target !== ddm._link && !ddm._dropdownParent.contains(target as Element)) {
                 ddm.hide();
                 ddm._link.blur();
             }
@@ -154,38 +92,48 @@ class PureDropdown {
 
     // tslint:disable
     private _state = MENU_CLOSED;
-    private _dropdownParent;
-    private _link;
-    private _menu;
-    private _firstMenuLink;
+    private _dropdownParent: HTMLElement;
+    private _link: HTMLElement;
+    private _menu: HTMLElement;
     // tslint:enable
 
     constructor(dropdownParent) {
         this._dropdownParent = dropdownParent;
         this._link = this._dropdownParent.querySelector(MENU_LINK_SELECTOR);
         this._menu = this._dropdownParent.querySelector(MENU_SELECTOR);
-        this._firstMenuLink = this._menu.querySelector(MENU_LINK_SELECTOR);
     }
 
     public show() {
         if (this._state !== MENU_OPEN) {
             this._dropdownParent.classList.add(ACTIVE_CLASS_NAME);
-            this._menu.setAttribute(ARIA_HIDDEN, false);
+            this._menu.setAttribute(ARIA_HIDDEN, "false");
             this._state = MENU_OPEN;
+            this._dropdownParent.querySelectorAll('.lw-drop-down__hambun').forEach(
+                (bun) => {
+                    bun.classList.add('lw-drop-down__hambun_x');
+                }
+            );    
         }
     }
 
     public hide() {
         if (this._state !== MENU_CLOSED) {
             this._dropdownParent.classList.remove(ACTIVE_CLASS_NAME);
-            this._menu.setAttribute(ARIA_HIDDEN, true);
-            this._link.focus();
+            this._menu.setAttribute(ARIA_HIDDEN, "true");
+            this._link.blur();
             this._state = MENU_CLOSED;
+            this._dropdownParent.querySelectorAll('.lw-drop-down__hambun').forEach(
+                (bun) => {
+                    bun.classList.remove('lw-drop-down__hambun_x');
+                }
+            );
         }
     }
+
     public toggle() {
-        this[this._state === MENU_CLOSED ? "show" : "hide"]();
+        this._state === MENU_CLOSED ? this.show() : this.hide();
     }
+
     public halt(e) {
         e.stopPropagation();
         e.preventDefault();
@@ -199,12 +147,24 @@ let idCounter = 0;
  * @param model for instrumenting the template
  */
 function templateFactory(model: DropDownModel): TemplateResult {
+    const isHamburger = model.root.labelKey == "little-hamburger";
     return html`
 <div class="pure-menu pure-menu-horizontal lw-drop-down ${model.root.className}">
     <ul class="pure-menu-list">
         <li class="pure-menu-item pure-menu-has-children">
-            <a href="${model.root.href}" id="ldd${idCounter++}" class="pure-menu-link">${tools.i18n.t(model.root.labelKey)}</a>
-            <ul class="pure-menu-children">
+            ${
+                !isHamburger ?
+                    html`
+                        <a href="${model.root.href}" id="ldd${idCounter++}" class="pure-menu-link">${tools.i18n.t(model.root.labelKey)}</a>
+                        ` :
+                    html`
+                    <a href="${model.root.href}" id="ldd${idCounter++}" class="pure-menu-link lw-drop-down__hamburger">
+                    <span class="lw-drop-down__hambun"></span>
+                    <span class="lw-drop-down__hambun"></span>
+                    <span class="lw-drop-down__hambun"></span>
+                    </a>`
+            }
+            <ul class="pure-menu-children lw-nav-block lw-nav-block_gradient ${isHamburger ? "lw-drop-down__hamburger-menu" : "lw-drop-down__menu"}">
                 ${model.items.map(
                     (it) => html`<li class="pure-menu-item ${it.className}">
                     <a href="${it.href}" id="ldd${idCounter++}" class="pure-menu-link">${tools.i18n.t(it.labelKey)}</a>

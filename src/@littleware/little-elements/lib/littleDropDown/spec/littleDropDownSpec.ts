@@ -42,7 +42,7 @@ AppContext.get().then(
             root: {
                 className: "lw-dd-test",
                 href: "#whatever",
-                labelKey: "test-drop-down",
+                labelKey: "little-hamburger",
             },
         });
     },
