@@ -7,36 +7,43 @@ lw-header-simple {
 }
 
 .lw-header {
-    padding:2px;
+    padding: 2px;
     width: 100%;
-    background-color:#0BDAF7;
-    font-family: 'Noto Sans', sans-serif;
+    font-family: var(--lw-secondary-font-family);
     display: flex;
+    color: var(--lw-secondary-text-color);
+    margin-bottom: 10px;
+    border-width: thick;
 }
 
-.lw-header__nav {
+.lw-header__logo {
     width: 20%;
     padding: 0px;
 }
 
-.lw-header__link {
-    color:#777;
+.lw-header__logo {
+    color:var(--lw-secondary-text-color);
 }
 
-.lw-header__link:hover {
-    color:#777;
-    background-color:#0BDAF7;
+.lw-header__logo:hover {
+    color:var(--lw-secondary-text-color);
+    background-color:var(--lw-header-background-color);
 }
 
 .lw-header__title {
     width: 40%;
     padding: 0px;
     margin: auto;
+    visibility: hidden;
 }
 
 .lw-header__authui {
     width: 40%;
     padding: 0px;
+    margin: auto;
+}
+
+.lw-header__hamburger {
     margin: auto;
 }
 

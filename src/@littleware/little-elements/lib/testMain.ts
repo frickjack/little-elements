@@ -13,6 +13,7 @@ import "./arrivalPie/spec/arrivalPieSpec.js";
 import "./authMgr/spec/authControlSpec.js";
 import "./authMgr/spec/authUiSpec.js";
 import "./littleDropDown/spec/littleDropDownSpec.js";
+import "./littleHeader/spec/headerSimpleSpec.js";
 import "./styleGuide/spec/styleGuideSpec.js";
 import "./test/spec/utilSpec.js";
 

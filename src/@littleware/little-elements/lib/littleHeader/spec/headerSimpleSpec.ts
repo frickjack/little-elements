@@ -1,10 +1,10 @@
-import {getStage} from "../../../../../../@littleware/little-elements/web/lib/test/util.js";
+import {getStage} from "../../test/util.js";
 import {SimpleHeader} from "../headerSimple.js";
 
 describe( "the lw-header-simple custom element", () => {
     it ("Has a static observedAttributes property", () => {
         const propList = SimpleHeader.observedAttributes;
-        expect(propList.length).toBe( 1 );
+        expect(propList.length).toBe(1);
         expect(propList[0]).toBe( "title" );
     });
 

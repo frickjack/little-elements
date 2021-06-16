@@ -32,8 +32,8 @@ export const anonymousUserInfo: UserInfo = Object.freeze(
     },
 );
 
-const loginContext = "littleware/lib/authMgr/login";
-const logoutContext = "littleware/lib/authMgr/logout";
+export const loginContext = "littleware/lib/authMgr/login";
+export const logoutContext = "littleware/lib/authMgr/logout";
 
 // initialized below - before web component registered
 let tools: Tools = null;

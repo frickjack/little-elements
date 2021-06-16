@@ -1,4 +1,4 @@
-import AppContext from "../../../../../@littleware/little-elements/web/lib/appContext/appContext.js";
+import AppContext from "../appContext/appContext.js";
 
 const world = globalThis || window;
 let analyticsEnabled = false;
@@ -16,7 +16,7 @@ export const LittleAnalytics = {
 };
 
 
-const configKey = "littleware/little-apps/ga";
+const configKey = "littleware/little-elements/ga";
 
 AppContext.get().then(
     async (cx) => {

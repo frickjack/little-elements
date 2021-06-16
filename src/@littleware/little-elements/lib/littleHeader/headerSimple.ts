@@ -1,16 +1,20 @@
-import {singleton as styleHelper} from "../../../../../@littleware/little-elements/web/lib/styleGuide/styleGuide.js";
-import "../../../../../@littleware/little-elements/web/lib/authMgr/authControl.js";
-import "../../../../../@littleware/little-elements/web/lib/authMgr/authUi.js";
+import AppContext, { getTools } from "../../common/appContext/appContext.js";
+import {singleton as styleHelper} from "../styleGuide/styleGuide.js";
+import "../authMgr/authControl.js";
+import "../authMgr/authUi.js";
+import "../littleDropDown/littleDropDown.js";
 import { html, render } from "../../../../../lit-html/lit-html.js";
 import "./googleAnalytics.js";
 import { css } from "./headerSimple.css.js";
 
+export const contextConfigPath = "littleware/lib/littleHeader";
+
 function templateFactory(header: SimpleHeader) {
   const titleStr = (header.getAttribute("title") || "Home").replace( /[<>\r\n]+/g, "" );
   return html`
-  <div class="lw-header">
-      <div class="lw-header__nav">
-                <a href="/" class="pure-menu-link lw-header__link"><i class="fa fa-home fa-2x"></i></a>
+  <div class="lw-nav-block lw-nav-block_gradient lw-header">
+      <div class="lw-header__logo">
+                <a href="/" class="pure-menu-link"><i class="fa fa-home fa-2x"></i>Logo</a>
       </div>
       <div class="lw-header__title">
                 ${titleStr}
@@ -18,6 +22,9 @@ function templateFactory(header: SimpleHeader) {
       <div class="lw-header__authui">
           <lw-auth-ui></lw-auth-ui>
           <lw-auth-control></lw-auth-control>
+      </div>
+      <div class="lw-header__hamburger">
+          <lw-drop-down context="${contextConfigPath}/hamburger"></lw-drop-down>
       </div>
     </div>
   `;
@@ -54,6 +61,44 @@ export class SimpleHeader extends HTMLElement {
     }
 }
 
-window.customElements.define( "lw-header-simple", SimpleHeader );
-styleHelper.componentCss.push(css);
-styleHelper.render();
+AppContext.get().then(
+  (cx) => {
+      cx.putDefaultConfig(`${contextConfigPath}/hamburger`, {
+          items: [
+              {
+                  className: "lw-header-simple__hamburger-item",
+                  href: "/littleware/index.html",
+                  labelKey: "Littleware",
+              },
+              {
+                className: "lw-header-simple__hamburger-item",
+                href: "/connect/index.html",
+                labelKey: "Connect",
+              },
+              {
+                className: "lw-header-simple__hamburger-item",
+                href: "/connect/index.html",
+                labelKey: "Connect",
+              },
+              {
+                className: "lw-header-simple__hamburger-item",
+                href: "/apps/index.html",
+                labelKey: "Apps",
+              },
+          ],
+          root: {
+              className: "lw-header-simple__hamburger",
+              href: "#hamburger",
+              labelKey: "little-hamburger",
+          },
+      });
+      cx.onStart(
+          {},
+          async (toolBox) => {
+            window.customElements.define( "lw-header-simple", SimpleHeader );
+            styleHelper.componentCss.push(css);
+            styleHelper.render();
+          },
+      );
+  },
+);
