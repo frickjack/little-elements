@@ -1,0 +1,21 @@
+{% extends "little-elements/web/lib/styleGuide/shell/basicShell.html.njk" %}
+
+{% block head %}
+<title>headerView Test</title>
+
+<link rel="stylesheet" type="text/css" href="../../../../../jasmine-core/lib/jasmine-core/jasmine.css" />
+<script src="../../../../../jasmine-core/lib/jasmine-core/jasmine.js"></script>
+<script src="../../../../../jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+<script src="../../../../little-elements/web/lib/test/littleJasmineBoot.js"></script>
+{% endblock %}
+
+{% block content %}
+<section id="README">
+  {% markdown %}
+     {% include "lib/headerSimple/README.md" %}
+  {% endmarkdown %}
+</section>
+
+<lw-app-context main-module="./spec/main.js" config-href="/config/config-HOSTNAME.json"></lw-app-context>
+<script type="module" src="../../../../little-elements/web/lib/appContext/appContext.js"></script>
+{% endblock %}
