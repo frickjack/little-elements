@@ -14,10 +14,28 @@ export const css = html`
     box-sizing: border-box;
 }
 
+:root {
+	--lw-primary-text-color: #222222;
+	--lw-secondary-text-color: #777;
+	--lw-primary-bg-color: #fefefe;
+	--lw-whitespace-bg-color: #f2f2f4;
+	--lw-secondary-bg-color: #fafafa;
+	--lw-header-background-color: var(--lw-primary-bg-color);
+	--lw-primary-font-family: 'Oswald script=all rev=4', Verdana, sans-serif;
+	--lw-secondary-font-family: 'Noto Sans', sans-serif;
+	--lw-section-border-color: black;
+	--lw-nav-border-color: #0BDAF7;
+	--lw-nav-bg-gradient: linear-gradient(var(--lw-header-background-color), #f0fdff);
+	--lw-sec1-border-color: #bb38b7;
+	--lw-sec1-bg-gradient: linear-gradient(var(--lw-header-background-color), #fad7f6);
+	--lw-sec2-border-color: #0bf749;
+	--lw-sec2-bg-gradient: linear-gradient(var(--lw-header-background-color), #f1fff1);
+}
+
 body {
-    font-family: 'Oswald script=all rev=4', Verdana, sans-serif;
-    color: #222222;
-	background-color: #eeeeee;
+    font-family: var(--lw-primary-font-family);
+    color: var(--lw-foreground-color);
+	background-color: var(--lw-whitespace-bg-color);
 	width: 100%;
 	min-width: 320px;
 	height: 100%;
@@ -26,9 +44,26 @@ body {
 
 h1,h2,h3,h4 {
     font-weight: normal;
-    font-family: 'Noto Sans', sans-serif;
+    font-family: var(--lw-secondary-font-family);
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+header {
+    font-family: var(--lw-secondary-font-family);
+	background-color: var(--lw-secondary-bg-color);
+}
+
+footer {
+    font-family: var(--lw-secondary-font-family);
+	background-color: var(--lw-secondary-bg-color);
+}
+
+section {
+    font-family: var(--lw-primary-font-family);
+	background-color: var(--lw-primary-bg-color);
+	padding-top: 10px;
+	padding-bottom: 10px;
 }
 
 .pure-g [class*=pure-u] {
@@ -38,14 +73,65 @@ h1,h2,h3,h4 {
 
 
 .pure-menu-link {
-    font-family: 'Noto Sans', sans-serif;
+    font-family: var(--lw-secondary-font-family);
 }
 
 .pure-menu-list_wrap {
 	white-space:normal;
 }
 
-/*---------------------------------------*/
+/*------ 
+ * Document sections
+ * Each document/site has:
+ *    - content
+ *    - content metadata (nav affordance, headings, etc)
+ *    - white space
+ *    - action tools
+ */
+.lw-nav-block {
+    font-family: var(--lw-secondary-font-family);
+    border-bottom: thin solid var(--lw-nav-border-color);
+	background-color: var(--lw-secondary-bg-color);
+}
+
+.lw-nav-block_gradient {
+	background: var(--lw-nav-bg-gradient);
+	background-color: var(--lw-secondary-bg-color);
+}
+
+.lw-section-block1 {
+    font-family: var(--lw-primary-font-family);
+	--lw-section-border-color: var(--lw-sec1-border-color);
+    border-bottom: thin solid var(--lw-section-border-color);
+	min-height: 100px;
+	background-color: var(--lw-primary-bg-color);
+}
+
+.lw-section-block1_gradient {
+	background: var(--lw-sec1-bg-gradient);
+	background-color: var(--lw-primary-bg-color);
+}
+
+/*--- rules for tiles ---- */
+
+.lw-tile-container {
+	display: flex;
+	flex-wrap: wrap;
+	background-color: var(--lw-whitespace-bg-color);
+}
+
+.lw-tile {
+	width: 300px;
+	height: 250px;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 5px;
+	border: solid thin var(--lw-section-border-color);
+	overflow: hidden;
+	background-color: var(--lw-primary-bg-color);
+}
+
+/*------ Rules for styleGuide/index.html showcase ---------*/
 
 .lw-icon__57x57 {
     width: 57px;
@@ -124,11 +210,7 @@ h1,h2,h3,h4 {
 	width: 24px;
 	text-decoration: none;
 	font-weight: bold;
-	-webkit-border-radius: 12px;
-	-moz-border-radius: 12px;
 	border-radius: 12px;
-	-moz-box-shadow: 1px 1px 3px #000;
-	-webkit-box-shadow: 1px 1px 3px #000;
 	box-shadow: 1px 1px 3px #000;
 }
 
