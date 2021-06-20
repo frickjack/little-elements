@@ -218,7 +218,7 @@ export class AppContext {
 
     /**
      *
-     * @param key must start with driver/, interface/, or config/
+     * @param key must start with driver/, alias/, or config/
      */
     public getProvider<T>(key: string): Promise<Provider<T>> {
         return this.startBarrier.wait().then(

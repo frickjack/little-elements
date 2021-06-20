@@ -1,3 +1,4 @@
+import { singletonProvider } from "../../common/provider.js";
 import AppContext, { getTools } from "../../common/appContext/appContext.js";
 import { aliasName as loggerAlias, Logger } from "../../common/appContext/logging.js";
 import { SharedState, StateEvent } from "../../common/appContext/sharedState.js";
@@ -34,6 +35,7 @@ export const anonymousUserInfo: UserInfo = Object.freeze(
 
 export const loginContext = "littleware/lib/authMgr/login";
 export const logoutContext = "littleware/lib/authMgr/logout";
+export const providerName = "driver/littleware/little-elements/lw-auth-ui";
 
 // initialized below - before web component registered
 let tools: Tools = null;
@@ -142,15 +144,19 @@ AppContext.get().then(
                 labelKey: "little-elements:logout",
             },
         });
-        cx.onStart(
+        cx.putProvider(
+            providerName,
             { i18n: i18nProvider, log: loggerAlias, state: SharedState.providerName },
             async (toolBox) => {
                 tools = await getTools(toolBox) as Tools;
                 window.customElements.define("lw-auth-ui", LittleAuthUI);
                 styleHelper.componentCss.push(css);
                 styleHelper.render();
+                return singletonProvider(() => "lw-auth-ui");
             },
         );
+        // force instantiation - otherwise default is lazy
+        cx.onStart({ "lw-auth-ui": providerName }, () => {});
     },
 );
 

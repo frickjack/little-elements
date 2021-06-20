@@ -1,3 +1,4 @@
+import { singletonProvider } from "../../common/provider.js";
 import {html, render, TemplateResult} from "../../../../../lit-html/lit-html.js";
 import AppContext, { getTools } from "../../common/appContext/appContext.js";
 import { aliasName as loggerAlias, Logger } from "../../common/appContext/logging.js";
@@ -11,6 +12,8 @@ interface Tools {
 }
 
 let tools: Tools = null; // initialized below
+
+export const providerName = "driver/littleware/little-elements/lw-drop-down";
 
 // tslint:disable
 const PREFIX = "pure-",
@@ -200,6 +203,14 @@ export class LittleDropDownMenu extends HTMLElement {
         };
     }
 
+    static get observedAttributes(): string[] { return ["model"]; }
+
+    public attributeChangedCallback(attrName?: string, oldVal?: string, newVal?: string): void {
+      if (attrName === "model" && newVal && oldVal !== newVal) {
+          this.model = JSON.parse(newVal);
+      }
+    }
+
     /*
     public attributeChangedCallback(attrName?: string, oldVal?: string, newVal?: string): void {
         // console.log( "Attribute change! " + attrName );
@@ -220,8 +231,20 @@ export class LittleDropDownMenu extends HTMLElement {
         super();
     }
 
-    public getModel(): Promise<DropDownModel> {
-        if (null === this.modelVal) {
+    get model(): DropDownModel { return this.modelVal; }
+    set model(val: DropDownModel) {
+        this.modelVal = val;
+        this.render();
+    }
+
+    /**
+     * Helper initializes the  model property from the
+     * context path if not already set
+     * 
+     * @returns 
+     */
+    public fetchModel(): Promise<DropDownModel> {
+        if (!this.modelVal) {
             const cxPath = this.contextPath;
             if (cxPath) {
                 return AppContext.get().then(
@@ -236,7 +259,7 @@ export class LittleDropDownMenu extends HTMLElement {
                         ),
                     ).then(
                         (newModel: DropDownModel) => {
-                            if (null === this.modelVal) {
+                            if (!this.modelVal) {
                                 this.modelVal = newModel;
                             }
                             return this.modelVal;
@@ -250,13 +273,12 @@ export class LittleDropDownMenu extends HTMLElement {
     }
 
     public changeModel(handler: (DropDownModel) => DropDownModel|Promise<DropDownModel>): Promise<void> {
-        return this.getModel().then(
+        return this.fetchModel().then(
             (model) => handler(model),
         ).then(
             (newModel) => {
                 if (newModel) {
-                    this.modelVal = newModel;
-                    this.render();
+                    this.model = newModel;
                 }
             },
         );
@@ -273,7 +295,7 @@ export class LittleDropDownMenu extends HTMLElement {
     // Render element DOM by returning a `lit-html` template.
     // Wired to run once only - static configuration.
     private render() {
-        return this.getModel().then(
+        return this.fetchModel().then(
             (model) => {
                 render(templateFactory(this.modelVal), this);
                 this.ddm = PureDropdown.build(this);
@@ -290,15 +312,18 @@ export class LittleDropDownMenu extends HTMLElement {
 //
 AppContext.get().then(
     (cx) => {
-        cx.onStart(
+        cx.putProvider(providerName,
             { i18n: i18nProvider, log: loggerAlias },
             async (toolBox) => {
                 tools = await getTools(toolBox) as Tools;
                 window.customElements.define("lw-drop-down", LittleDropDownMenu);
                 styleHelper.componentCss.push(css);
                 styleHelper.render();
+                return singletonProvider(() => "lw-drop-down");
             },
         );
+        // force instantiation - otherwise default is lazy
+        cx.onStart({ "lw-drop-down": providerName }, () => {});
     },
 );
 

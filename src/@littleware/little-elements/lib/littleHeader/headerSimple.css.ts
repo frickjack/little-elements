@@ -17,12 +17,10 @@ lw-header-simple {
 }
 
 .lw-header__logo {
-    width: 20%;
+    width: 40%;
     padding: 0px;
-}
-
-.lw-header__logo {
     color:var(--lw-secondary-text-color);
+    margin: auto;
 }
 
 .lw-header__logo:hover {
@@ -31,9 +29,10 @@ lw-header-simple {
 }
 
 .lw-header__title {
-    width: 40%;
+    width: 20%;
     padding: 0px;
     margin: auto;
+    overflow: hidden;
     visibility: hidden;
 }
 

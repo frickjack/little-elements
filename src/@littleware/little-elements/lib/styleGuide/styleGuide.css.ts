@@ -3,7 +3,7 @@ import {html} from "../../../../../lit-html/lit-html.js";
 export const links = html`
 <link href="/modules/purecss/build/pure-min.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css?family=Noto+Sans|Oswald" crossorigin="anonymous" rel="stylesheet" />
-<link href="/modules/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+<link href="/modules/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" />
 `;
 
 export const css = html`
@@ -62,8 +62,7 @@ footer {
 section {
     font-family: var(--lw-primary-font-family);
 	background-color: var(--lw-primary-bg-color);
-	padding-top: 10px;
-	padding-bottom: 10px;
+	padding: 10px 5px;
 }
 
 .pure-g [class*=pure-u] {

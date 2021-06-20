@@ -1,11 +1,25 @@
 import AppContext from "../../../common/appContext/appContext.js";
 import { sleep } from "../../../common/mutexHelper.js";
 import { getStage } from "../../test/util.js";
-import "../littleDropDown.js";
+import { providerName as ddProvider } from "../littleDropDown.js";
 
 const testContext = "littleware/lib/littleDropDown/spec";
 
 describe( "the lw-drop-down custom element", () => {
+    beforeAll((done) => {
+        // wait for lw-drop-down to bootstrap
+        AppContext.get().then(
+            (cx) => {
+                cx.onStart(
+                    { dropDown: ddProvider },
+                    async (toolBox) => {
+                        done();
+                    },
+                );
+            }
+        );
+    });
+
     it( "Can dance", () => {
         expect(true).toBe(true);
     });
