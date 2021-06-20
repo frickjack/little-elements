@@ -1,8 +1,23 @@
-import {html, render, TemplateResult} from "../../../../../lit-html/lit-html.js";
-import {css, links} from "./styleGuide.css.js";
+import { html, render, TemplateResult } from '../../../../../lit-html/lit-html.js';
+import { css, links } from './styleGuide.css.js';
 
 // TODO - service worker - import workbox
 let container = null;
+
+const template = (info: StyleHelper) => html`
+
+${
+  info.baseCss
+}
+${
+  info.componentCss
+}
+${
+  info.appCss
+}
+`;
+
+
 /**
  * Little CSS management helper dynamically adds
  * given render blocks (intended to be <style> blocks
@@ -23,39 +38,28 @@ let container = null;
  * not already define the viewport and content-type.
  */
 export class StyleHelper {
-    public baseCss: TemplateResult[] = [];
-    public componentCss: TemplateResult[] = [];
-    public appCss: TemplateResult[] = [];
+  public baseCss: TemplateResult[] = [];
 
-    public render() {
-        if ( container === null ) {
-            container = document.createElement("DIV");
-            container.setAttribute("id", "lw-style-guide");
-            document.head.appendChild(container);
-        }
-        render(template(this), container);
+  public componentCss: TemplateResult[] = [];
+
+  public appCss: TemplateResult[] = [];
+
+  public render() {
+    if (container === null) {
+      container = document.createElement('DIV');
+      container.setAttribute('id', 'lw-style-guide');
+      document.head.appendChild(container);
     }
+    render(template(this), container);
+  }
 }
-
-const template = (info: StyleHelper) => html`
-
-${
-    info.baseCss
-}
-${
-    info.componentCss
-}
-${
-    info.appCss
-}
-`;
 
 export const singleton = new StyleHelper();
 export default singleton;
 
 // do not include 'meta' - shell usually handles that
 [links, css].forEach(
-    (block) => { singleton.baseCss.push(block); },
+  (block) => { singleton.baseCss.push(block); },
 );
 
 singleton.render();

@@ -1,41 +1,41 @@
-import { Provider, singletonProvider } from "../provider.js";
-import AppContext, { ConfigEntry, getTools } from "./appContext.js";
-import { aliasName as logKey, Logger } from "./logging.js";
-import { aliasName as loaderAlias, SimpleLoader } from "./simpleLoader.js";
+import { Provider, singletonProvider } from '../provider.js';
+import AppContext, { ConfigEntry, getTools } from './appContext.js';
+import { aliasName as logKey, Logger } from './logging.js';
+import { aliasName as loaderAlias, SimpleLoader } from './simpleLoader.js';
 
-export const providerName = "driver/littleware/little-elements/common/i18n";
+export const providerName = 'driver/littleware/little-elements/common/i18n';
 
-export const configKey = "config/littleware/i18n";
+export const configKey = 'config/littleware/i18n';
 
 /**
  * See https://stackoverflow.com/questions/25606730/get-current-locale-of-chrome,
  *   https://developer.mozilla.org/en-US/docs/Web/API/NavigatorLanguage/languages
  */
 export function getLocale() {
-    if (typeof navigator !== "undefined") {
-        return navigator.languages
-        ? navigator.languages[0]
-        : navigator.language;
-    }
-    return "en";
+  if (typeof navigator !== 'undefined') {
+    return navigator.languages
+      ? navigator.languages[0]
+      : navigator.language;
+  }
+  return 'en';
 }
 
 const toolKeys = {
-    config: configKey,
-    loader: loaderAlias,
-    logger: logKey,
+  config: configKey,
+  loader: loaderAlias,
+  logger: logKey,
 };
 
 interface Config {
-    locale: string;
-    debug: boolean;
-    resourceFolders: string[];
+  locale: string;
+  debug: boolean;
+  resourceFolders: string[];
 }
 
 interface Tools {
-    loader: SimpleLoader;
-    config: ConfigEntry;
-    logger: Logger;
+  loader: SimpleLoader;
+  config: ConfigEntry;
+  logger: Logger;
 }
 
 /**
@@ -45,81 +45,81 @@ interface Tools {
  *
  * @param i18next
  */
-export function configure(i18next, baseResourceFolders: string[]= []) {
-    AppContext.get().then(
-        async (cx) => {
-            cx.putProvider(providerName, toolKeys,
-                (toolBox) => singletonProvider(
-                        async () => {
-                            const tools = await getTools(toolBox) as Tools;
-                            const configEntry: ConfigEntry = tools.config;
+export function configure(i18next, baseResourceFolders: string[] = []) {
+  AppContext.get().then(
+    async (cx) => {
+      cx.putProvider(providerName, toolKeys,
+        (toolBox) => singletonProvider(
+          async () => {
+            const tools = await getTools(toolBox) as Tools;
+            const configEntry: ConfigEntry = tools.config;
 
-                            const config = {
-                                ... {
-                                    debug: false,
-                                    locale: getLocale(),
-                                    resourceFolders: baseResourceFolders,
-                                },
-                                ... configEntry.defaults,
-                                ... configEntry.overrides,
-                            } as Config;
+            const config = {
+              ...{
+                debug: false,
+                locale: getLocale(),
+                resourceFolders: baseResourceFolders,
+              },
+              ...configEntry.defaults,
+              ...configEntry.overrides,
+            } as Config;
 
-                            const lang = (config.locale || "en").replace(/-.+$/, "");
+            const lang = (config.locale || 'en').replace(/-.+$/, '');
 
-                            return i18next.init({ lng: config.locale }).then(
-                                () => {
-                                    const loader = tools.loader as SimpleLoader;
-                                    tools.logger.trace(`Loading i18n resources: ${config.resourceFolders.join(", ")}`);
-                                    const loadPaths = config.resourceFolders.reduce(
-                                        (acc, it) => {
-                                            acc.push(`${it}/${lang}.json`);
-                                            if (lang !== "en") {
-                                                // load en as a fallback
-                                                acc.push(`${it}/${lang}.json`);
-                                            }
-                                            return acc;
-                                        }, [],
-                                    );
-                                    return Promise.all(
-                                            loadPaths.map(
-                                                (path) => loader.loadConfig(path).catch(
-                                                            () => {
-                                                                tools.logger.trace(`failed to load i18n resources from ${path}`);
-                                                                return {};
-                                                            },
-                                                        ),
-                                        ),
-                                    );
-                                },
-                            ).then(
-                                (resourceList: any[]) =>
-                                    Promise.all(
-                                        resourceList.map(
-                                            (bundle) =>
-                                                Promise.all(
-                                                    Object.keys(bundle).map(
-                                                        (namespace) =>
-                                                            // tslint:disable-next-line
-                                                            i18next.addResourceBundle(lang, namespace, bundle[namespace], true, true),
-                                                    ),
-                                                ),
-                                        ),
-                                    ),
-                            ).then(
-                                () => i18next,
-                            ).catch(
-                                () => i18next,
-                            );
-                }),  // end singletonprovider
-            ); // end putprovider
-        },
-    );
+            return i18next.init({ lng: config.locale }).then(
+              () => {
+                const loader = tools.loader as SimpleLoader;
+                tools.logger.trace(`Loading i18n resources: ${config.resourceFolders.join(', ')}`);
+                const loadPaths = config.resourceFolders.reduce(
+                  (acc, it) => {
+                    acc.push(`${it}/${lang}.json`);
+                    if (lang !== 'en') {
+                      // load en as a fallback
+                      acc.push(`${it}/${lang}.json`);
+                    }
+                    return acc;
+                  }, [],
+                );
+                return Promise.all(
+                  loadPaths.map(
+                    (path) => loader.loadConfig(path).catch(
+                      () => {
+                        tools.logger.trace(`failed to load i18n resources from ${path}`);
+                        return {};
+                      },
+                    ),
+                  ),
+                );
+              },
+            ).then(
+              (resourceList: any[]) => Promise.all(
+                resourceList.map(
+                  (bundle) => Promise.all(
+                    Object.keys(bundle).map(
+                      (namespace) =>
+                      // eslint-disable-next-line
+                        i18next.addResourceBundle(lang, namespace, bundle[namespace], true, true),
+                    ),
+                  ),
+                ),
+              ),
+            ).then(
+              () => i18next,
+            )
+              .catch(
+                () => i18next,
+              );
+          },
+        ), // end singletonprovider
+      ); // end putprovider
+    },
+  );
 }
 
 export function getI18n() {
-    return AppContext.get().then(
-        (cx) => cx.getProvider(providerName),
-    ).then(
-        (provider: Provider<any>) => provider.get(),
-    );
+  return AppContext.get().then(
+    (cx) => cx.getProvider(providerName),
+  ).then(
+    (provider: Provider<any>) => provider.get(),
+  );
 }
