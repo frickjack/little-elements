@@ -1,6 +1,6 @@
 {
   "name": "@littleware/little-elements",
-  "version": "1.1.3",
+  "version": "1.2.0",
   "type": "commonjs",
   "description": "",
   "main": "index.js",
@@ -13,9 +13,9 @@
   ],
   "dependencies": {
     "bunyan": "^1.8.14",
-    "font-awesome": "^4.7.0",
+    "@fortawesome/fontawesome-free": "^5.15.3",
     "i18next": "^19.7.0",
-    "lit-html": "^1.2.1",
+    "lit-html": "^1.4.1",
     "node-fetch": "^2.6.1",
     "purecss": "^2.0.6",
     "@webcomponents/webcomponentsjs": "latest"
@@ -26,7 +26,15 @@
     "@types/express": "latest",
     "@types/jasmine": "latest",
     "@types/node": "latest",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
     "@webcomponents/webcomponentsjs": "latest",
+    "eslint": "latest",
+    "eslint-config-airbnb-typescript": "latest",
+    "eslint-plugin-import": "latest",
+    "eslint-plugin-jsx-a11y": "latest",
+    "eslint-plugin-react": "latest",
+    "eslint-plugin-react-hooks": "latest",
     "aws-sdk": "^2.819.0",
     "express": "latest",
     "gulp": "latest",
@@ -36,7 +44,6 @@
     "karma-chrome-launcher": "latest",
     "karma-jasmine": "latest",
     "ts-custom-elements": "latest",
-    "tslint": "latest",
     "typescript": "latest",
     "workbox-build": "latest"
   },
@@ -46,7 +53,7 @@
   "scripts": {
     "build": "gulp",
     "jasmine": "jasmine --config=node_modules/@littleware/little-nodedev/spec/support/jasmine.json",
-    "lint": "tslint -c node_modules/@littleware/little-nodedev/tslint.json 'src/**/*.ts'",
+    "lint": "eslint -c node_modules/@littleware/little-nodedev/.eslintrc.js 'src'",
     "start": "node commonjs/bin/little-server.js /modules/@littleware/little-elements/web/ ./web/ /admin module:./commonjs/bin/helloHandler.js",
     "test": "jasmine --config=node_modules/@littleware/little-nodedev/spec/support/jasmine.json && karma start karma.conf.js",
     "watch": "gulp little-watch"

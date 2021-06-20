@@ -43,7 +43,7 @@ module.exports = function(config) {
     proxies: {
       '/i18next': '/base/node_modules/i18next',
       '/lit-html': '/base/node_modules/lit-html',
-      '/modules/font-awesome': '/base/node_modules/font-awesome',
+      '/modules/@fortawesome/fontawesome-free': '/base/node_modules/@fortawesome/fontawesome-free',
       '/modules/purecss': '/base/node_modules/purecss'
     },
 
