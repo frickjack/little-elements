@@ -1,8 +1,8 @@
-import readline = require("readline");
+import readline = require('readline');
 
 export interface Result {
-    didPass: boolean;
-    details: string;
+  didPass: boolean;
+  details: string;
 }
 
 /**
@@ -14,30 +14,30 @@ export interface Result {
  * @param instructions
  * @return Promise<Result>
  */
-export function interactive( instructions: string ): Promise<Result> {
-    return new Promise(
-        (resolve) => {
-            const rl = readline.createInterface({
-                input: process.stdin,
-                output: process.stdout,
-            });
-            rl.question(`\n**** ${instructions}\nDid the test pass Y|n ? `, (didPass) => {
-                if (!didPass || didPass === "y" || didPass === "Y") {
-                    rl.close();
-                    resolve({ didPass: true, details: "" });
-                } else {
-                    rl.question("Give a one-line explanation of what went wrong : ", (details) => {
-                        rl.close();
-                        resolve({ didPass: false, details });
-                    });
-                }
-            });
-        },
-    );
+export function interactive(instructions: string): Promise<Result> {
+  return new Promise(
+    (resolve) => {
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      });
+      rl.question(`\n**** ${instructions}\nDid the test pass Y|n ? `, (didPass) => {
+        if (!didPass || didPass === 'y' || didPass === 'Y') {
+          rl.close();
+          resolve({ didPass: true, details: '' });
+        } else {
+          rl.question('Give a one-line explanation of what went wrong : ', (details) => {
+            rl.close();
+            resolve({ didPass: false, details });
+          });
+        }
+      });
+    },
+  );
 }
 
 const lambdaNotInteractive = () => {
-    expect(!! "skipping interactive test").toBe(true);
+  expect(!!'skipping interactive test').toBe(true);
 };
 
 /**
@@ -45,7 +45,7 @@ const lambdaNotInteractive = () => {
  * (process.env[LITTLE_INTERACTIVE] === "false")
  */
 export function isInteractive(): boolean {
-    return process.env.LITTLE_INTERACTIVE !== "false";
+  return process.env.LITTLE_INTERACTIVE !== 'false';
 }
 
 /**
@@ -57,10 +57,10 @@ export function isInteractive(): boolean {
  *
  * return [lambda, timeoutMs?]
  */
-// tslint:disable-next-line
+// eslint-disable-next-line
 export function ifInteractive(lambda: Function, timeoutMs: number): [Function, number] {
-    if (isInteractive()) {
-        return [lambda, timeoutMs];
-    }
-    return [lambdaNotInteractive, undefined];
+  if (isInteractive()) {
+    return [lambda, timeoutMs];
+  }
+  return [lambdaNotInteractive, undefined];
 }

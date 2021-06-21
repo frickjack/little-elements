@@ -1,0 +1,87 @@
+{% extends "lib/styleGuide/shell/basicShell.html.njk" %}
+
+{% block head %}
+<title>headerView Test</title>
+
+<link rel="stylesheet" type="text/css" href="../../../../../jasmine-core/lib/jasmine-core/jasmine.css" />
+<script src="../../../../../jasmine-core/lib/jasmine-core/jasmine.js"></script>
+<script src="../../../../../jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+<script src="../test/littleJasmineBoot.js"></script>
+{% endblock %}
+
+{% block content %}
+<section id="README">
+  {% markdown %}
+     {% include "lib/littleHeader/README.md" %}
+  {% endmarkdown %}
+</section>
+
+<div>
+  <lw-header-simple title="ignore"></lw-header-simple>
+  <section class="lw-section-block1">
+    <h2>Layout test section1</h2>
+
+    <p>
+    Testing some layout stuff with a header and a content section.
+    Bla bla bla.
+    </p>
+    <p>
+      More content
+    </p>
+    <p>
+      More content
+    </p>
+    <p>
+      More content
+    </p>
+    <p>
+      More content
+    </p>
+    <p>
+      More content
+    </p>
+    </section>
+    <section class="lw-section-block2">
+      <h2>Layout test section2</h2>
+  
+      <p>
+        Section 2 - with some tiles
+      </p>
+      <div class="lw-tile-container">
+      <div class="lw-tile">
+        <h3>Tile 1</h3>
+        <p>
+          Some stuff
+        </p>
+      </div>
+      <div class="lw-tile">
+        <h3>Tile 2</h3>
+        <p>
+          Some stuff
+        </p>
+      </div>
+      <div class="lw-tile">
+        <h3>Tile 3</h3>
+        <p>
+          Some stuff
+        </p>
+      </div>
+      <div class="lw-tile">
+        <h3>Tile 4</h3>
+        <p>
+          Some stuff
+        </p>
+      </div>
+      <div class="lw-tile">
+        <h3>Tile 5</h3>
+        <p>
+          Some stuff
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<lw-app-context main-module="./spec/main.js" config-href="./spec/test-config.json"></lw-app-context>
+<script type="module" src="../appContext/appContext.js"></script>
+{% endblock %}

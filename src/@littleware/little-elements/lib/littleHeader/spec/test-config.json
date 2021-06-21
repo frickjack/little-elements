@@ -1,0 +1,32 @@
+{
+    "littleware/lib/lw-header-simple": {
+        "hamburger": {
+            "items": [
+            {
+                "className": "lw-header-simple__hamburger-item",
+                "href": "/littleware/index.html",
+                "labelKey": "Littleware-test"
+            },
+            {
+                "className": "lw-header-simple__hamburger-item",
+                "href": "/connect/index.html",
+                "labelKey": "Connect-test"
+            },
+            {
+                "className": "lw-header-simple__hamburger-item",
+                "href": "/apps/index.html",
+                "labelKey": "Apps-test"
+            }
+            ],
+            "root": {
+            "className": "lw-header-simple__hamburger",
+            "href": "#hamburger",
+            "labelKey": "little-hamburger"
+            }
+        },
+        "logo": {
+            "text": "header-test",
+            "iconUrl": ""
+        }
+    }
+}

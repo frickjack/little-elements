@@ -16,6 +16,7 @@ module.exports = function(config) {
       { pattern: 'web/lib/appContext/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/arrivalPie/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/authMgr/**/*.js', type: 'module', included: false },
+      { pattern: 'web/lib/littleHeader/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/littleDropDown/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/styleGuide/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/test/**/*.js', type: 'module', included: false },
@@ -43,7 +44,7 @@ module.exports = function(config) {
     proxies: {
       '/i18next': '/base/node_modules/i18next',
       '/lit-html': '/base/node_modules/lit-html',
-      '/modules/font-awesome': '/base/node_modules/font-awesome',
+      '/modules/@fortawesome/fontawesome-free': '/base/node_modules/@fortawesome/fontawesome-free',
       '/modules/purecss': '/base/node_modules/purecss'
     },
 
