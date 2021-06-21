@@ -3,19 +3,18 @@ import { BusEvent, EventBus, getBus } from '../eventBus.js';
 describe('the eventBus', () => {
   let bus: EventBus = null;
 
-  beforeAll(async (done) => {
+  beforeAll(async () => {
     bus = await getBus();
-    done();
+    expect(bus).not.toBeNull();
   });
 
-  it('can add and remove listeners', async (done) => {
+  it('can add and remove listeners', async () => {
     expect(bus).not.toBeNull();
     const listener = () => null;
     expect(bus.addListener('little-test/eventBusSpec', listener)).toBe(true);
     expect(bus.addListener('little-test/eventBusSpec', listener)).toBe(false);
     expect(bus.removeListener('little-test/eventBusSpec', listener)).toBe(true);
     expect(bus.removeListener('little-test/eventBusSpec', listener)).toBe(false);
-    done();
   });
 
   it('can dispatch events with some data', (done) => {

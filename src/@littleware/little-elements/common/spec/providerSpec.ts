@@ -2,7 +2,7 @@ import { sleep } from '../mutexHelper.js';
 import { LazyProvider, passThroughProvider, singletonProvider } from '../provider.js';
 
 describe('the provider tools', () => {
-  it('can lazy load a thing with reload', async (done) => {
+  it('can lazy load a thing with reload', async () => {
     const startMs = Date.now();
     let counter = 0;
     const lazy = new LazyProvider(() => sleep(100).then(() => { counter += 1; return `frickjack  + ${counter++}-${Date.now()}`; }), 1);
@@ -27,10 +27,9 @@ describe('the provider tools', () => {
     // console.log(`test thing 5: ${thing5 === thing6}`);
     expect(thing6).not.toBe(thing5);
     expect(lazy.lastLoadTime).toBeGreaterThan(startMs);
-    done();
   });
 
-  it('can transform a thing', async (done) => {
+  it('can transform a thing', async () => {
     let counter = 0;
     const lazy = new LazyProvider(() => sleep(100).then(() => { counter += 1; return counter; }), 1).transform((num) => `The number is ${num}`);
 
@@ -43,7 +42,6 @@ describe('the provider tools', () => {
     // third value should pickup the update
     const str3 = await sleep(200).then(() => lazy.get());
     expect(str3).toBe('The number is 2');
-    done();
   });
 
   it('does not cache when ttl is zero', (done) => {
@@ -63,13 +61,12 @@ describe('the provider tools', () => {
     provider.get().then(handler);
   });
 
-  it('supports singletons', async (done) => {
+  it('supports singletons', async () => {
     const thing = 'frickjack';
     const provider = singletonProvider(() => thing);
     const thing1 = await provider.get();
     const thing2 = await provider.get();
     expect(thing1).toBe(thing2);
     expect(thing).toBe(thing1);
-    done();
   });
 });

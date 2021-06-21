@@ -16,6 +16,7 @@ module.exports = function(config) {
       { pattern: 'web/lib/appContext/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/arrivalPie/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/authMgr/**/*.js', type: 'module', included: false },
+      { pattern: 'web/lib/littleHeader/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/littleDropDown/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/styleGuide/**/*.js', type: 'module', included: false },
       { pattern: 'web/lib/test/**/*.js', type: 'module', included: false },

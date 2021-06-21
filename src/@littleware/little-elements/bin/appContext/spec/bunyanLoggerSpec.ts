@@ -3,9 +3,8 @@ import { getLogger } from '../bunyanLogger.js';
 describe('the bunyan logger', () => {
   let logger = null;
 
-  beforeAll(async (done) => {
+  beforeAll(async () => {
     logger = await getLogger();
-    done();
   });
 
   it('writes logs', () => {

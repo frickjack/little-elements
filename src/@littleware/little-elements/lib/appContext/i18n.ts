@@ -1,4 +1,9 @@
+/* eslint-disable */
+// bare import prevents the typescript compiler from
+// removing a types-only import ...
+import '../../../../../i18next/i18next.min.js';
 import { i18n } from '../../../../../i18next/i18next.min.js';
+/* eslint-enable */
 
 import AppContext from '../../common/appContext/appContext.js';
 import { configure, providerName } from '../../common/appContext/i18n.js';

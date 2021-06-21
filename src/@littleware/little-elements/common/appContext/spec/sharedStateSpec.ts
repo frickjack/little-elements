@@ -11,15 +11,14 @@ interface Tools {
 describe('the sharedState helper', () => {
   let tools: Tools = null;
 
-  beforeAll(async (done) => {
-    const cx = await AppContext.get();
-    cx.onStart(
+  beforeAll((done) => {
+    AppContext.get().then((cx) => cx.onStart(
       { bus: EventBus.providerName, state: SharedState.providerName },
       async (toolBox) => {
         tools = (await getTools(toolBox)) as Tools;
         done();
       },
-    );
+    ));
   });
 
   it('integrates with the app context', () => {
@@ -29,14 +28,13 @@ describe('the sharedState helper', () => {
 
   const testKeyPrefix = 'lw-test/shardStateSpec';
 
-  it('initializes empty state', async (done) => {
+  it('initializes empty state', async () => {
     const testKey = `${testKeyPrefix}/init`;
     const state = await tools.state.getState(testKey);
     expect(state).toEqual({});
-    done();
   });
 
-  it('triggers events on state change', async (done) => {
+  it('triggers events on state change', async () => {
     const testKey = `${testKeyPrefix}/change`;
     const testValue = { whatever: 'bla bla', boris: 'turkey' };
     const listenKey = `lw-sc:${testKey}`;
@@ -55,6 +53,5 @@ describe('the sharedState helper', () => {
     });
     expect(newValue).toEqual(testValue);
     await doneBarrier.wait();
-    done();
   });
 });

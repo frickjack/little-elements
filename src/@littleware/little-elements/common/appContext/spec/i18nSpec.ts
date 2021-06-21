@@ -3,12 +3,12 @@ import { getI18n } from '../i18n.js';
 describe('appContext i18n support', () => {
   let i18n = null;
 
-  beforeAll(async (done) => {
+  beforeAll(async () => {
     i18n = await getI18n();
-    done();
+    expect(i18n).toBeTruthy();
   });
 
-  it('can apply en translations from the little-elements package', async (done) => {
+  it('can apply en translations from the little-elements package', async () => {
     expect(i18n).not.toBeNull();
     const tr = await i18n.getFixedT(null, ['little-elements']);
     expect(i18n.t('ok')).toBe('ok');
@@ -18,6 +18,5 @@ describe('appContext i18n support', () => {
     // without explicit namespace
     expect(i18n.t('test')).toBe('whatever');
     expect(tr('test')).toBe('for the test case');
-    done();
   });
 });
