@@ -196,7 +196,7 @@ appContext.get().then(
 ## Example
 
 The little-elements package leverages the asynchronous toolbox pattern in
-its [authentication UX](https://github.com/frickjack/little-elements/tree/master/src/%40littleware/little-elements/lib/authMgr) (signin, signout).
+its [authentication UX](https://github.com/frickjack/little-elements/tree/main/src/%40littleware/little-elements/lib/authMgr) (signin, signout).
 The authn system relies
 on interactions between several modules.
 
