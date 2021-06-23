@@ -6,9 +6,14 @@ export const links = html`
 <link href="/modules/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" />
 `;
 
+/**
+ * see https://www.smashingmagazine.com/2014/07/bem-methodology-for-small-projects/ 
+ * see Notes/explanation/littleUX.md
+ * 
+ * TODO: add rules for <code>/<pre> blocks, mono font
+ */
 export const css = html`
 <style id="styleGuide_css">
-/* see https://www.smashingmagazine.com/2014/07/bem-methodology-for-small-projects/ */
 
 * {
     box-sizing: border-box;
@@ -27,14 +32,14 @@ export const css = html`
     --lw-nav-border-color: #0BDAF7;
     --lw-nav-bg-gradient: linear-gradient(var(--lw-header-background-color), #f0fdff);
     --lw-sec1-border-color: #bb38b7;
-    --lw-sec1-bg-gradient: linear-gradient(var(--lw-header-background-color), #fad7f6);
+    --lw-sec1-bg-gradient: linear-gradient(var(--lw-primary-bg-color), #fad7f6);
     --lw-sec2-border-color: #0bf749;
-    --lw-sec2-bg-gradient: linear-gradient(var(--lw-header-background-color), #f1fff1);
+    --lw-sec2-bg-gradient: linear-gradient(var(--lw-primary-bg-color), #f1fff1);
 }
 
 body {
     font-family: var(--lw-primary-font-family);
-    color: var(--lw-foreground-color);
+    color: var(--lw-primary-text-color);
     background-color: var(--lw-whitespace-bg-color);
     width: 100%;
     min-width: 320px;
@@ -43,6 +48,7 @@ body {
 }
 
 h1,h2,h3,h4 {
+    color: var(--lw-secondary-text-color);
     font-weight: normal;
     font-family: var(--lw-secondary-font-family);
     margin-top: 10px;
@@ -52,16 +58,19 @@ h1,h2,h3,h4 {
 header {
     font-family: var(--lw-secondary-font-family);
     background-color: var(--lw-secondary-bg-color);
+    color: var(--lw-secondary-text-color);
 }
 
 footer {
     font-family: var(--lw-secondary-font-family);
     background-color: var(--lw-secondary-bg-color);
+    color: var(--lw-secondary-text-color);
 }
 
 section {
     font-family: var(--lw-primary-font-family);
     background-color: var(--lw-primary-bg-color);
+    color: var(--lw-primary-text-color);
     padding: 10px 5px;
 }
 
