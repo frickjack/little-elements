@@ -14,7 +14,7 @@
   "dependencies": {
     "bunyan": "^1.8.14",
     "@fortawesome/fontawesome-free": "^5.15.3",
-    "i18next": "^19.7.0",
+    "i18next": "^26.3.4",
     "lit-html": "^1.4.1",
     "node-fetch": "^2.6.1",
     "purecss": "^2.0.6"
